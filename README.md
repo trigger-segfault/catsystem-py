@@ -8,3 +8,9 @@ Work-in-progress library created in unison with reversing the CatSystem 1 and 2 
 
 
 This library is heavily tied to [TriggersTools.CatSystem2](https://github.com/trigger-segfault/TriggersTools.CatSystem2), and more importantly, the repo's [Wiki knowledge base](https://github.com/trigger-segfault/TriggersTools.CatSystem2/wiki).
+
+***
+
+This is the work of reverse engineering the CatSystem 2 (and then additionally CatSystem 1) engine. Although the original implementations were not in Python. Python and the interactive shell have been essential in interpreting raw data and most importantly prototyping everything that comes after.
+
+There is no external documentation to this library, and there never will be. Good luck...
