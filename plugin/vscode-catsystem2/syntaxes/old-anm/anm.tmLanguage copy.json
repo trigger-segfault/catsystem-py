@@ -1,0 +1,299 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Anm",
+  "fileTypes": [
+    "anmtxt"
+  ],
+	"patterns": [
+		{
+			"include": "#comment"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#captures"
+		},
+    {
+      "include": "#opcodes"
+    },
+    {
+      "include": "#constant"
+    },
+    {
+      "include": "#numerics"
+    },
+    {
+      "include": "#tokens"
+    },
+    {
+      "include": "#checks"
+    },
+    {
+      "include": "#groups"
+    },
+    {
+      "include": "#quantifiers"
+    }
+	],
+	"repository": {
+    "comment": {
+      "patterns": [
+        {
+					"captures": {
+						"1": {
+							"name": "meta.toc-list.banner.block.anm"
+						}
+					},
+					"match": "^/\\* =(\\s*.*?)\\s*= \\*/$\\n?",
+					"name": "comment.block.anm"
+				},
+				{
+					"begin": "/\\*",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.comment.begin.anm"
+						}
+					},
+					"end": "\\*/",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.comment.end.anm"
+						}
+					},
+					"name": "comment.block.anm"
+				},
+				{
+					"match": "\\*/.*\\n",
+					"name": "invalid.illegal.stray-comment-end.anm"
+				},
+				{
+					"begin": "(^[ \\t]+)?(?=//)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.whitespace.comment.leading.cpp"
+						}
+					},
+					"end": "(?!\\G)",
+					"patterns": [
+						{
+							"begin": "//",
+							"beginCaptures": {
+								"0": {
+									"name": "punctuation.definition.comment.cpp"
+								}
+							},
+							"end": "(?=\\n)",
+							"name": "comment.line.double-slash.cpp"
+						}
+          ]
+        }
+      ]
+    },
+		"strings": {
+			"name": "string.regexp",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.anm",
+					"match": "\\\\."
+				}
+			]
+		},
+    "line": {
+      "begin": "^\\s*",
+      "end": "\\s*?$",
+      "patterns": [
+        {
+          "name": "keyword.control",
+          "match": "(set|loop|jump|if|ife|ifn|ifg|ifs|ifge|ifse|max|blend|disp|pos|wait|add|sub)\\b"
+        }
+      ]
+    },
+    "expression": {
+      "name": "asada",
+      "contentName": "asdasdas",
+      "begin": "(?<=^\\s*)(set|loop|jump|if|ife|ifn|ifg|ifs|ifge|ifse|max|blend|disp|pos|wait|add|sub)(?=\\s|$)",
+      "end": "(?=\\s*$)",
+      "captures": {
+        "1": 
+      },
+      "match": "(?<=^\\s*)(set)(?:$|\\s(?:(?:(\\d+)|(@\\d+)|([A-Za-z_][A-Za-z_0-9]*))(?:\\s+(?:(\\d+)|(@\\d+)|([A-Za-z_][A-Za-z_0-9]*))(?:\\s+(?:(\\d+)|(@\\d+)|([A-Za-z_][A-Za-z_0-9]*)))?)?)?(?=\\s|$))"
+      "patterns": [
+        {
+          "name": "keyword.control",
+          "match": "(?<=^\\s*)(set|loop|jump|if|ife|ifn|ifg|ifs|ifge|ifse|max|blend|disp|pos|wait|add|sub)(?=\\s|$)",
+          "patterns": [
+
+          ]
+        }
+      ]
+    },
+    "variable.parameter": {
+      "name": "variable.parameter",
+      "match": "(\\d+)|(@\\d+)|([A-Za-z_][A-Za-z_0-9]*)",
+      "captures": {
+        "1": {
+          "name": "constant.numeric"
+        },
+        "2": {
+          "name": "variable.other"
+        },
+        "3": {
+          "name": "constant.language"
+        }
+      }
+    },
+    "keyword": {
+      "name": "keyword.control",
+      "match": "(?<=^\\s*)(set|loop|jump|if|ife|ifn|ifg|ifs|ifge|ifse|max|blend|disp|pos|wait|add|sub)(?=\\s|$)",
+    },
+    "functions": {
+      "name": "keyword",
+      "begin": "^\\s*(set|loop|jump|if|ife|ifn|ifg|ifs|ifge|ifse|max|blend|disp|pos|wait|add|sub)(?:\\s|\\b|^)",
+      "end": ""
+    },
+		"captures": {
+			"name": "variable",
+			"begin": "'",
+			"end": "'",
+			"patterns": [
+				{
+					"name": "constant.character.escape.anm",
+					"match": "\\\\."
+				}
+			]
+		},
+    "variable.parameter2": {
+      "contentName": "asda",
+      "begin": "",
+      "end": "",
+      "captures": {
+        "0": {"name"}
+      }
+    },
+    "variable.parameter.numeric": {
+      "name": "variable"
+    }
+    "parameters": {
+      "name": "variable.parameter",
+      "patterns": [
+        {
+          "name": "constant.numeric",
+        },
+        {
+          "include": "#number",
+          "name": "variable"
+        },
+        {
+          "include": "#number",
+          "name": "variable"
+        }
+      ]
+    }
+    "number": {
+      "name": "constant.numeric",
+      "match": "(?<=\\s|^)\\d+(?=\\s|$)"
+    },
+    "variable": {
+      "name": "constant.numeric",
+      "match": "(?<=\\s|^)\\d+(?=\\s|$)"
+    },
+    "constant": {
+      "name": "constant.numeric",
+      "match": "(?<=\\s|^)\\d+(?=\\s|$)",
+      "patterns": [
+        {
+          "name": "constant.numeric.anm",
+          "match": "(?<=\\s|^)ttt\\d+(?=\\s|$)"
+        }
+      ]
+    },
+    "numerics": {
+      "patterns": [
+        {
+          "name": "meta.preprocessor",
+          "match": "(?:\\b|^)#\\s*[A-Za-z_][A-Za-z_0-9]*\\b"
+        },
+        {
+          "name": "variable.parameter",
+          "match": "(?<=\\s|^)@\\d+(?=\\s|$)"
+        },
+        {
+          "name": "variable.name",
+          "match": "(?<=\\s|^)[A-Za-z_][A-Za-z_0-9]*(?=\\s|$)"
+        }
+      ]
+    },
+    "opcodes": {
+      "patterns": [
+        {
+          "name": "keyword.control",
+          "match": "^\\s*(set|loop|jump|if|ife|ifn|ifg|ifs|ifge|ifse|max|blend|disp|pos|wait|add|sub)\\b"
+        },
+        {
+          "name": "keyword.control",
+          "match": "(?<=\\s|^)[a-z][a-z1-9.]*(?=[\\s>]|$)"
+        },
+        {
+          "name": "keyword",
+          "match": "(?<=\\s|^)\\%[a-z][a-z1-9.]*(?=[\\s>]|$)"
+        }
+      ]
+    },
+    "tokens": {
+      "patterns": [
+        {
+          "name": "keyword.control.anchor.regexp",
+          "match": "\\^"
+        },
+        {
+          "name": "keyword.control.anchor.regexp",
+          "match": "\\$"
+        },
+        {
+          "name": "keyword.control.anchor.regexp",
+          "match": "\\."
+        }
+      ]
+    },
+    "checks": {
+      "patterns": [
+        {
+          "name": "keyword.control.anchor.regexp",
+          "match": "\\<[a-z]*"
+        },
+        {
+          "name": "keyword.control.anchor.regexp",
+          "match": "\\>"
+        }
+      ]
+    },
+    "groups": {
+      "patterns": [
+        {
+          "name": "punctuation.definition.group.regexp",
+          "match": "\\((\\?:?)?"
+        },
+        {
+          "name": "punctuation.definition.group.regexp",
+          "match": "\\)"
+        },
+        {
+          "name": "punctuation.definition.group.regexp",
+          "match": "\\|"
+        }
+      ]
+    },
+    "quantifiers": {
+      "patterns": [
+        {
+          "name": "keyword.operator.quantifier.regexp",
+          "match": "([?*+]|\\{\\d+((,)\\d*)?\\})\\??"
+        }
+      ]
+    }
+	},
+	"scopeName": "source.anm"
+}

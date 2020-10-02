@@ -1,0 +1,86 @@
+{
+  "name": "vscode-catsystem2",
+  "displayName": "CatSystem 2 Script Types",
+  "description": "CatSystem 2 Script languages support for VS Code",
+  "version": "0.0.1",
+	"publisher": "trigger_segfault",
+  "license": "LICENSE.md",
+  "readme": "README.md",
+  "icon": "icon.png",
+  "engines": {
+    "vscode": "^1.30.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+	"galleryBanner": {
+		"color": "#003d4c",
+    "theme": "dark"
+  },
+  "homepage": "https://github.com/trigger-segfault/TriggersTools.CatSystem2/wiki",
+  "author": {
+    "name": "trigger_segfault",
+    "email": "triggerstools@gmail.com",
+    "url": "https://trigger-segfault.github.io"
+  },
+  "repository": {
+		"type": "git",
+		"url": "https://github.com/trigger-segfault/TriggersTools.CatSystem2.git"
+	},
+	"keywords": [
+    "vscode",
+    "cs2",
+		"catsystem2",
+    "cst",
+    "scene",
+    "script",
+    "anm",
+    "animation",
+    "dfn",
+    "definition",
+    "fes",
+    "front",
+    "end",
+    "screen"
+	],
+  "contributes": {
+    "languages": [{
+      "id": "catsystem2-anm",
+      "aliases": ["CatSystem 2 Animation Script", "anm"],
+      "extensions": [".anm"],
+      "configuration": "./catsystem2-anm-language-configuration.json"
+    },{
+      "id": "catsystem2-cst",
+      "aliases": ["CatSystem 2 Scene Script", "cst", "catscene"],
+      "extensions": [".cst"],
+      "configuration": "./catsystem2-cst-language-configuration.json"
+    },{
+      "id": "catsystem2-fes",
+      "aliases": ["CatSystem 2 Front End Script", "fes"],
+      "extensions": [".fes"],
+      "configuration": "./catsystem2-fes-language-configuration.json"
+    },{
+      "id": "catsystem2-dfn",
+      "aliases": ["CatSystem 2 Definition", "dfn"],
+      "extensions": [".dfn"],
+      "configuration": "./catsystem2-dfn-language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "catsystem2-anm",
+      "scopeName": "source.catsys.anm",
+      "path": "./syntaxes/catsystem2-anm.tmLanguage.json"
+    },{
+      "language": "catsystem2-cst",
+      "scopeName": "source.catsys.cst",
+      "path": "./syntaxes/catsystem2-cst.tmLanguage.json"
+    },{
+      "language": "catsystem2-fes",
+      "scopeName": "source.catsys.fes",
+      "path": "./syntaxes/catsystem2-fes.tmLanguage.json"
+    },{
+      "language": "catsystem2-dfn",
+      "scopeName": "source.catsys.dfn",
+      "path": "./syntaxes/catsystem2-dfn.tmLanguage.json"
+    }]
+  }
+}

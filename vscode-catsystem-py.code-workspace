@@ -1,0 +1,385 @@
+{
+  //////////////////////////////////////////////////////////
+  // REFERENCE LINKS
+  // VSCode Settings JSON: <https://code.visualstudio.com/docs/getstarted/settings>
+  // HLSL Language: <https://en.wikipedia.org/wiki/High-Level_Shading_Language>
+  // Cg Language: <https://en.wikipedia.org/wiki/Cg_(programming_language)>
+  // DirectX: <https://en.wikipedia.org/wiki/DirectX>
+
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+
+  //////////////////////////////////////////////////////////
+  // ABOUT WORKSPACE SETTINGS
+  //
+  // Many configuration settings are personal preference,
+  // however others for CatSystem 1+2 files are recommended,
+  // or even outright mandatory!
+  //
+  // To show this, settings of importance are postfixed with
+  // the comments: "//!IMPORTANT", "//!useful", and "//!QoL".
+
+  "settings": {
+
+    /* Editor defaults */
+    "editor.wordWrap": "on",
+
+    ////////////////////////////////////////////////////////
+    // PROGRAMMING FILE TYPES
+
+    /* Editor filetypes */
+    "[python]": { /* Python catsys library */
+      "editor.insertSpaces": true,
+      "editor.tabSize": 4,
+      "editor.wordWrap": "on",
+      "files.encoding": "utf8"
+    },
+    "[java]": { /* Ghidra: Plugin/standalone scripts */
+      "editor.insertSpaces": false,
+      "editor.tabSize": 4,
+      "editor.wordWrap": "on",
+      "files.encoding": "utf8"
+    },
+    "[c]": { /* CatSystem 1+2: decompiled C code */
+      "editor.insertSpaces": true,
+      "editor.tabSize": 4,
+      "editor.wordWrap": "on",
+      "files.encoding": "utf8"
+    },
+    "[cpp]": { /* CatSystem 1+2: Windmill Shader script, decompiled C++ code */
+      "editor.insertSpaces": true,
+      "editor.tabSize": 4,
+      "editor.wordWrap": "on",
+      "files.encoding": "utf8"
+    },
+    "[hlsl]": { /* CatSystem 1+2: Windmill Shader script */
+      "editor.insertSpaces": false,
+      "editor.tabSize": 4,
+      "editor.wordWrap": "on",
+      "files.encoding": "shiftjis"  //!Useful: rare case of CJK comment with wsd.exe?
+    },
+    
+
+    ////////////////////////////////////////////////////////
+    // CONFIGURATION+TEXT DATA FILE TYPES
+
+    "[json|jsonc]": {
+      /* JSON files like you */
+      "editor.insertSpaces": true,
+      "editor.tabSize": 2,
+      "editor.wordWrap": "on",
+      "files.encoding": "utf8"
+    },
+    "[xml|html|xhtml]": {
+      /* startup.xml and manual pages */
+      "editor.insertSpaces": true,
+      "editor.tabSize": 2,
+      "editor.wordWrap": "on",
+      "files.autoGuessEncoding": true
+    },
+    "[xml]": { /* CatSystem 1+2: startup.xml and friends (config.int) */
+      /* startup.xml and manual pages */
+      "editor.insertSpaces": true,
+      "editor.tabSize": 2,
+      "editor.wordWrap": "on",
+      "files.autoGuessEncoding": true
+    },
+    "[ini|properties]": { /* CatSystem 1+2: Early startup and setup files */
+      "editor.insertSpaces": true,
+      "editor.tabSize": 4,
+      "editor.wordWrap": "on"
+    },
+    "[yaml]": {
+      "editor.insertSpaces": true,
+      "editor.tabSize": 4,
+      "editor.wordWrap": "on"
+    },
+    "[csv]": {
+      "editor.insertSpaces": false,
+      "editor.tabSize": 4,
+      "editor.wordWrap": "on",
+      "files.autoGuessEncoding": true
+    },
+    
+    ////////////////////////////////////////////////////////
+    // CATCH-ALL PLAIN TEXT FILES
+
+    "[plaintext]": {
+      /* CatSystem assume filetypes settings */
+      "editor.insertSpaces": false,
+      "editor.tabSize": 4,
+      "editor.wordWrap": "on",
+      /* Quality of Life */
+      "files.encoding": "shiftjis"
+    },
+
+    ////////////////////////////////////////////////////////
+    // CATSYSTEM 1+2 FILE TYPES
+
+    //NOTE: Tabs are mandatory for many Cs2 script formats, especially CST
+
+    /* CatSystem 2 file types */
+		"[anm]": {
+      /* older format extension for ANM */
+			"editor.insertSpaces": false,
+			"editor.tabSize": 4,
+      "editor.wordWrap": "on",
+			"files.encoding": "shiftjis"
+		},
+		"[dfn]": {
+      /* older format extension for DFN */
+			"editor.insertSpaces": false,
+			"editor.tabSize": 4,
+      "editor.wordWrap": "on",
+      "files.encoding": "shiftjis"
+		},
+		"[catsystem2-cst]": { /* CatSystem 2: CatScene script */
+			"editor.insertSpaces": false, //!IMPORTANT: part of format (required by mc.exe)
+			"editor.tabSize": 4,
+      "editor.wrappingIndent": "same",
+      "editor.wordWrap": "on",      //!QoL: long message strings
+			"files.encoding": "shiftjis"  //!Useful: required by mc.exe
+		},
+		"[catsystem2-fes]": { /* CatSystem 2: Front End script */
+			"editor.insertSpaces": false, //!Useful: part of format? (required by fes.exe?)
+			"editor.tabSize": 4,
+      "editor.wordWrap": "on",
+			"files.encoding": "shiftjis"  //!Useful: required by fes.exe
+		},
+		"[catsystem2-anm]": { /* CatSystem 2: Animation script */
+			"editor.insertSpaces": false, //!Useful: part of format? (required by ac.exe?)
+			"editor.tabSize": 4,
+      "editor.wordWrap": "on",
+			"files.encoding": "shiftjis"  //!Useful: rare case of CJK comment with ac.exe
+		},
+		"[catsystem2-dfn]": { /* CatSystem 2: Definition file */
+			"editor.insertSpaces": false,
+			"editor.tabSize": 4,
+      "editor.wordWrap": "on",
+			"files.encoding": "shiftjis"  //!IMPORTANT: required by cs2.exe, bootmenu.exe, install.exe, uninst.exe, etc.
+    },
+		"[catsystem2-language]": {
+			"editor.insertSpaces": false,
+			"editor.tabSize": 4,
+      "editor.wordWrap": "on",      //!QoL: long translation strings
+			"files.encoding": "utf8"      //!IMPORTANT: always read in UTF-8 by cs2.exe and bootmenu.exe
+    },
+
+    ////////////////////////////////////////////////////////
+
+    "files.associations": {
+      //////////////////////////////////////////////////////
+      // CATSYSTEM 1+2 TEXT FILE ASSOCIATIONS
+
+			/* CatSystem 2: CatScene script */
+			"**/cst/**.txt": "catsystem2-cst",
+			"**/scene/**.txt": "catsystem2-cst",
+			"*.cst.txt": "catsystem2-cst",
+			"*.cst-script": "catsystem2-cst",
+      // "**/fes/*.h": "catsystem2-fes",
+      // "**/fes/&macro.txt": "catsystem2-fes",
+			
+			/* CatSystem 2: Front End script */
+			"**/fes/*.txt": "catsystem2-fes",
+			"**/fes/**/*.txt": "catsystem2-fes",
+			"*.fes.txt": "catsystem2-fes",
+      "*.fes-script": "catsystem2-fes",
+      // "**/fes/*.h": "catsystem2-fes",
+      // "**/fes/&macro.txt": "catsystem2-fes",
+
+			/* CatSystem 2: Animation script */
+			"**/animation/**.txt": "anm",
+			"**/anm/**.txt": "anm",
+			"**/image*/**.txt": "anm",
+			"*.anm.txt": "anm",
+			"*.anm-script": "anm",
+			
+			/* CatSystem 2: Windmill Shader source */
+      "*.wss": "cpp",
+      "**/ptcl/*.h": "cpp",
+      "**/ptcl/*.def": "cpp",
+
+			/* CatSystem 2: Definition file */
+			"*.dfn": "catsystem2-dfn",
+			/* CatSystem 1: Definition file (ini|properties) */
+			// "cs.def": "properties",
+			/* CatSystem 1: Integration archive List file (newline-speparated relative paths) */
+			"*.lst": "plaintext",
+      
+      /* CatSystem 1+2: Game CD identifier text */
+      "*.id": "plaintext",
+
+      /* CatSystem 2: Save games and persistent save binary data */
+      "save[0-9][0-9][0-9][0-9].dat": "binary",
+      "savegen.dat": "binary",
+
+      "**/tag/*.tag": "binary",
+      "**/sound/*.tag": "binary",
+      "**/sound/**/*.tag": "binary",
+
+			/* CatSystem 2: E-Mote! engine m2config files (no related formats?) */
+			"**/m2config/*.def": "plaintext",
+			"**/m2config/*.dif": "plaintext",
+			"**/m2config/*.inc": "plaintext",
+			"**/m2config/*.cnf": "plaintext",
+			"**/m2config/*.pfl": "plaintext",
+      "**/m2config/*.inf": "plaintext",
+      "**/m2config/action.def": "plaintext", // single instance
+      "**/m2config/spline.inf": "plaintext", // single instance
+      "**/m2config/m2view.cnf": "plaintext", // single instance
+      
+      /* CatSystem 2: Background tones Table file (no related formats?) */
+      "*.tbl": "plaintext",
+      
+      /* CatSystem 2: Assembly-like binary scripts */
+      "*.kcs": "bin",
+      /* CatSystem 1: Assembly-like binary scripts */
+      "*.csx": "bin",
+      
+      /* CatSystem 2: PE file Susie plugins */
+      "*.spi": "exe",
+      /* CatSystem 2: PE file binary shaders? */
+      "*.ppi": "exe",
+
+      //////////////////////////////////////////////////////
+      // STANDARD FILE TYPES/EXTENSIONS
+      
+			/* Comma Separated Values: Used for nametables, etc. */
+			"*.csv": "csv",
+
+			/* CatSystem 2: Early definition file */
+      "startup.ini": "properties",
+      "setup.ini": "properties",
+      "cs.def": "properties",
+      // "*.ini": "ini",
+      
+      /* CatSystem 2: Language translation file (format with $0000-0000$) */
+      "language*.txt": "plaintext",
+      "gamelangtbl*.txt": "plaintext",
+
+
+			/* CatSystem 2: Binary key file formats */
+			/* 64-byte key variations using V_CODE and key/seed modifiers */
+			"direct.dat": "key",
+			"cs2_debug_key.dat": "key",
+			"key.dat": "key",
+			"key_com.dat": "key",
+			/* 32-byte filenames followed by 16-byte unknown hashes (multiple entries per file) */
+			"cs2_gk.dat": "key",
+
+      "adv.xml": "xml",
+      "bgmlist.xml": "xml",
+      "cursor.xml": "xml",
+      "gamedef.xml": "xml",
+      "hist.xml": "xml",
+      "localstr.xml": "xml",
+      "meswnd*.xml": "xml",
+      "setup.xml": "xml",
+      "sndanm.xml": "xml",
+      "soundconf.xml": "xml",
+			"startup.xml": "xml",
+      "startup_master.xml": "xml",
+      "thumbblur.xml": "xml",
+      "vram.xml": "xml",
+
+      "nametable.csv": "csv",
+      
+      //////////////////////////////////////////////////////
+      // OTHER
+
+			"*.cs": "csharp",
+      "*.h": "cpp",
+      "*.h2": "cpp",
+      "*.tcc": "c",
+      "cstddef": "cpp",
+      "array": "cpp",
+      "atomic": "cpp",
+      "cctype": "cpp",
+      "clocale": "cpp",
+      "cmath": "cpp",
+      "codecvt": "cpp",
+      "cstdarg": "cpp",
+      "cstdint": "cpp",
+      "cstdio": "cpp",
+      "cstdlib": "cpp",
+      "ctime": "cpp",
+      "cwchar": "cpp",
+      "cwctype": "cpp",
+      "deque": "cpp",
+      "unordered_map": "cpp",
+      "vector": "cpp",
+      "exception": "cpp",
+      "algorithm": "cpp",
+      "memory": "cpp",
+      "memory_resource": "cpp",
+      "optional": "cpp",
+      "string": "cpp",
+      "string_view": "cpp",
+      "system_error": "cpp",
+      "tuple": "cpp",
+      "type_traits": "cpp",
+      "utility": "cpp",
+      "fstream": "cpp",
+      "initializer_list": "cpp",
+      "iosfwd": "cpp",
+      "iostream": "cpp",
+      "istream": "cpp",
+      "limits": "cpp",
+      "new": "cpp",
+      "ostream": "cpp",
+      "sstream": "cpp",
+      "stdexcept": "cpp",
+      "streambuf": "cpp",
+      "typeinfo": "cpp",
+      "cstring": "cpp",
+      "chrono": "cpp",
+      "ratio": "cpp",
+      "bit": "cpp",
+      "functional": "cpp",
+      "iterator": "cpp",
+      "numeric": "cpp",
+      "random": "cpp",
+      "cinttypes": "cpp"
+    },
+		"vsicons.associations.files": [
+			{
+				"icon": "config",
+				"extensions": ["dfn"]
+			},
+			{
+				"icon": "package",
+				"extensions": ["int"]
+			},
+			{
+				"icon": "inc",
+				"extensions": ["inc", "inf"]
+			},
+			{
+				"icon": "vueconfig",
+				"extensions": ["cnf", "pfl"]
+			},
+			{
+				// "icon": "image",
+				"icon": "elm",
+				"extensions": ["hg3", "hg2"]
+			},
+			{
+				// "icon": "script",
+				"icon": "docz",
+				"extensions": ["anm", "cst", "fes"]
+			},
+			{
+				"icon": "layout",
+				"extensions": ["fes"]
+			},
+			{
+				// "icon": "sbt",
+				"icon": "janet",
+				"extensions": ["psz"]
+			}
+		]
+  }
+}

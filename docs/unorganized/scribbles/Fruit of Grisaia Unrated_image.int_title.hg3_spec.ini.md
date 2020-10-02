@@ -1,0 +1,2434 @@
+#------------------------------------------------------------------------
+# Fruit of Grisaia Unrated/image.int/title.hg3
+#
+# Specification for a User-Interface HG-3 image.
+# This has numerous frames with different IDs, each ID has a separate use.
+# This is not an animation, unlike other HG-3 images.
+#------------------------------------------------------------------------
+
+[title.hg3]
+#### HG-3 HEADER ####
+HG-3_MAGIC="HG-3"
+HEADERSIZE=12   # (always 12)
+HG-3_TYPE=0x300   # (unk, always 0x300)
+
+
+### HG-3[title.hg3] FRAMES ###
+# (FRAME START)
+# (frame start=12 (HEADERSIZE))
+FRAME_NEXT_OFFSET=1104   # (12)
+FRAME_ID=0401   # (decimal)
+
+## FRAME[0401] TAGS ##
+# (tag start=20 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=100
+HEIGHT=37
+BIT_DEPTH=32
+OFFSET_X=365
+OFFSET_Y=354
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=365
+BASE_Y=354
+
+# (tag start=76 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=1020
+TAG_LENGTH=1004
+IMG_UNK=37   # (seems to always be 0)
+IMG_HEIGHT=37
+IMG_DATA_LENGTH=457
+IMG_ORIG_DATA_LENGTH=6330
+IMG_CMD_LENGTH=523
+IMG_ORIG_CMD_LENGTH=512
+IMG_DATA=byte[457] --zlib-> byte[6330]
+IMG_CMD=byte[523] --zlib-> byte[512]
+# (tag start=1096 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=1116 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=1104   # (1116)
+FRAME_ID=0400   # (decimal)
+
+## FRAME[0400] TAGS ##
+# (tag start=1124 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=100
+HEIGHT=37
+BIT_DEPTH=32
+OFFSET_X=563
+OFFSET_Y=354
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=563
+BASE_Y=354
+
+# (tag start=1180 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=1020
+TAG_LENGTH=1004
+IMG_UNK=37   # (seems to always be 0)
+IMG_HEIGHT=37
+IMG_DATA_LENGTH=457
+IMG_ORIG_DATA_LENGTH=6330
+IMG_CMD_LENGTH=523
+IMG_ORIG_CMD_LENGTH=512
+IMG_DATA=byte[457] --zlib-> byte[6330]
+IMG_CMD=byte[523] --zlib-> byte[512]
+# (tag start=2200 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=2220 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (2220)
+FRAME_ID=1304   # (decimal)
+
+## FRAME[1304] TAGS ##
+# (tag start=2228 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=59
+HEIGHT=27
+BIT_DEPTH=32
+OFFSET_X=483
+OFFSET_Y=461
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=483
+BASE_Y=461
+
+# (tag start=2284 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=27   # (seems to always be 0)
+IMG_HEIGHT=27
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=2351 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=2371 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (2371)
+FRAME_ID=1303   # (decimal)
+
+## FRAME[1303] TAGS ##
+# (tag start=2379 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=161
+HEIGHT=24
+BIT_DEPTH=32
+OFFSET_X=433
+OFFSET_Y=434
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=433
+BASE_Y=434
+
+# (tag start=2435 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=24   # (seems to always be 0)
+IMG_HEIGHT=24
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=2502 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=2522 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=152   # (2522)
+FRAME_ID=1302   # (decimal)
+
+## FRAME[1302] TAGS ##
+# (tag start=2530 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=273
+HEIGHT=25
+BIT_DEPTH=32
+OFFSET_X=376
+OFFSET_Y=403
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=376
+BASE_Y=403
+
+# (tag start=2586 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=68
+TAG_LENGTH=52
+IMG_UNK=25   # (seems to always be 0)
+IMG_HEIGHT=25
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=19
+IMG_ORIG_CMD_LENGTH=11
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[19] --zlib-> byte[11]
+# (tag start=2654 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=2674 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=152   # (2674)
+FRAME_ID=1301   # (decimal)
+
+## FRAME[1301] TAGS ##
+# (tag start=2682 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=182
+HEIGHT=25
+BIT_DEPTH=32
+OFFSET_X=423
+OFFSET_Y=371
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=423
+BASE_Y=371
+
+# (tag start=2738 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=68
+TAG_LENGTH=52
+IMG_UNK=25   # (seems to always be 0)
+IMG_HEIGHT=25
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=19
+IMG_ORIG_CMD_LENGTH=11
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[19] --zlib-> byte[11]
+# (tag start=2806 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=2826 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (2826)
+FRAME_ID=1300   # (decimal)
+
+## FRAME[1300] TAGS ##
+# (tag start=2834 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=132
+HEIGHT=24
+BIT_DEPTH=32
+OFFSET_X=447
+OFFSET_Y=341
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=447
+BASE_Y=341
+
+# (tag start=2890 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=24   # (seems to always be 0)
+IMG_HEIGHT=24
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=2957 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=2977 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (2977)
+FRAME_ID=1206   # (decimal)
+
+## FRAME[1206] TAGS ##
+# (tag start=2985 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=59
+HEIGHT=28
+BIT_DEPTH=32
+OFFSET_X=483
+OFFSET_Y=519
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=483
+BASE_Y=519
+
+# (tag start=3041 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=28   # (seems to always be 0)
+IMG_HEIGHT=28
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=3108 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=3128 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (3128)
+FRAME_ID=1205   # (decimal)
+
+## FRAME[1205] TAGS ##
+# (tag start=3136 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=114
+HEIGHT=27
+BIT_DEPTH=32
+OFFSET_X=457
+OFFSET_Y=491
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=457
+BASE_Y=491
+
+# (tag start=3192 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=27   # (seems to always be 0)
+IMG_HEIGHT=27
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=3259 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=3279 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (3279)
+FRAME_ID=1204   # (decimal)
+
+## FRAME[1204] TAGS ##
+# (tag start=3287 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=126
+HEIGHT=26
+BIT_DEPTH=32
+OFFSET_X=448
+OFFSET_Y=461
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=448
+BASE_Y=461
+
+# (tag start=3343 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=26   # (seems to always be 0)
+IMG_HEIGHT=26
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=3410 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=3430 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (3430)
+FRAME_ID=1203   # (decimal)
+
+## FRAME[1203] TAGS ##
+# (tag start=3438 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=106
+HEIGHT=26
+BIT_DEPTH=32
+OFFSET_X=458
+OFFSET_Y=431
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=458
+BASE_Y=431
+
+# (tag start=3494 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=26   # (seems to always be 0)
+IMG_HEIGHT=26
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=3561 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=3581 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (3581)
+FRAME_ID=1202   # (decimal)
+
+## FRAME[1202] TAGS ##
+# (tag start=3589 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=129
+HEIGHT=26
+BIT_DEPTH=32
+OFFSET_X=447
+OFFSET_Y=402
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=447
+BASE_Y=402
+
+# (tag start=3645 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=26   # (seems to always be 0)
+IMG_HEIGHT=26
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=3712 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=3732 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (3732)
+FRAME_ID=1201   # (decimal)
+
+## FRAME[1201] TAGS ##
+# (tag start=3740 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=106
+HEIGHT=27
+BIT_DEPTH=32
+OFFSET_X=459
+OFFSET_Y=371
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=459
+BASE_Y=371
+
+# (tag start=3796 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=27   # (seems to always be 0)
+IMG_HEIGHT=27
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=3863 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=3883 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (3883)
+FRAME_ID=1200   # (decimal)
+
+## FRAME[1200] TAGS ##
+# (tag start=3891 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=142
+HEIGHT=26
+BIT_DEPTH=32
+OFFSET_X=441
+OFFSET_Y=340
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=441
+BASE_Y=340
+
+# (tag start=3947 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=26   # (seems to always be 0)
+IMG_HEIGHT=26
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=4014 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=4034 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (4034)
+FRAME_ID=1105   # (decimal)
+
+## FRAME[1105] TAGS ##
+# (tag start=4042 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=102
+HEIGHT=25
+BIT_DEPTH=32
+OFFSET_X=463
+OFFSET_Y=491
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=463
+BASE_Y=491
+
+# (tag start=4098 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=25   # (seems to always be 0)
+IMG_HEIGHT=25
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=4165 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=4185 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (4185)
+FRAME_ID=1104   # (decimal)
+
+## FRAME[1104] TAGS ##
+# (tag start=4193 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=174
+HEIGHT=23
+BIT_DEPTH=32
+OFFSET_X=427
+OFFSET_Y=462
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=427
+BASE_Y=462
+
+# (tag start=4249 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=23   # (seems to always be 0)
+IMG_HEIGHT=23
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=4316 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=4336 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=150   # (4336)
+FRAME_ID=1103   # (decimal)
+
+## FRAME[1103] TAGS ##
+# (tag start=4344 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=61
+HEIGHT=22
+BIT_DEPTH=32
+OFFSET_X=482
+OFFSET_Y=433
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=482
+BASE_Y=433
+
+# (tag start=4400 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=66
+TAG_LENGTH=50
+IMG_UNK=22   # (seems to always be 0)
+IMG_HEIGHT=22
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=17
+IMG_ORIG_CMD_LENGTH=9
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[17] --zlib-> byte[9]
+# (tag start=4466 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=4486 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (4486)
+FRAME_ID=1102   # (decimal)
+
+## FRAME[1102] TAGS ##
+# (tag start=4494 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=84
+HEIGHT=24
+BIT_DEPTH=32
+OFFSET_X=473
+OFFSET_Y=403
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=473
+BASE_Y=403
+
+# (tag start=4550 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=24   # (seems to always be 0)
+IMG_HEIGHT=24
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=4617 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=4637 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (4637)
+FRAME_ID=1101   # (decimal)
+
+## FRAME[1101] TAGS ##
+# (tag start=4645 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=96
+HEIGHT=23
+BIT_DEPTH=32
+OFFSET_X=464
+OFFSET_Y=372
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=464
+BASE_Y=372
+
+# (tag start=4701 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=23   # (seems to always be 0)
+IMG_HEIGHT=23
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=4768 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=4788 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=151   # (4788)
+FRAME_ID=1100   # (decimal)
+
+## FRAME[1100] TAGS ##
+# (tag start=4796 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=94
+HEIGHT=24
+BIT_DEPTH=32
+OFFSET_X=466
+OFFSET_Y=342
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=466
+BASE_Y=342
+
+# (tag start=4852 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=67
+TAG_LENGTH=51
+IMG_UNK=24   # (seems to always be 0)
+IMG_HEIGHT=24
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=18
+IMG_ORIG_CMD_LENGTH=10
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[18] --zlib-> byte[10]
+# (tag start=4919 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=4939 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=5335   # (4939)
+FRAME_ID=0314   # (decimal)
+
+## FRAME[0314] TAGS ##
+# (tag start=4947 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=86
+HEIGHT=52
+BIT_DEPTH=32
+OFFSET_X=469
+OFFSET_Y=450
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=469
+BASE_Y=450
+
+# (tag start=5003 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=5251
+TAG_LENGTH=5235
+IMG_UNK=52   # (seems to always be 0)
+IMG_HEIGHT=52
+IMG_DATA_LENGTH=4098
+IMG_ORIG_DATA_LENGTH=8346
+IMG_CMD_LENGTH=1113
+IMG_ORIG_CMD_LENGTH=1102
+IMG_DATA=byte[4098] --zlib-> byte[8346]
+IMG_CMD=byte[1113] --zlib-> byte[1102]
+# (tag start=10254 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=10274 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=2610   # (10274)
+FRAME_ID=0304   # (decimal)
+
+## FRAME[0304] TAGS ##
+# (tag start=10282 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=59
+HEIGHT=27
+BIT_DEPTH=32
+OFFSET_X=483
+OFFSET_Y=461
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=483
+BASE_Y=461
+
+# (tag start=10338 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=2526
+TAG_LENGTH=2510
+IMG_UNK=27   # (seems to always be 0)
+IMG_HEIGHT=27
+IMG_DATA_LENGTH=1903
+IMG_ORIG_DATA_LENGTH=2740
+IMG_CMD_LENGTH=583
+IMG_ORIG_CMD_LENGTH=572
+IMG_DATA=byte[1903] --zlib-> byte[2740]
+IMG_CMD=byte[583] --zlib-> byte[572]
+# (tag start=12864 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=12884 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=10667   # (12884)
+FRAME_ID=0313   # (decimal)
+
+## FRAME[0313] TAGS ##
+# (tag start=12892 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=188
+HEIGHT=51
+BIT_DEPTH=32
+OFFSET_X=418
+OFFSET_Y=420
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=418
+BASE_Y=420
+
+# (tag start=12948 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=10583
+TAG_LENGTH=10567
+IMG_UNK=51   # (seems to always be 0)
+IMG_HEIGHT=51
+IMG_DATA_LENGTH=8401
+IMG_ORIG_DATA_LENGTH=17164
+IMG_CMD_LENGTH=2142
+IMG_ORIG_CMD_LENGTH=2135
+IMG_DATA=byte[8401] --zlib-> byte[17164]
+IMG_CMD=byte[2142] --zlib-> byte[2135]
+# (tag start=23531 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=23551 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=5198   # (23551)
+FRAME_ID=0303   # (decimal)
+
+## FRAME[0303] TAGS ##
+# (tag start=23559 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=161
+HEIGHT=24
+BIT_DEPTH=32
+OFFSET_X=433
+OFFSET_Y=434
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=433
+BASE_Y=434
+
+# (tag start=23615 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=5114
+TAG_LENGTH=5098
+IMG_UNK=24   # (seems to always be 0)
+IMG_HEIGHT=24
+IMG_DATA_LENGTH=3780
+IMG_ORIG_DATA_LENGTH=5746
+IMG_CMD_LENGTH=1294
+IMG_ORIG_CMD_LENGTH=1283
+IMG_DATA=byte[3780] --zlib-> byte[5746]
+IMG_CMD=byte[1294] --zlib-> byte[1283]
+# (tag start=28729 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=28749 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=17821   # (28749)
+FRAME_ID=0312   # (decimal)
+
+## FRAME[0312] TAGS ##
+# (tag start=28757 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=304
+HEIGHT=51
+BIT_DEPTH=32
+OFFSET_X=360
+OFFSET_Y=389
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=360
+BASE_Y=389
+
+# (tag start=28813 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=17737
+TAG_LENGTH=17721
+IMG_UNK=51   # (seems to always be 0)
+IMG_HEIGHT=51
+IMG_DATA_LENGTH=14179
+IMG_ORIG_DATA_LENGTH=31109
+IMG_CMD_LENGTH=3518
+IMG_ORIG_CMD_LENGTH=3544
+IMG_DATA=byte[14179] --zlib-> byte[31109]
+IMG_CMD=byte[3518] --zlib-> byte[3544]
+# (tag start=46550 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=46570 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=10953   # (46570)
+FRAME_ID=0302   # (decimal)
+
+## FRAME[0302] TAGS ##
+# (tag start=46578 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=273
+HEIGHT=25
+BIT_DEPTH=32
+OFFSET_X=376
+OFFSET_Y=403
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=376
+BASE_Y=403
+
+# (tag start=46634 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=10869
+TAG_LENGTH=10853
+IMG_UNK=25   # (seems to always be 0)
+IMG_HEIGHT=25
+IMG_DATA_LENGTH=8353
+IMG_ORIG_DATA_LENGTH=12416
+IMG_CMD_LENGTH=2476
+IMG_ORIG_CMD_LENGTH=2488
+IMG_DATA=byte[8353] --zlib-> byte[12416]
+IMG_CMD=byte[2476] --zlib-> byte[2488]
+# (tag start=57503 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=57523 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=12872   # (57523)
+FRAME_ID=0311   # (decimal)
+
+## FRAME[0311] TAGS ##
+# (tag start=57531 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=212
+HEIGHT=53
+BIT_DEPTH=32
+OFFSET_X=406
+OFFSET_Y=357
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=406
+BASE_Y=357
+
+# (tag start=57587 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=12788
+TAG_LENGTH=12772
+IMG_UNK=53   # (seems to always be 0)
+IMG_HEIGHT=53
+IMG_DATA_LENGTH=10156
+IMG_ORIG_DATA_LENGTH=21238
+IMG_CMD_LENGTH=2592
+IMG_ORIG_CMD_LENGTH=2608
+IMG_DATA=byte[10156] --zlib-> byte[21238]
+IMG_CMD=byte[2592] --zlib-> byte[2608]
+# (tag start=70375 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=70395 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=7646   # (70395)
+FRAME_ID=0301   # (decimal)
+
+## FRAME[0301] TAGS ##
+# (tag start=70403 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=182
+HEIGHT=25
+BIT_DEPTH=32
+OFFSET_X=423
+OFFSET_Y=371
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=423
+BASE_Y=371
+
+# (tag start=70459 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=7562
+TAG_LENGTH=7546
+IMG_UNK=25   # (seems to always be 0)
+IMG_HEIGHT=25
+IMG_DATA_LENGTH=5838
+IMG_ORIG_DATA_LENGTH=8712
+IMG_CMD_LENGTH=1684
+IMG_ORIG_CMD_LENGTH=1673
+IMG_DATA=byte[5838] --zlib-> byte[8712]
+IMG_CMD=byte[1684] --zlib-> byte[1673]
+# (tag start=78021 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=78041 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=15769   # (78041)
+FRAME_ID=0310   # (decimal)
+
+## FRAME[0310] TAGS ##
+# (tag start=78049 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=164
+HEIGHT=52
+BIT_DEPTH=32
+OFFSET_X=430
+OFFSET_Y=328
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=430
+BASE_Y=328
+
+# (tag start=78105 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=15685
+TAG_LENGTH=15669
+IMG_UNK=52   # (seems to always be 0)
+IMG_HEIGHT=52
+IMG_DATA_LENGTH=13414
+IMG_ORIG_DATA_LENGTH=20063
+IMG_CMD_LENGTH=2231
+IMG_ORIG_CMD_LENGTH=2230
+IMG_DATA=byte[13414] --zlib-> byte[20063]
+IMG_CMD=byte[2231] --zlib-> byte[2230]
+# (tag start=93790 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=93810 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=5177   # (93810)
+FRAME_ID=0300   # (decimal)
+
+## FRAME[0300] TAGS ##
+# (tag start=93818 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=132
+HEIGHT=24
+BIT_DEPTH=32
+OFFSET_X=447
+OFFSET_Y=341
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=447
+BASE_Y=341
+
+# (tag start=93874 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=5093
+TAG_LENGTH=5077
+IMG_UNK=24   # (seems to always be 0)
+IMG_HEIGHT=24
+IMG_DATA_LENGTH=3810
+IMG_ORIG_DATA_LENGTH=5707
+IMG_CMD_LENGTH=1243
+IMG_ORIG_CMD_LENGTH=1232
+IMG_DATA=byte[3810] --zlib-> byte[5707]
+IMG_CMD=byte[1243] --zlib-> byte[1232]
+# (tag start=98967 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=98987 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=4227   # (98987)
+FRAME_ID=0216   # (decimal)
+
+## FRAME[0216] TAGS ##
+# (tag start=98995 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=86
+HEIGHT=52
+BIT_DEPTH=32
+OFFSET_X=470
+OFFSET_Y=508
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=470
+BASE_Y=508
+
+# (tag start=99051 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=4143
+TAG_LENGTH=4127
+IMG_UNK=52   # (seems to always be 0)
+IMG_HEIGHT=52
+IMG_DATA_LENGTH=2891
+IMG_ORIG_DATA_LENGTH=8045
+IMG_CMD_LENGTH=1212
+IMG_ORIG_CMD_LENGTH=1201
+IMG_DATA=byte[2891] --zlib-> byte[8045]
+IMG_CMD=byte[1212] --zlib-> byte[1201]
+# (tag start=103194 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=103214 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=2371   # (103214)
+FRAME_ID=0206   # (decimal)
+
+## FRAME[0206] TAGS ##
+# (tag start=103222 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=59
+HEIGHT=28
+BIT_DEPTH=32
+OFFSET_X=483
+OFFSET_Y=519
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=483
+BASE_Y=519
+
+# (tag start=103278 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=2287
+TAG_LENGTH=2271
+IMG_UNK=28   # (seems to always be 0)
+IMG_HEIGHT=28
+IMG_DATA_LENGTH=1696
+IMG_ORIG_DATA_LENGTH=2395
+IMG_CMD_LENGTH=551
+IMG_ORIG_CMD_LENGTH=540
+IMG_DATA=byte[1696] --zlib-> byte[2395]
+IMG_CMD=byte[551] --zlib-> byte[540]
+# (tag start=105565 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=105585 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=5906   # (105585)
+FRAME_ID=0215   # (decimal)
+
+## FRAME[0215] TAGS ##
+# (tag start=105593 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=140
+HEIGHT=50
+BIT_DEPTH=32
+OFFSET_X=444
+OFFSET_Y=479
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=444
+BASE_Y=479
+
+# (tag start=105649 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=5822
+TAG_LENGTH=5806
+IMG_UNK=50   # (seems to always be 0)
+IMG_HEIGHT=50
+IMG_DATA_LENGTH=3963
+IMG_ORIG_DATA_LENGTH=12609
+IMG_CMD_LENGTH=1819
+IMG_ORIG_CMD_LENGTH=1808
+IMG_DATA=byte[3963] --zlib-> byte[12609]
+IMG_CMD=byte[1819] --zlib-> byte[1808]
+# (tag start=111471 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=111491 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=3421   # (111491)
+FRAME_ID=0205   # (decimal)
+
+## FRAME[0205] TAGS ##
+# (tag start=111499 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=114
+HEIGHT=27
+BIT_DEPTH=32
+OFFSET_X=457
+OFFSET_Y=491
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=457
+BASE_Y=491
+
+# (tag start=111555 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=3337
+TAG_LENGTH=3321
+IMG_UNK=27   # (seems to always be 0)
+IMG_HEIGHT=27
+IMG_DATA_LENGTH=2344
+IMG_ORIG_DATA_LENGTH=3540
+IMG_CMD_LENGTH=953
+IMG_ORIG_CMD_LENGTH=942
+IMG_DATA=byte[2344] --zlib-> byte[3540]
+IMG_CMD=byte[953] --zlib-> byte[942]
+# (tag start=114892 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=114912 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=7236   # (114912)
+FRAME_ID=0214   # (decimal)
+
+## FRAME[0214] TAGS ##
+# (tag start=114920 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=153
+HEIGHT=53
+BIT_DEPTH=32
+OFFSET_X=434
+OFFSET_Y=447
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=434
+BASE_Y=447
+
+# (tag start=114976 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=7152
+TAG_LENGTH=7136
+IMG_UNK=53   # (seems to always be 0)
+IMG_HEIGHT=53
+IMG_DATA_LENGTH=5042
+IMG_ORIG_DATA_LENGTH=15338
+IMG_CMD_LENGTH=2070
+IMG_ORIG_CMD_LENGTH=2059
+IMG_DATA=byte[5042] --zlib-> byte[15338]
+IMG_CMD=byte[2070] --zlib-> byte[2059]
+# (tag start=122128 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=122148 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=4918   # (122148)
+FRAME_ID=0204   # (decimal)
+
+## FRAME[0204] TAGS ##
+# (tag start=122156 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=126
+HEIGHT=26
+BIT_DEPTH=32
+OFFSET_X=448
+OFFSET_Y=461
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=448
+BASE_Y=461
+
+# (tag start=122212 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=4834
+TAG_LENGTH=4818
+IMG_UNK=26   # (seems to always be 0)
+IMG_HEIGHT=26
+IMG_DATA_LENGTH=3735
+IMG_ORIG_DATA_LENGTH=5487
+IMG_CMD_LENGTH=1059
+IMG_ORIG_CMD_LENGTH=1048
+IMG_DATA=byte[3735] --zlib-> byte[5487]
+IMG_CMD=byte[1059] --zlib-> byte[1048]
+# (tag start=127046 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=127066 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=7001   # (127066)
+FRAME_ID=0213   # (decimal)
+
+## FRAME[0213] TAGS ##
+# (tag start=127074 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=134
+HEIGHT=53
+BIT_DEPTH=32
+OFFSET_X=444
+OFFSET_Y=417
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=444
+BASE_Y=417
+
+# (tag start=127130 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=6917
+TAG_LENGTH=6901
+IMG_UNK=53   # (seems to always be 0)
+IMG_HEIGHT=53
+IMG_DATA_LENGTH=5015
+IMG_ORIG_DATA_LENGTH=13816
+IMG_CMD_LENGTH=1862
+IMG_ORIG_CMD_LENGTH=1851
+IMG_DATA=byte[5015] --zlib-> byte[13816]
+IMG_CMD=byte[1862] --zlib-> byte[1851]
+# (tag start=134047 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=134067 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=4879   # (134067)
+FRAME_ID=0203   # (decimal)
+
+## FRAME[0203] TAGS ##
+# (tag start=134075 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=106
+HEIGHT=26
+BIT_DEPTH=32
+OFFSET_X=458
+OFFSET_Y=431
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=458
+BASE_Y=431
+
+# (tag start=134131 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=4795
+TAG_LENGTH=4779
+IMG_UNK=26   # (seems to always be 0)
+IMG_HEIGHT=26
+IMG_DATA_LENGTH=3709
+IMG_ORIG_DATA_LENGTH=5319
+IMG_CMD_LENGTH=1046
+IMG_ORIG_CMD_LENGTH=1035
+IMG_DATA=byte[3709] --zlib-> byte[5319]
+IMG_CMD=byte[1046] --zlib-> byte[1035]
+# (tag start=138926 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=138946 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=7057   # (138946)
+FRAME_ID=0212   # (decimal)
+
+## FRAME[0212] TAGS ##
+# (tag start=138954 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=153
+HEIGHT=51
+BIT_DEPTH=32
+OFFSET_X=435
+OFFSET_Y=389
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=435
+BASE_Y=389
+
+# (tag start=139010 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=6973
+TAG_LENGTH=6957
+IMG_UNK=51   # (seems to always be 0)
+IMG_HEIGHT=51
+IMG_DATA_LENGTH=4897
+IMG_ORIG_DATA_LENGTH=14903
+IMG_CMD_LENGTH=2036
+IMG_ORIG_CMD_LENGTH=2025
+IMG_DATA=byte[4897] --zlib-> byte[14903]
+IMG_CMD=byte[2036] --zlib-> byte[2025]
+# (tag start=145983 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=146003 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=5406   # (146003)
+FRAME_ID=0202   # (decimal)
+
+## FRAME[0202] TAGS ##
+# (tag start=146011 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=129
+HEIGHT=26
+BIT_DEPTH=32
+OFFSET_X=447
+OFFSET_Y=402
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=447
+BASE_Y=402
+
+# (tag start=146067 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=5322
+TAG_LENGTH=5306
+IMG_UNK=26   # (seems to always be 0)
+IMG_HEIGHT=26
+IMG_DATA_LENGTH=4102
+IMG_ORIG_DATA_LENGTH=6062
+IMG_CMD_LENGTH=1180
+IMG_ORIG_CMD_LENGTH=1169
+IMG_DATA=byte[4102] --zlib-> byte[6062]
+IMG_CMD=byte[1180] --zlib-> byte[1169]
+# (tag start=151389 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=151409 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=6108   # (151409)
+FRAME_ID=0211   # (decimal)
+
+## FRAME[0211] TAGS ##
+# (tag start=151417 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=134
+HEIGHT=51
+BIT_DEPTH=32
+OFFSET_X=445
+OFFSET_Y=359
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=445
+BASE_Y=359
+
+# (tag start=151473 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=6024
+TAG_LENGTH=6008
+IMG_UNK=51   # (seems to always be 0)
+IMG_HEIGHT=51
+IMG_DATA_LENGTH=4231
+IMG_ORIG_DATA_LENGTH=12750
+IMG_CMD_LENGTH=1753
+IMG_ORIG_CMD_LENGTH=1742
+IMG_DATA=byte[4231] --zlib-> byte[12750]
+IMG_CMD=byte[1753] --zlib-> byte[1742]
+# (tag start=157497 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=157517 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=4725   # (157517)
+FRAME_ID=0201   # (decimal)
+
+## FRAME[0201] TAGS ##
+# (tag start=157525 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=106
+HEIGHT=27
+BIT_DEPTH=32
+OFFSET_X=459
+OFFSET_Y=371
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=459
+BASE_Y=371
+
+# (tag start=157581 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=4641
+TAG_LENGTH=4625
+IMG_UNK=27   # (seems to always be 0)
+IMG_HEIGHT=27
+IMG_DATA_LENGTH=3564
+IMG_ORIG_DATA_LENGTH=5263
+IMG_CMD_LENGTH=1037
+IMG_ORIG_CMD_LENGTH=1026
+IMG_DATA=byte[3564] --zlib-> byte[5263]
+IMG_CMD=byte[1037] --zlib-> byte[1026]
+# (tag start=162222 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=162242 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=7354   # (162242)
+FRAME_ID=0210   # (decimal)
+
+## FRAME[0210] TAGS ##
+# (tag start=162250 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=166
+HEIGHT=51
+BIT_DEPTH=32
+OFFSET_X=428
+OFFSET_Y=328
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=428
+BASE_Y=328
+
+# (tag start=162306 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=7270
+TAG_LENGTH=7254
+IMG_UNK=51   # (seems to always be 0)
+IMG_HEIGHT=51
+IMG_DATA_LENGTH=5078
+IMG_ORIG_DATA_LENGTH=15953
+IMG_CMD_LENGTH=2152
+IMG_ORIG_CMD_LENGTH=2141
+IMG_DATA=byte[5078] --zlib-> byte[15953]
+IMG_CMD=byte[2152] --zlib-> byte[2141]
+# (tag start=169576 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=169596 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=5594   # (169596)
+FRAME_ID=0200   # (decimal)
+
+## FRAME[0200] TAGS ##
+# (tag start=169604 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=142
+HEIGHT=26
+BIT_DEPTH=32
+OFFSET_X=441
+OFFSET_Y=340
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=441
+BASE_Y=340
+
+# (tag start=169660 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=5510
+TAG_LENGTH=5494
+IMG_UNK=26   # (seems to always be 0)
+IMG_HEIGHT=26
+IMG_DATA_LENGTH=4122
+IMG_ORIG_DATA_LENGTH=6370
+IMG_CMD_LENGTH=1348
+IMG_ORIG_CMD_LENGTH=1337
+IMG_DATA=byte[4122] --zlib-> byte[6370]
+IMG_CMD=byte[1348] --zlib-> byte[1337]
+# (tag start=175170 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=175190 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=7428   # (175190)
+FRAME_ID=0115   # (decimal)
+
+## FRAME[0115] TAGS ##
+# (tag start=175198 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=133
+HEIGHT=53
+BIT_DEPTH=32
+OFFSET_X=448
+OFFSET_Y=478
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=448
+BASE_Y=478
+
+# (tag start=175254 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=7344
+TAG_LENGTH=7328
+IMG_UNK=53   # (seems to always be 0)
+IMG_HEIGHT=53
+IMG_DATA_LENGTH=5584
+IMG_ORIG_DATA_LENGTH=13350
+IMG_CMD_LENGTH=1720
+IMG_ORIG_CMD_LENGTH=1709
+IMG_DATA=byte[5584] --zlib-> byte[13350]
+IMG_CMD=byte[1720] --zlib-> byte[1709]
+# (tag start=182598 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=182618 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=3494   # (182618)
+FRAME_ID=0105   # (decimal)
+
+## FRAME[0105] TAGS ##
+# (tag start=182626 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=100
+HEIGHT=20
+BIT_DEPTH=32
+OFFSET_X=464
+OFFSET_Y=494
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=464
+BASE_Y=494
+
+# (tag start=182682 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=3410
+TAG_LENGTH=3394
+IMG_UNK=20   # (seems to always be 0)
+IMG_HEIGHT=20
+IMG_DATA_LENGTH=2599
+IMG_ORIG_DATA_LENGTH=3479
+IMG_CMD_LENGTH=771
+IMG_ORIG_CMD_LENGTH=760
+IMG_DATA=byte[2599] --zlib-> byte[3479]
+IMG_CMD=byte[771] --zlib-> byte[760]
+# (tag start=186092 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=186112 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=11063   # (186112)
+FRAME_ID=0114   # (decimal)
+
+## FRAME[0114] TAGS ##
+# (tag start=186120 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=204
+HEIGHT=50
+BIT_DEPTH=32
+OFFSET_X=412
+OFFSET_Y=450
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=412
+BASE_Y=450
+
+# (tag start=186176 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=10979
+TAG_LENGTH=10963
+IMG_UNK=50   # (seems to always be 0)
+IMG_HEIGHT=50
+IMG_DATA_LENGTH=8528
+IMG_ORIG_DATA_LENGTH=20968
+IMG_CMD_LENGTH=2411
+IMG_ORIG_CMD_LENGTH=2400
+IMG_DATA=byte[8528] --zlib-> byte[20968]
+IMG_CMD=byte[2411] --zlib-> byte[2400]
+# (tag start=197155 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=197175 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=5088   # (197175)
+FRAME_ID=0104   # (decimal)
+
+## FRAME[0104] TAGS ##
+# (tag start=197183 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=168
+HEIGHT=19
+BIT_DEPTH=32
+OFFSET_X=430
+OFFSET_Y=465
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=430
+BASE_Y=465
+
+# (tag start=197239 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=5004
+TAG_LENGTH=4988
+IMG_UNK=19   # (seems to always be 0)
+IMG_HEIGHT=19
+IMG_DATA_LENGTH=3660
+IMG_ORIG_DATA_LENGTH=5033
+IMG_CMD_LENGTH=1304
+IMG_ORIG_CMD_LENGTH=1293
+IMG_DATA=byte[3660] --zlib-> byte[5033]
+IMG_CMD=byte[1304] --zlib-> byte[1293]
+# (tag start=202243 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=202263 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=5093   # (202263)
+FRAME_ID=0113   # (decimal)
+
+## FRAME[0113] TAGS ##
+# (tag start=202271 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=92
+HEIGHT=50
+BIT_DEPTH=32
+OFFSET_X=468
+OFFSET_Y=420
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=468
+BASE_Y=420
+
+# (tag start=202327 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=5009
+TAG_LENGTH=4993
+IMG_UNK=50   # (seems to always be 0)
+IMG_HEIGHT=50
+IMG_DATA_LENGTH=3702
+IMG_ORIG_DATA_LENGTH=8772
+IMG_CMD_LENGTH=1267
+IMG_ORIG_CMD_LENGTH=1256
+IMG_DATA=byte[3702] --zlib-> byte[8772]
+IMG_CMD=byte[1267] --zlib-> byte[1256]
+# (tag start=207336 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=207356 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=2365   # (207356)
+FRAME_ID=0103   # (decimal)
+
+## FRAME[0103] TAGS ##
+# (tag start=207364 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=57
+HEIGHT=17
+BIT_DEPTH=32
+OFFSET_X=486
+OFFSET_Y=436
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=486
+BASE_Y=436
+
+# (tag start=207420 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=2281
+TAG_LENGTH=2265
+IMG_UNK=17   # (seems to always be 0)
+IMG_HEIGHT=17
+IMG_DATA_LENGTH=1782
+IMG_ORIG_DATA_LENGTH=2359
+IMG_CMD_LENGTH=459
+IMG_ORIG_CMD_LENGTH=448
+IMG_DATA=byte[1782] --zlib-> byte[2359]
+IMG_CMD=byte[459] --zlib-> byte[448]
+# (tag start=209701 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=209721 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=7323   # (209721)
+FRAME_ID=0112   # (decimal)
+
+## FRAME[0112] TAGS ##
+# (tag start=209729 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=117
+HEIGHT=53
+BIT_DEPTH=32
+OFFSET_X=456
+OFFSET_Y=388
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=456
+BASE_Y=388
+
+# (tag start=209785 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=7239
+TAG_LENGTH=7223
+IMG_UNK=53   # (seems to always be 0)
+IMG_HEIGHT=53
+IMG_DATA_LENGTH=5636
+IMG_ORIG_DATA_LENGTH=13132
+IMG_CMD_LENGTH=1563
+IMG_ORIG_CMD_LENGTH=1552
+IMG_DATA=byte[5636] --zlib-> byte[13132]
+IMG_CMD=byte[1563] --zlib-> byte[1552]
+# (tag start=217024 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=217044 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=3918   # (217044)
+FRAME_ID=0102   # (decimal)
+
+## FRAME[0102] TAGS ##
+# (tag start=217052 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=83
+HEIGHT=21
+BIT_DEPTH=32
+OFFSET_X=473
+OFFSET_Y=404
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=473
+BASE_Y=404
+
+# (tag start=217108 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=3834
+TAG_LENGTH=3818
+IMG_UNK=21   # (seems to always be 0)
+IMG_HEIGHT=21
+IMG_DATA_LENGTH=3058
+IMG_ORIG_DATA_LENGTH=4212
+IMG_CMD_LENGTH=736
+IMG_ORIG_CMD_LENGTH=725
+IMG_DATA=byte[3058] --zlib-> byte[4212]
+IMG_CMD=byte[736] --zlib-> byte[725]
+# (tag start=220942 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=220962 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=7010   # (220962)
+FRAME_ID=0111   # (decimal)
+
+## FRAME[0111] TAGS ##
+# (tag start=220970 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=128
+HEIGHT=51
+BIT_DEPTH=32
+OFFSET_X=450
+OFFSET_Y=358
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=450
+BASE_Y=358
+
+# (tag start=221026 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=6926
+TAG_LENGTH=6910
+IMG_UNK=51   # (seems to always be 0)
+IMG_HEIGHT=51
+IMG_DATA_LENGTH=5289
+IMG_ORIG_DATA_LENGTH=12786
+IMG_CMD_LENGTH=1597
+IMG_ORIG_CMD_LENGTH=1586
+IMG_DATA=byte[5289] --zlib-> byte[12786]
+IMG_CMD=byte[1597] --zlib-> byte[1586]
+# (tag start=227952 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=227972 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=3511   # (227972)
+FRAME_ID=0101   # (decimal)
+
+## FRAME[0101] TAGS ##
+# (tag start=227980 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=94
+HEIGHT=18
+BIT_DEPTH=32
+OFFSET_X=467
+OFFSET_Y=374
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=467
+BASE_Y=374
+
+# (tag start=228036 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=3427
+TAG_LENGTH=3411
+IMG_UNK=18   # (seems to always be 0)
+IMG_HEIGHT=18
+IMG_DATA_LENGTH=2619
+IMG_ORIG_DATA_LENGTH=3469
+IMG_CMD_LENGTH=768
+IMG_ORIG_CMD_LENGTH=757
+IMG_DATA=byte[2619] --zlib-> byte[3469]
+IMG_CMD=byte[768] --zlib-> byte[757]
+# (tag start=231463 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=231483 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=7027   # (231483)
+FRAME_ID=0110   # (decimal)
+
+## FRAME[0110] TAGS ##
+# (tag start=231491 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=127
+HEIGHT=50
+BIT_DEPTH=32
+OFFSET_X=451
+OFFSET_Y=329
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=451
+BASE_Y=329
+
+# (tag start=231547 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=6943
+TAG_LENGTH=6927
+IMG_UNK=50   # (seems to always be 0)
+IMG_HEIGHT=50
+IMG_DATA_LENGTH=5269
+IMG_ORIG_DATA_LENGTH=12813
+IMG_CMD_LENGTH=1634
+IMG_ORIG_CMD_LENGTH=1623
+IMG_DATA=byte[5269] --zlib-> byte[12813]
+IMG_CMD=byte[1634] --zlib-> byte[1623]
+# (tag start=238490 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=238510 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=3793   # (238510)
+FRAME_ID=0100   # (decimal)
+
+## FRAME[0100] TAGS ##
+# (tag start=238518 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=92
+HEIGHT=18
+BIT_DEPTH=32
+OFFSET_X=468
+OFFSET_Y=344
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=468
+BASE_Y=344
+
+# (tag start=238574 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=3709
+TAG_LENGTH=3693
+IMG_UNK=18   # (seems to always be 0)
+IMG_HEIGHT=18
+IMG_DATA_LENGTH=2916
+IMG_ORIG_DATA_LENGTH=3857
+IMG_CMD_LENGTH=753
+IMG_ORIG_CMD_LENGTH=742
+IMG_DATA=byte[2916] --zlib-> byte[3857]
+IMG_CMD=byte[753] --zlib-> byte[742]
+# (tag start=242283 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=242303 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=329323   # (242303)
+FRAME_ID=0005   # (decimal)
+
+## FRAME[0005] TAGS ##
+# (tag start=242311 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=731
+HEIGHT=324
+BIT_DEPTH=32
+OFFSET_X=148
+OFFSET_Y=21
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=148
+BASE_Y=21
+
+# (tag start=242367 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=329239
+TAG_LENGTH=329223
+IMG_UNK=324   # (seems to always be 0)
+IMG_HEIGHT=324
+IMG_DATA_LENGTH=280096
+IMG_ORIG_DATA_LENGTH=379725
+IMG_CMD_LENGTH=49103
+IMG_ORIG_CMD_LENGTH=50588
+IMG_DATA=byte[280096] --zlib-> byte[379725]
+IMG_CMD=byte[49103] --zlib-> byte[50588]
+# (tag start=571606 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=571626 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=4009   # (571626)
+FRAME_ID=0004   # (decimal)
+
+## FRAME[0004] TAGS ##
+# (tag start=571634 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=261
+HEIGHT=14
+BIT_DEPTH=32
+OFFSET_X=751
+OFFSET_Y=555
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=751
+BASE_Y=555
+
+# (tag start=571690 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=3925
+TAG_LENGTH=3909
+IMG_UNK=14   # (seems to always be 0)
+IMG_HEIGHT=14
+IMG_DATA_LENGTH=2453
+IMG_ORIG_DATA_LENGTH=5948
+IMG_CMD_LENGTH=1432
+IMG_ORIG_CMD_LENGTH=1421
+IMG_DATA=byte[2453] --zlib-> byte[5948]
+IMG_CMD=byte[1432] --zlib-> byte[1421]
+# (tag start=575615 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=575635 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=167483   # (575635)
+FRAME_ID=0003   # (decimal)
+
+## FRAME[0003] TAGS ##
+# (tag start=575643 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=1024
+HEIGHT=576
+BIT_DEPTH=32
+OFFSET_X=0
+OFFSET_Y=0
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=0
+BASE_Y=0
+
+# (tag start=575699 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=167399
+TAG_LENGTH=167383
+IMG_UNK=576   # (seems to always be 0)
+IMG_HEIGHT=576
+IMG_DATA_LENGTH=72912
+IMG_ORIG_DATA_LENGTH=306244
+IMG_CMD_LENGTH=94447
+IMG_ORIG_CMD_LENGTH=96848
+IMG_DATA=byte[72912] --zlib-> byte[306244]
+IMG_CMD=byte[94447] --zlib-> byte[96848]
+# (tag start=743098 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=743118 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=329   # (743118)
+FRAME_ID=0002   # (decimal)
+
+## FRAME[0002] TAGS ##
+# (tag start=743126 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=1024
+HEIGHT=341
+BIT_DEPTH=32
+OFFSET_X=0
+OFFSET_Y=235
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=0
+BASE_Y=235
+
+# (tag start=743182 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=245
+TAG_LENGTH=229
+IMG_UNK=341   # (seems to always be 0)
+IMG_HEIGHT=341
+IMG_DATA_LENGTH=73
+IMG_ORIG_DATA_LENGTH=45060
+IMG_CMD_LENGTH=132
+IMG_ORIG_CMD_LENGTH=266
+IMG_DATA=byte[73] --zlib-> byte[45060]
+IMG_CMD=byte[132] --zlib-> byte[266]
+# (tag start=743427 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=743447 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=296047   # (743447)
+FRAME_ID=0001   # (decimal)
+
+## FRAME[0001] TAGS ##
+# (tag start=743455 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=1024
+HEIGHT=576
+BIT_DEPTH=32
+OFFSET_X=0
+OFFSET_Y=0
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=true   # (1)
+BASE_X=0
+BASE_Y=0
+
+# (tag start=743511 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=295963
+TAG_LENGTH=295947
+IMG_UNK=576   # (seems to always be 0)
+IMG_HEIGHT=576
+IMG_DATA_LENGTH=154798
+IMG_ORIG_DATA_LENGTH=653066
+IMG_CMD_LENGTH=141125
+IMG_ORIG_CMD_LENGTH=145512
+IMG_DATA=byte[154798] --zlib-> byte[653066]
+IMG_CMD=byte[141125] --zlib-> byte[145512]
+# (tag start=1039474 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+
+# (FRAME START)
+# (frame start=1039494 (last frame start + FRAME_NEXT_OFFSET)
+FRAME_NEXT_OFFSET=0   # (1039494)
+FRAME_ID=0000   # (decimal)
+
+## FRAME[0000] TAGS ##
+# (tag start=1039502 (current position))
+TAG_NAME="stdinfo"
+TAG_NEXT_OFFSET=56
+TAG_LENGTH=40
+WIDTH=1024
+HEIGHT=576
+BIT_DEPTH=32
+OFFSET_X=0
+OFFSET_Y=0
+TOTAL_WIDTH=1024
+TOTAL_HEIGHT=576
+IS_TRANSPARENT=false   # (0)
+BASE_X=0
+BASE_Y=0
+
+# (tag start=1039558 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="img0000"
+TAG_NEXT_OFFSET=71
+TAG_LENGTH=55
+IMG_UNK=576   # (seems to always be 0)
+IMG_HEIGHT=576
+IMG_DATA_LENGTH=9
+IMG_ORIG_DATA_LENGTH=1
+IMG_CMD_LENGTH=22
+IMG_ORIG_CMD_LENGTH=16
+IMG_DATA=byte[9] --zlib-> byte[1]
+IMG_CMD=byte[22] --zlib-> byte[16]
+# (tag start=1039629 (last tag start + TAG_NEXT_OFFSET))
+TAG_NAME="cptype"
+TAG_NEXT_OFFSET=0
+TAG_LENGTH=4
+CPTYPE_TYPE=0   # (unknown)
+

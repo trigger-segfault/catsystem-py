@@ -1,3 +1,41 @@
+#### COPYRIGHT+SENSITIVE DATA IGNORE ####
+
+/data/gamedata
+/data/copyright
+/docs/copyright
+
+#### WORK-IN-PROGRESS BLOAT IGNORE ####
+
+/docs/**/wip
+wip/*.pdn
+
+
+#### SYSTEM-SPECIFIC CONFIG FILES ####
+
+# work in progress setup
+
+/tool/jpcmd/config.ini
+
+#### CATSYSTEM TOOLS IGNORE ####
+
+/tool/.todo*
+/tool/asmodean
+/tool/cs2
+/tool/lha
+/tool/locale-emulator
+/tool/ntlea
+/tool/resource-hacker
+
+#allow:
+#/tool/cs2=translate
+#/tool/jpcmd
+#/tool/script
+#/tool/trigger
+
+
+############################################################
+#### DEFAULT PYTHON GIT-IGNORE ####
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

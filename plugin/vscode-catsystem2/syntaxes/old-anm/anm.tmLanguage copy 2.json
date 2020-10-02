@@ -1,0 +1,333 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Anm",
+  "fileTypes": [
+    "anmtxt"
+  ],
+	"patterns": [
+          
+          "match": "^\\s*(set|add|sub)\\s+(\\d+|@\\d+|[A-Za-z_]\\w*)(?:\\s+(\\d+|@\\d+|[A-Za-z_]\\w*)(?:\\s+(\\d+|@\\d+|[A-Za-z_]\\w*))?)?(?:\\s|$)",
+		{
+			"include": "#comment"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#captures"
+		},
+    {
+      "include": "#opcodes"
+    },
+    {
+      "include": "#expressions"
+    },
+    {
+      "include": "#constant"
+    },
+    {
+      "include": "#numerics"
+    },
+    {
+      "include": "#tokens"
+    },
+    {
+      "include": "#checks"
+    },
+    {
+      "include": "#groups"
+    },
+    {
+      "include": "#quantifiers"
+    }
+	],
+	"repository": {
+    "comment": {
+      "patterns": [
+        {
+					"captures": {
+						"1": {
+							"name": "meta.toc-list.banner.block.anm"
+						}
+					},
+					"match": "^/\\* =(\\s*.*?)\\s*= \\*/$\\n?",
+					"name": "comment.block.anm"
+				},
+				{
+					"begin": "/\\*",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.comment.begin.anm"
+						}
+					},
+					"end": "\\*/",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.comment.end.anm"
+						}
+					},
+					"name": "comment.block.anm"
+				},
+				{
+					"match": "\\*/.*\\n",
+					"name": "invalid.illegal.stray-comment-end.anm"
+				},
+				{
+					"begin": "(^[ \\t]+)?(?=//)",
+					"beginCaptures": {
+						"1": {
+							"name": "punctuation.whitespace.comment.leading.cpp"
+						}
+					},
+					"end": "(?!\\G)",
+					"patterns": [
+						{
+							"begin": "//",
+							"beginCaptures": {
+								"0": {
+									"name": "punctuation.definition.comment.cpp"
+								}
+							},
+							"end": "(?=\\n)",
+							"name": "comment.line.double-slash.cpp"
+						}
+          ]
+        }
+      ]
+    },
+		"strings": {
+			"name": "string.regexp",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{
+					"name": "constant.character.escape.anm",
+					"match": "\\\\."
+				}
+			]
+		},
+    "expressions": {
+      "patterns": [
+        {
+          "match": "(?<=\\s|^)(set|loop|if|ife|ifn|ifg|ifs|ifge|ifse|add|sub)\\s+(@?\\d+|[A-Za-z_]\\w*)(?=\\s|$)",
+          "captures": {
+            "2": { "patterns": [{ "include": "#parameter.variable" }]}
+          }
+        },
+        {
+          "match": "(?<=^\\s*)(@?\\d+|[A-Za-z_]\\w*)(?=\\s|$)",
+          "captures": {
+            "2": { "patterns": [{ "include": "#parameter.image" }]}
+          }
+        },
+        {
+          "match": "(?<=\\s|^)(jump)\\s+(@?\\d+|[A-Za-z_]\\w*)(?=\\s|$)",
+          "captures": {
+            "2": { "patterns": [{ "include": "#parameter.label" }]}
+          }
+        },
+        {
+          "match": "(?<=\\s|^)(loop|if)\\s+\\S+\\s+(@?\\d+|[A-Za-z_]\\w*)(?=\\s|$)",
+          "captures": {
+            "2": { "patterns": [{ "include": "#parameter.label" }]}
+          }
+        },
+        {
+          "match": "(?<=\\s|^)(ife|ifn|ifg|ifs|ifge|ifse)\\s+\\S+\\s+\\S+\\s+(@?\\d+|[A-Za-z_]\\w*)(?=\\s|$)",
+          "captures": {
+            "2": { "patterns": [{ "include": "#parameter.label" }]}
+          }
+        },
+        {
+          "include": "#parameter.default"
+        }
+      ]
+    },
+    "keyword": {
+      "name": "keyword.control",
+      "match": "(?<=^|\\s)(set|loop|jump|if|ife|ifn|ifg|ifs|ifge|ifse|max|blend|disp|pos|wait|add|sub)(?=\\s|$)"
+    },
+    "numeric": {
+      "name": "parameter.numeric.anm",
+      "match": "(?<=\\s|^)\\d+(?=\\s|$)"
+    },
+    "variable": {
+      "name": "parameter.variable.anm",
+      "match": "(?<=\\s|^)@\\d+(?=\\s|$)"
+    },
+    "labelname": {
+      "name": "parameter.label.anm",
+      "match": "(?<=^[^#\\S]+|^)[A-Za-z_]\\w*(?=\\s|$)"
+    },
+    "labelmeta": {
+      "name": "meta.preprocessor.label.anm",
+      "match": "^#\\s*[A-Za-z_]\\w*(?=\\s|$)"
+    },
+    "parameter.default": {
+      "name": "parameter.default.anm",
+      "match": "(?<=\\s|^)(?:(\\d+)|(@\\d+)|([A-Za-z_]\\w*))(?=\\s|$)",
+      "captures": {
+        "1": {
+          "patterns": [{ "include": "#numeric", "name": "constant.numeric.anm" }]
+        },
+        "2": {
+          "patterns": [{ "include": "#variable", "name": "variable.parameter.anm" }]
+        },
+        "3": {
+          "patterns": [{ "include": "#labelname", "name": "keyword.operator.quantifier.regexp.label.anm" }]
+        }
+      }
+    },
+    "parameter.variable": {
+      "name": "variable.parameter",
+      "match": "(?<=\\s|^)(?:(\\d+)|(@\\d+)|([A-Za-z_]\\w*))(?=\\s|$)",
+      "captures": {
+        "1": {
+          "patterns": [{ "include": "#numeric", "name": "variable.parameter.constant.anm" }]
+        },
+        "2": {
+          "patterns": [{ "include": "#variable", "name": "entity.name.variable.anm" }]
+        },
+        "3": {
+          "patterns": [{ "include": "#labelname", "name": "constant.character.label.anm" }]
+        }
+      }
+    },
+    "parameter.label": {
+      "name": "variable.name",
+      "match": "(?<=\\s|^)(?:(\\d+)|(@\\d+)|([A-Za-z_]\\w*))(?=\\s|$)",
+      "captures": {
+        "1": {
+          "patterns": [{ "include": "#numeric", "name": "variable.name.constant.anm" }]
+        },
+        "2": {
+          "patterns": [{ "include": "#variable", "name": "entity.name.variable.anm" }]
+        },
+        "3": {
+          "patterns": [{ "include": "#labelname", "name": "constant.character.label.anm" }]
+        }
+      }
+    },
+    "parameter.image": {
+      "name": "variable.parameter",
+      "match": "(?<=\\s|^)(?:(\\d+)|(@\\d+)|([A-Za-z_]\\w*))(?=\\s|$)",
+      "captures": {
+        "1": {
+          "patterns": [{ "include": "#numeric", "name": "variable.name" }]
+        },
+        "2": {
+          "patterns": [{ "include": "#variable", "name": "entity.name" }]
+        },
+        "3": {
+          "patterns": [{ "include": "#labelname", "name": "constant.character" }]
+        }
+      }
+    },
+		"captures": {
+			"name": "variable",
+			"begin": "'",
+			"end": "'",
+			"patterns": [
+				{
+					"name": "constant.character.escape.anm",
+					"match": "\\\\."
+				}
+			]
+		},
+    "constant": {
+      "name": "constant.numeric",
+      "match": "(?<=\\s|^)\\d+(?=\\s|$)",
+      "patterns": [
+        {
+          "name": "constant.numeric.anm",
+          "match": "(?<=\\s|^)ttt\\d+(?=\\s|$)"
+        }
+      ]
+    },
+    "numerics": {
+      "patterns": [
+        {
+          "name": "meta.preprocessor",
+          "match": "(?:\\b|^)#\\s*[A-Za-z_][A-Za-z_0-9]*\\b"
+        },
+        {
+          "name": "variable.parameter",
+          "match": "(?<=\\s|^)@\\d+(?=\\s|$)"
+        },
+        {
+          "name": "variable.name",
+          "match": "(?<=\\s|^)[A-Za-z_][A-Za-z_0-9]*(?=\\s|$)"
+        }
+      ]
+    },
+    "opcodes": {
+      "patterns": [
+        {
+          "name": "keyword.control",
+          "match": "^\\s*(set|loop|jump|if|ife|ifn|ifg|ifs|ifge|ifse|max|blend|disp|pos|wait|add|sub)\\b"
+        },
+        {
+          "name": "keyword.control",
+          "match": "(?<=\\s|^)[a-z][a-z1-9.]*(?=[\\s>]|$)"
+        },
+        {
+          "name": "keyword",
+          "match": "(?<=\\s|^)\\%[a-z][a-z1-9.]*(?=[\\s>]|$)"
+        }
+      ]
+    },
+    "tokens": {
+      "patterns": [
+        {
+          "name": "keyword.control.anchor.regexp",
+          "match": "\\^"
+        },
+        {
+          "name": "keyword.control.anchor.regexp",
+          "match": "\\$"
+        },
+        {
+          "name": "keyword.control.anchor.regexp",
+          "match": "\\."
+        }
+      ]
+    },
+    "checks": {
+      "patterns": [
+        {
+          "name": "keyword.control.anchor.regexp",
+          "match": "\\<[a-z]*"
+        },
+        {
+          "name": "keyword.control.anchor.regexp",
+          "match": "\\>"
+        }
+      ]
+    },
+    "groups": {
+      "patterns": [
+        {
+          "name": "punctuation.definition.group.regexp",
+          "match": "\\((\\?:?)?"
+        },
+        {
+          "name": "punctuation.definition.group.regexp",
+          "match": "\\)"
+        },
+        {
+          "name": "punctuation.definition.group.regexp",
+          "match": "\\|"
+        }
+      ]
+    },
+    "quantifiers": {
+      "patterns": [
+        {
+          "name": "keyword.operator.quantifier.regexp",
+          "match": "([?*+]|\\{\\d+((,)\\d*)?\\})\\??"
+        }
+      ]
+    }
+	},
+	"scopeName": "source.anm"
+}
