@@ -64,6 +64,11 @@
       "aliases": ["CatSystem 2 Definition", "dfn"],
       "extensions": [".dfn"],
       "configuration": "./catsystem2-dfn-language-configuration.json"
+    },{
+      "id": "catsystem2-language",
+      "aliases": ["CatSystem 2 Language", "langtbl"],
+      "extensions": [".langtbl"],
+      "configuration": "./catsystem2-language-language-configuration.json"
     }],
     "grammars": [{
       "language": "catsystem2-anm",
@@ -81,6 +86,10 @@
       "language": "catsystem2-dfn",
       "scopeName": "source.catsys.dfn",
       "path": "./syntaxes/catsystem2-dfn.tmLanguage.json"
+    },{
+      "language": "catsystem2-language",
+      "scopeName": "source.catsys.language",
+      "path": "./syntaxes/catsystem2-language.tmLanguage.json"
     }]
   }
 }

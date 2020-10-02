@@ -1,14 +1,13 @@
 {
   "comments": {
     // symbol used for single line comment. Remove this entry if your language does not support line comments
-    "lineComment": "//"
+    "lineComment": "//",
     // symbols used for start and end a block comment. Remove this entry if your language does not support block comments
-    // Not supported in animation scripts
-    //"blockComment": [ "/*", "*/" ]
+    //TODO: Are these supported in CatSystem 2 language files?
+    "blockComment": [ "/*", "*/" ]
   },
   // symbols used as brackets
   "brackets": [
-    //FIXME: None of these brackets are actually used in ANM, right?
     ["<", ">"],
     ["{", "}"],
     ["(", ")"],
@@ -16,19 +15,27 @@
   ],
   // symbols that are auto closed when typing
   "autoClosingPairs": [
-    //FIXME: None of these pairs are actually used in ANM, right?
     ["<", ">"],
     ["{", "}"],
     ["(", ")"],
     ["\"", "\""],
-    ["'", "'"]
+    ["'", "'"],
+    //TODO: Is this a good idea to make these auto-closing?
+    // language*.txt
+    ["$", "$"],
+    // gamelangtbl*.txt
+    ["#", "#"]
   ],
   // symbols that that can be used to surround a selection
   "surroundingPairs": [
-    //FIXME: None of these pairs are actually used in ANM, right?
     ["(", ")"],
     ["\"", "\""],
-    ["'", "'"]
+    ["'", "'"],
+    //TODO: Is this a good idea to make these auto-surrounding?
+    // language*.txt
+    ["$", "$"],
+    // gamelangtbl*.txt
+    ["#", "#"]
   ],
   "folding": {
     "markers": {

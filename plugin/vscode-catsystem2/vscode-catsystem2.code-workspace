@@ -25,6 +25,16 @@
       "editor.insertSpaces": true,
       "editor.tabSize": 2,
       "editor.wordWrap": "on"
+    },
+    "[catsystem2-language]": {
+      "files.encoding": "utf8",
+      "editor.wordWrap": "on",
+    },
+    "files.associations": {
+      "language.txt": "catsystem2-language",
+      "language_*.txt": "catsystem2-language",
+      "gamelangtbl.txt": "catsystem2-language",
+      "gamelangtbl_*.txt": "catsystem2-language"
     }
-  }
+  },
 }

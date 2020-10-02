@@ -257,8 +257,10 @@
       // "*.ini": "ini",
       
       /* CatSystem 2: Language translation file (format with $0000-0000$) */
-      "language*.txt": "plaintext",
-      "gamelangtbl*.txt": "plaintext",
+      "language.txt": "catsystem2-language",
+      "language_*.txt": "catsystem2-language",
+      "gamelangtbl.txt": "catsystem2-language",
+      "gamelangtbl_*.txt": "catsystem2-language",
 
 
 			/* CatSystem 2: Binary key file formats */
