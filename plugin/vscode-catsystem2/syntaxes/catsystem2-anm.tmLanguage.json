@@ -13,9 +13,11 @@
 			"include": "#strings"
 		},
     {
+      "comment": "old include #expressions",
       "include": "#expressions"
     },
     {
+      "comment": "old include #expressions",
       "include": "#keyword"
     },
     {
@@ -102,21 +104,21 @@
           }
         },
         {
+          "match": "^\\s*(if(?:[en]|[gs]e?)?)\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\"))?)?(?=\\/\\/|\\s|$)",
+          "captures": {
+            "1": { "patterns": [{ "include": "#keywordbase" }, {}]},
+            "2": { "patterns": [{ "include": "#comment" }, { "include": "#strings" }, { "include": "#parametervar" }, {}]},
+            "3": { "patterns": [{ "include": "#comment" }, { "include": "#strings" }, { "include": "#parameterbase" }, {}]},
+            "4": { "patterns": [{ "include": "#comment" }, { "include": "#strings" }, { "include": "#parameterlabel" }, {}]}
+          }
+        },
+        {
           "match": "^\\s*(loop|if)\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\"))?)?(?=\\/\\/|\\s|$)",
           "captures": {
             "1": { "patterns": [{ "include": "#keywordbase" }, {}]},
             "2": { "patterns": [{ "include": "#comment" }, { "include": "#strings" }, { "include": "#parametervar" }, {}]},
             "3": { "patterns": [{ "include": "#comment" }, { "include": "#strings" }, { "include": "#parameterlabel" }, {}]},
             "4": { "patterns": [{ "include": "#comment" }, { "include": "#strings" }, { "include": "#parameterbase" }, {}]}
-          }
-        },
-        {
-          "match": "^\\s*(ife|ifn|ifg|ifs|ifge|ifse)\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\"))?)?(?=\\/\\/|\\s|$)",
-          "captures": {
-            "1": { "patterns": [{ "include": "#keywordbase" }, {}]},
-            "2": { "patterns": [{ "include": "#comment" }, { "include": "#strings" }, { "include": "#parametervar" }, {}]},
-            "3": { "patterns": [{ "include": "#comment" }, { "include": "#strings" }, { "include": "#parameterbase" }, {}]},
-            "4": { "patterns": [{ "include": "#comment" }, { "include": "#strings" }, { "include": "#parameterlabel" }, {}]}
           }
         },
         {
@@ -129,7 +131,8 @@
           }
         },
         {
-          "match": "^\\s*(\\d+|@\\d+|[A-Za-z_]\\w*)(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\"))?))?(?=\\/\\/|\\s|$)",
+          "comment": "old match ^\\s*(\\d+|@\\d+|[A-Za-z_]\\w*)(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\"))?))?(?=\\/\\/|\\s|$)",
+          "match": "^\\s*(\\d+|@\\d+)(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\")(?:\\s+([^\\s\\/\"]+|\"[^\\\"]*\"))?))?(?=\\/\\/|\\s|$)",
           "captures": {
             "1": { "patterns": [{ "include": "#parameterbase" }, {}]},
             "2": { "patterns": [{ "include": "#comment" }, { "include": "#strings" }, { "include": "#parameterlabel" }, {}]},
@@ -141,16 +144,18 @@
     },
     "keywordbase": {
       "name": "keyword",
-      "match": "(loop|jump|if|ife|ifn|ifg|ifs|ifge|ifse)|set|max|blend|disp|pos|wait|add|sub",
+      "match": "(loop|jump|if(?:[en]|[gs]e?)?|wait)|(set|max|blend|disp|add|sub|pos)",
       "captures": {
-        "1": { "name": "keyword.control" }
+        "1": { "name": "keyword.control.catsys.anm" },
+        "2": { "name": "keyword.other.variable.catsys.anm" }
       }
     },
     "keyword": {
-      "name": "keyword",
-      "match": "(?<=\\s|^)(?:(loop|jump|if|ife|ifn|ifg|ifs|ifge|ifse)|set|max|blend|disp|pos|wait|add|sub)(?=\\/\\/|\\s|$)",
+      "comment": "old match removed name keyword (?<=\\s|^)(?:(loop|jump|if(?:[en]|[gs]e?)?|wait)|(set|max|blend|disp|add|sub|pos))(?=\\/\\/|\\s|$)",
+      "match": "^\\s*(?:(loop|jump|if(?:[en]|[gs]e?)?|wait)|(set|max|blend|disp|add|sub|pos))(?=\\/\\/|\\s|$)",
       "captures": {
-        "1": { "name": "keyword.control" }
+        "1": { "name": "keyword.control.catsys.anm" },
+        "2": { "name": "keyword.other.variable.catsys.anm" }
       }
     },
     "numeric": {
@@ -170,8 +175,12 @@
       "match": "^\\s*#\\s*[A-Za-z_]\\w*(?=\\/\\/|\\s|$)"
     },
     "parameter": {
-      "include": "#parameterbase",
-      "match": "(?<=\\s|^)(@\\d+|\\d+|[A-Za-z_]\\w*)(?=\\/\\/|\\s|$)"
+      "match": "\\b(?:(@\\d+)|(\\d+)|([A-Za-z_]\\w*))(?=\\/\\/|\\b|$)\\b",
+      "captures": {
+        "1": { "name": "constant.numeric.base.anm" },
+        "2": { "name": "entity.name.function.variable.base.anm" },
+        "3": { "name": "keyword.operator.quantifier.regexp.label.base.anm" }
+      }
     },
     "parameterbase": {
       "patterns": [
