@@ -4,6 +4,9 @@
 :: NEEDS ATTENTION: Is quoting the %PATH% variable correct?
 set "PATH=%~dp0tool;%PATH%"
 
+:: Utility Python scripts and batch files
+set "PATH=%~dp0tool\script;%PATH%"
+
 :: Personal toolsets, with many quirks and bugs with certain filepath inputs.
 ::   Many of these have no existing equivalent, however, near all of this is
 ::   decumented in the wiki:

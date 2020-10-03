@@ -1,0 +1,1738 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "CatSystem 2 Animation Script",
+  "fileTypes": [
+    "anm",
+    "txt"
+  ],
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+    {
+      "include": "#c_include_import"
+    },
+    {
+      "include": "#c_operators"
+    },
+    {
+      "include": "#storage_types"
+    },
+    {
+      "include": "#statement"
+    },
+    {
+      "include": "#sections"
+    },
+    {
+      "include": "#messages"
+    },
+		{
+			"include": "#strings"
+		},
+    {
+      "include": "#variables"
+    },
+    {
+      "include": "#numbers"
+    }
+	],
+	"repository": {
+    "comments": {
+      "patterns": [
+        {
+					"name": "comment.block.catsys.anm",
+					"captures": {
+						"1": { "name": "meta.toc-list.banner.block.catsys.anm" }
+					},
+					"match": "^/\\* =(\\s*.*?)\\s*= \\*/$\\n?"
+				},
+				{
+					"name": "comment.block.catsys.anm",
+					"begin": "/\\*",
+					"beginCaptures": {
+						"0": { "name": "punctuation.definition.comment.begin.catsys.anm" }
+					},
+					"end": "\\*/",
+					"endCaptures": {
+						"0": { "name": "punctuation.definition.comment.end.catsys.anm" }
+					}
+				},
+				{
+					"name": "invalid.illegal.stray-comment-end.catsys.anm",
+					"match": "\\*/.*\\n"
+				},
+				{
+					"begin": "(^[ \\t]+)?(?=//)",
+					"beginCaptures": {
+						"1": { "name": "punctuation.whitespace.comment.leading.catsys.anm" }
+					},
+					"end": "(?!\\G)",
+					"patterns": [
+						{
+							"name": "comment.line.double-slash.catsys.anm",
+							"begin": "//",
+							"beginCaptures": {
+								"0": { "name": "punctuation.definition.comment.catsys.anm" }
+							},
+							"end": "(?=\\n)"
+						}
+          ]
+        }
+      ]
+    },
+    "expression": {
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#support_type_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_plane": {
+      "begin": "\\b(bg|cg|eg|fg|fw|pl)\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "support.class.bank.plane.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#support_function_argument_plane" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_plane_get": {
+      "begin": "\\b(get)\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "support.function.plane.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        {
+          "name": "variable.other.enummember.argument.plane.parameter.catsys.anm",
+          "match": "\\b(?:base|color|pos|rot|scale|vram)\\b"
+        },
+        { "include": "#support_class_banks" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_particle": {
+      "begin": "\\b(particle|particle2|particle3)\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "support.class.bank.particle.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#support_function_argument_particle" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_sound": {
+      "begin": "\\b(bgm|se|pcm)\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "support.class.bank.sound.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#support_function_argument_sound" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_draw": {
+      "begin": "\\b((?:draw|drawdef|rdraw)|(?:rfmos|rwipe|rwmos|wbreak|wipe|wipe2|wipe3|wipedef))\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "support.function.command.draw.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_wait": {
+      "begin": "\\b(wait)\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.flow.wait.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        {
+          "name": "variable.other.enummember.argument.wait.end.catsys.anm",
+          "match": "\\b(?:key|pcm|pt|se|tag)\\b"
+        },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_variable": {
+      "begin": "\\b(getfbit|clearfbit|max|min|setfbit|str|strcmp|strn)\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "support.function.variable.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_configure_onoff": {
+      "begin": "\\b(?:(autoface|forcemesdel|frame|frameoff|frameon|mesdraw|view)|(auto|keyskip)|(callmestag|cgflag|cgreg|debug|debugoff|debugon|end_of_kaisou|fes|fesds|fesjs|js|movie|novel|scene|sysbtn|thumbnail|tonetbl|voiceoff|week))\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "keyword.other.configure.window.catsys.anm" },
+        "2": { "name": "keyword.other.configure.input.catsys.anm" },
+        "3": { "name": "keyword.other.configure.special.catsys.anm" }
+      },
+      "patterns": [
+        {
+          "match": "\\b(auto|autoface|keyskip|novel|tonetbl)\\b"
+        },
+        {
+          "match": "\\b(debugoff|debugon|frameoff|frameon|voiceoff)"
+        },
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_configure": {
+      "begin": "\\b(?:(autoface|forcemesdel|frame|frameoff|frameon|mesdraw|view)|(auto|keyskip)|(callmestag|cgflag|cgreg|debug|debugoff|debugon|end_of_kaisou|fes|fesds|fesjs|js|movie|novel|scene|sysbtn|thumbnail|tonetbl|voiceoff|week))\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "keyword.other.configure.window.catsys.anm" },
+        "2": { "name": "keyword.other.configure.input.catsys.anm" },
+        "3": { "name": "keyword.other.configure.special.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_configure2": {
+      "begin": "\\b(?:(autoface|forcemesdel|frame|frameoff|frameon|mesdraw|view)|(auto|keyskip)|(callmestag|cgflag|cgreg|debug|debugoff|debugon|end_of_kaisou|fes|fesds|fesjs|js|movie|novel|scene|sysbtn|thumbnail|tonetbl|voiceoff|week))\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "keyword.other.configure.window.catsys.anm" },
+        "2": { "name": "keyword.other.configure.input.catsys.anm" },
+        "3": { "name": "keyword.other.configure.special.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "command_control": {
+      "begin": "\\b((?:call|next|return|title)|(?:fselect|jumpstop|select|select2|skipstop|undo))\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.flow.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "if_statement": {
+      "begin": "\\b(if)\\b",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "keyword.control.conditional.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "statement": {
+      "begin": "^[ \t]+(?=[%A-Za-z_])",
+      "end": "$",
+      "patterns": [
+        { "include": "#comments" },
+        { "include": "#if_statement" },
+        { "include": "#command_control" },
+        { "include": "#command_wait" },
+        { "include": "#command_plane" },
+        { "include": "#command_plane_get" },
+        { "include": "#command_sound" },
+        { "include": "#command_particle" },
+        { "include": "#command_configure" },
+        { "include": "#command_draw" },
+        { "include": "#command_variable" },
+        { "include": "#c_operators" },
+        { "include": "#literals_arguments" },
+        { "include": "#strings" },
+        { "include": "#variables" },
+        { "include": "#numbers" }
+      ]
+    },
+    "variables2": {
+      "patterns": [
+        { "include": "#variable_numeric" },
+        { "include": "#variable_string" },
+        {
+          "name": "keyword.other.default",
+          "match": "(@)",
+          "captures": {
+            "1": { "name": "punctuation.definition.keyword.default.catsys.anm" }
+          }
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        { "include": "#variable_numeric" },
+        { "include": "#variable_string" },
+        { "include": "#variable_default" }
+      ]
+    },
+    "variable_numeric": {
+      "name": "variable.numeric.integer",
+      "match": "(?<!^)(#)\\d+\\b",
+      "captures": {
+        "1": { "name": "punctuation.definition.variable.numeric.catsys.anm" }
+      }
+    },
+    "variable_string": {
+      "name": "variable.string",
+      "match": "(\\$str)\\d+\\b",
+      "captures": {
+        "1": { "name": "punctuation.definition.variable.string.catsys.anm" }
+      }
+    },
+    "variable_default": {
+      "name": "keyword.other.default",
+      "match": "(@)",
+      "captures": {
+        "1": { "name": "punctuation.definition.keyword.default.catsys.anm" }
+      }
+    },
+    "storage_types": {
+      "name": "storage",
+      "patterns": [
+        {
+          "name": "storage.type.built-in.primitive.catsys.anm",
+          "match": "(?-mix:(?<!\\w)(?:void|char|byte|short|word|long|dword|float)(?!\\w))"
+        },
+        {
+          "name": "storage.type.$1.catsys.anm",
+          "match": "(?-mix:\\b(struct|union|enum|function)\\b)"
+        },
+        {
+          "name": "storage.modifier.$1.catsys.anm",
+          "match": "(?-mix:(?<!\\w)(global|heap)(?!\\w))"
+        }
+      ]
+    },
+		"literals_arguments": {
+			"patterns": [
+				{
+					"name": "constant.language.boolean.true.catsys",
+					"match": "\\b(?:true|on)\\b"
+				},
+				{
+					"name": "constant.language.boolean.false.catsys",
+					"match": "\\b(?:false|off)\\b"
+				}
+			]
+    },
+    "keywords_control": {
+      "patterns": [
+        {
+          "name": "keyword.control.conditional.catsys.anm",
+          "match": "\\b(?:if)\\b"
+        },
+        {
+          "name": "keyword.control.flow.catsys.anm",
+          "match": "\\b(?:call|next|return|title|wait)\\b"
+        },
+        {
+          "name": "keyword.control.scene.catsys.anm",
+          "match": "\\b(?:fselect|jumpstop|select|select2|skipstop|undo)\\b"
+        }
+      ]
+    },
+    "keywords_other_variable": {
+      "patterns": [
+        {
+          "comment":  "| or keyword.other.bank.plane",
+          "name": "keyword.other.get.catsys.anm",
+          "match": "\\bget\\b"
+        },
+        {
+          "comment":  "| or keyword.other.bank.plane",
+          "name": "keyword.other.set.catsys.anm",
+          "match": "\\bset\\b"
+        },
+        {
+          "comment": "Other Special: Variable",
+          "name": "keyword.other.variable.catsys.anm",
+          "match": "\\b(?:getfbit|clearfbit|max|min|setfbit|str|strcmp|strn)\\b"
+        }
+      ]
+    },
+    "keywords_other_special": {
+      "patterns": [
+        {
+          "comment": "Other Special: Window",
+          "name": "keyword.other.window.catsys.anm",
+          "match": "\\b(?:autoface|forcemesdel|frame|frameoff|frameon|mesdraw|view)\\b"
+        },
+        {
+          "comment": "Other Special: Input",
+          "name": "keyword.other.input.catsys.anm",
+          "match": "\\b(?:auto|keyskip)\\b"
+        },
+        {
+          "comment": "Other Special: Other",
+          "name": "keyword.other.special.catsys.anm",
+          "match": "\\b(?:callmestag|cgflag|cgreg|debug|debugoff|debugon|end_of_kaisou|fes|fesds|fesjs|js|movie|novel|scene|sysbtn|thumbnail|tonetbl|voiceoff|week)\\b"
+        }
+      ]
+    },
+    "support_class_banks": {
+      "patterns": [
+        {
+          "comment": "Image plane",
+          "name": "support.class.bank.plane.catsys.anm",
+          "match": "\\b(?:bg|cg|eg|fg|fw|pl)\\b"
+        },
+        {
+          "comment": "Sound | or entity.name.interface.sound | or support.variable.bank.sound | or variable.language.bank.plane",
+          "name": "support.class.bank.sound.catsys.anm",
+          "match": "\\b(?:bgm|se|pcm)\\b"
+        },
+        {
+          "comment": "Particles",
+          "name": "support.class.script.particle.catsys.anm",
+          "match": "\\b(?:particle|particle2|particle3)\\b"
+        }
+      ]
+    },
+    "support_type_arguments": {
+      "patterns": [
+        {
+          "name": "support.type.wait.catsys.anm",
+          "match": "\\b(?:key|pcm|pt|se|tag)\\b"
+        }
+      ]
+    },
+    "support_function_command": {
+      "patterns": [
+        {
+          "comment": "Screen rewriting by crossfade (draw)",
+          "name": "support.function.command.draw.catsys.anm",
+          "match": "\\b(?:draw|drawdef|rdraw)\\b"
+        },
+        {
+          "comment": "Screen rewriting by wipe (draw)",
+          "name": "support.function.command.draw.catsys.anm",
+          "match": "\\b(?:rfmos|rwipe|rwmos|wbreak|wipe|wipe2|wipe3|wipedef)\\b"
+        }
+      ]
+    },
+    "support_function_argument_sound": {
+      "patterns": [
+        {
+          "comment": "Sound: 2nd Playbak / initialization",
+          "name": "support.function.argument.sound.control.catsys.anm",
+          "match": "\\b(?:loop|pause|replay)\\b"
+        },
+        {
+          "comment": "Sound: 2nd Volume",
+          "name": "support.function.argument.sound.catsys.anm",
+          "match": "\\b(?:end|fade|vol|base|pos|rot|arc|move|quake|shake|mrot)\\b"
+        }
+      ]
+    },
+    "support_function_argument_particle": {
+      "patterns": [
+        {
+          "comment": "Special FX: 2nd Particle",
+          "name": "support.function.argument.particle.catsys.anm",
+          "match": "\\b(?:stop)\\b"
+        },
+        {
+          "comment": "Special FX: 2nd Particle",
+          "name": "support.function.argument.particle.catsys.anm",
+          "match": "\\b(?:alpha|fade|set|stop)\\b"
+        }
+      ]
+    },
+    "support_function_argument_plane": {
+      "patterns": [
+        {
+          "comment": "Motion: 2nd",
+          "name": "support.function.argument.plane.catsys.anm",
+          "match": "\\b(?:stop)\\b"
+        },
+
+        {
+          "comment": "Image plane: 2nd Common",
+          "name": "support.function.argument.plane.image.catsys.anm",
+          "match": "\\b(?:base|blend|clone|delay|disp|pos|scale|shift)\\b"
+        },
+        {
+          "comment": "Image plane: 2nd Image only",
+          "name": "support.function.argument.plane.image.catsys.anm",
+          "match": "\\b(?:blur|def|mode|tone)\\b"
+        },
+        {
+          "comment": "Image plane: 2nd Plane only",
+          "name": "support.function.argument.plane.image.catsys.anm",
+          "match": "\\b(?:after|bmode|color|pri|rot|vcom|video|vram)\\b"
+        },
+
+        {
+          "comment": "Motion: 2nd Opacity color",
+          "name": "support.function.argument.plane.motion.catsys.anm",
+          "match": "\\b(?:cfade|fade|fade2|m2cfade|m2fade|mccfade|mcdisp|mcfade)\\b"
+        },
+        {
+          "comment": "Motion: 2nd Move",
+          "name": "support.function.argument.plane.motion.catsys.anm",
+          "match": "\\b(?:amove1|amove2|amove3|arc|m2arc|m2move|m2quake|m2shake|m2spline|mcarc|mcmove|mcquake|mcshake|mcspline|move|quake|shake|spline)\\b"
+        },
+        {
+          "comment": "Motion: 2nd magnification",
+          "name": "support.function.argument.plane.motion.catsys.anm",
+          "match": "\\b(?:m2scale|m2spline_s|mcscalecos|mcscalesin|mcspline_s|mscale|spline_s)\\b"
+        },
+        {
+          "comment": "Motion: 2nd Rotation",
+          "name": "support.function.argument.plane.motion.catsys.anm",
+          "match": "\\b(?:m2pend|m2rot|m2spline_r|mcpend|mcrot|mcspline_r|mrot|pend|spline_r)\\b"
+        },
+
+        {
+          "comment": "[REUSED CMD FADE] Special FX: 2nd Raster scroll",
+          "name": "support.function.argument.plane.effect.catsys.anm",
+          "match": "\\b(?:raster|raster[ \t]+?fade)\\b"
+        },
+
+        {
+          "comment": "Other Special: 2nd Image Attributes",
+          "name": "support.function.argument.plane.attribute.catsys.anm",
+          "match": "\\b(?:attr|attr_def)\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "name": "keyword",
+      "match": "(?<=\\s|^)(?:(if|else|while|do|for|switch|case|range|default|goto|return|break|continue)|struct|union|enum|function|global|heap|void|(char|byte|short|word|long|dword|float))(?=\\/\\/|\\s|$)",
+      "captures": {
+        "1": { "name": "keyword.control" }
+      }
+    },
+    "keywords_controlOLD": {
+      "name": "keyword",
+      "patterns": [
+        {
+          "comment": "generic",
+          "name": "keyword.control.catsys",
+          "match": "\\b(?:break|case|continue|default|do|else|endif|for|goto|if|range|return|switch|while)\\b"
+        },
+        {
+          "comment": "fes+cst control",
+          "name": "keyword.control.catsys",
+          "match": "\\b(?:call|next|wait)\\b"
+        },
+        {
+          "comment": "fes-only",
+          "name": "keyword.control.catsys.fes",
+          "match": "\\b(?:decode)\\b"
+        },
+        {
+          "comment": "cst-specific",
+          "name": "keyword.control.catsys.cst",
+          "match": "\\b(?:fselect|jumpstop|select|skipstop|title|undo)\\b"
+        }
+      ]
+    },
+    "storage": {
+      "name": "storage",
+      "match": "(?<=\\s|^)(?:(struct)|(union)|(enum)|(function)|(global|heap)|(void|char|byte|short|word|long|dword|float))(?=\\/\\/|\\s|$)",
+      "captures": {
+        "1": { "name": "keyword.declaration.struct" },
+        "2": { "name": "keyword.declaration.union" },
+        "3": { "name": "keyword.declaration.enum" },
+        "4": { "name": "keyword.declaration.function" },
+        "5": { "name": "storage.modifier" },
+        "6": { "name": "storage.type.built-in.primitive" }
+      }
+    },
+    "storage_old": {
+      "name": "storage",
+      "match": "(?<=\\s|^)(?:(struct)|(union)|(enum)|(function)|(global|heap)|(void|char|byte|short|word|long|dword|float))(?=\\/\\/|\\s|$)",
+      "captures": {
+        "1": { "name": "keyword.declaration.struct" },
+        "2": { "name": "keyword.declaration.union" },
+        "3": { "name": "keyword.declaration.enum" },
+        "4": { "name": "keyword.declaration.function" },
+        "5": { "name": "storage.modifier" },
+        "6": { "name": "storage.type.built-in.primitive" }
+      }
+    },
+		"numbers": {
+			"match": "(?<!\\w)\\.?\\$?\\d(?:(?:[0-9a-zA-Z_\\.]|')|(?<=[eEpP])[+-])*",
+			"captures": {
+				"0": {
+					"patterns": [
+						{
+							"begin": "(?=.)",
+							"end": "$",
+							"patterns": [
+								{
+									"match": "(\\G(?:0[xX]|\\$))([0-9a-fA-F](?:[0-9a-fA-F]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)?((?:(?<=[0-9a-fA-F])\\.|\\.(?=[0-9a-fA-F])))([0-9a-fA-F](?:[0-9a-fA-F]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)?((?<!')([pP])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)))?([lLfF](?!\\w))?$",
+									"captures": {
+										"1": {
+											"name": "keyword.other.unit.hexadecimal.c"
+										},
+										"2": {
+											"name": "constant.numeric.hexadecimal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"3": {
+											"name": "punctuation.separator.constant.numeric"
+										},
+										"4": {
+											"name": "constant.numeric.hexadecimal.c"
+										},
+										"5": {
+											"name": "constant.numeric.hexadecimal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"6": {
+											"name": "punctuation.separator.constant.numeric"
+										},
+										"8": {
+											"name": "keyword.other.unit.exponent.hexadecimal.c"
+										},
+										"9": {
+											"name": "keyword.operator.plus.exponent.hexadecimal.c"
+										},
+										"10": {
+											"name": "keyword.operator.minus.exponent.hexadecimal.c"
+										},
+										"11": {
+											"name": "constant.numeric.exponent.hexadecimal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"12": {
+											"name": "keyword.other.unit.suffix.floating-point.c"
+										}
+									}
+								},
+								{
+									"match": "(\\G(?=[0-9.])(?!(?:0[xXbB]|\\$)))([0-9](?:[0-9]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)?((?:(?<=[0-9])\\.|\\.(?=[0-9])))([0-9](?:[0-9]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)?((?<!')([eE])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)))?([lLfF](?!\\w))?$",
+									"captures": {
+										"2": {
+											"name": "constant.numeric.decimal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"3": {
+											"name": "punctuation.separator.constant.numeric"
+										},
+										"4": {
+											"name": "constant.numeric.decimal.point.c"
+										},
+										"5": {
+											"name": "constant.numeric.decimal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"6": {
+											"name": "punctuation.separator.constant.numeric"
+										},
+										"8": {
+											"name": "keyword.other.unit.exponent.decimal.c"
+										},
+										"9": {
+											"name": "keyword.operator.plus.exponent.decimal.c"
+										},
+										"10": {
+											"name": "keyword.operator.minus.exponent.decimal.c"
+										},
+										"11": {
+											"name": "constant.numeric.exponent.decimal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"12": {
+											"name": "keyword.other.unit.suffix.floating-point.c"
+										}
+									}
+								},
+								{
+									"match": "(\\G0[bB])([01](?:[01]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)((?:(?:(?:(?:(?:[uU]|[uU]ll?)|[uU]LL?)|ll?[uU]?)|LL?[uU]?)|[fF])(?!\\w))?$",
+									"captures": {
+										"1": {
+											"name": "keyword.other.unit.binary.c"
+										},
+										"2": {
+											"name": "constant.numeric.binary.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"3": {
+											"name": "punctuation.separator.constant.numeric"
+										},
+										"4": {
+											"name": "keyword.other.unit.suffix.integer.c"
+										}
+									}
+								},
+								{
+									"match": "(\\G0)((?:[0-7]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))+)((?:(?:(?:(?:(?:[uU]|[uU]ll?)|[uU]LL?)|ll?[uU]?)|LL?[uU]?)|[fF])(?!\\w))?$",
+									"captures": {
+										"1": {
+											"name": "keyword.other.unit.octal.c"
+										},
+										"2": {
+											"name": "constant.numeric.octal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"3": {
+											"name": "punctuation.separator.constant.numeric"
+										},
+										"4": {
+											"name": "keyword.other.unit.suffix.integer.c"
+										}
+									}
+								},
+								{
+									"match": "(\\G(?:0[xX]|\\$))([0-9a-fA-F](?:[0-9a-fA-F]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)((?<!')([pP])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)))?((?:(?:(?:(?:(?:[uU]|[uU]ll?)|[uU]LL?)|ll?[uU]?)|LL?[uU]?)|[fF])(?!\\w))?$",
+									"captures": {
+										"1": {
+											"name": "keyword.other.unit.hexadecimal.c"
+										},
+										"2": {
+											"name": "constant.numeric.hexadecimal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"3": {
+											"name": "punctuation.separator.constant.numeric"
+										},
+										"5": {
+											"name": "keyword.other.unit.exponent.hexadecimal.c"
+										},
+										"6": {
+											"name": "keyword.operator.plus.exponent.hexadecimal.c"
+										},
+										"7": {
+											"name": "keyword.operator.minus.exponent.hexadecimal.c"
+										},
+										"8": {
+											"name": "constant.numeric.exponent.hexadecimal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"9": {
+											"name": "keyword.other.unit.suffix.integer.c"
+										}
+									}
+								},
+								{
+									"match": "(\\G(?=[0-9.])(?!(?:0[xXbB]|\\$)))([0-9](?:[0-9]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)((?<!')([eE])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)))?((?:(?:(?:(?:(?:[uU]|[uU]ll?)|[uU]LL?)|ll?[uU]?)|LL?[uU]?)|[fF])(?!\\w))?$",
+									"captures": {
+										"2": {
+											"name": "constant.numeric.decimal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"3": {
+											"name": "punctuation.separator.constant.numeric"
+										},
+										"5": {
+											"name": "keyword.other.unit.exponent.decimal.c"
+										},
+										"6": {
+											"name": "keyword.operator.plus.exponent.decimal.c"
+										},
+										"7": {
+											"name": "keyword.operator.minus.exponent.decimal.c"
+										},
+										"8": {
+											"name": "constant.numeric.exponent.decimal.c",
+											"patterns": [
+												{
+													"match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+													"name": "punctuation.separator.constant.numeric"
+												}
+											]
+										},
+										"9": {
+											"name": "keyword.other.unit.suffix.integer.c"
+										}
+									}
+								},
+								{
+									"match": "(?:(?:[0-9a-zA-Z_\\.]|')|(?<=[eEpP])[+-])+",
+									"name": "invalid.illegal.constant.numeric"
+								}
+							]
+						}
+					]
+				}
+			}
+		},
+		"c_operators": {
+			"patterns": [
+				{
+					"match": "(?<![\\w$])(sizeof)(?![\\w$])",
+					"name": "keyword.operator.sizeof.c"
+				},
+				{
+					"match": "--",
+					"name": "keyword.operator.decrement.c"
+				},
+				{
+					"match": "\\+\\+",
+					"name": "keyword.operator.increment.c"
+				},
+				{
+					"match": "%=|\\+=|-=|\\*=|(?<!\\()/=",
+					"name": "keyword.operator.assignment.compound.arithmetic.c"
+				},
+				{
+					"match": "&=|\\^=|<<=|>>=|\\|=",
+					"name": "keyword.operator.assignment.compound.bitwise.c"
+				},
+				{
+					"match": "<<|>>",
+					"name": "keyword.operator.bitwise.shift.c"
+				},
+				{
+					"match": "!=|<=|>=|==|<|>",
+					"name": "keyword.operator.comparison.c"
+				},
+				{
+					"match": "&&|!|\\|\\|",
+					"name": "keyword.operator.logical.c"
+				},
+				{
+					"match": "&|\\||\\^|~",
+					"name": "keyword.operator.bitwise.c"
+				},
+				{
+					"match": "=",
+					"name": "keyword.operator.assignment.c"
+				},
+				{
+					"match": "%|\\*|/|-|\\+",
+					"name": "keyword.operator.arithmetic.c"
+				}
+			]
+		},
+		"c_parens": {
+			"name": "meta.parens.c",
+			"begin": "\\(",
+			"beginCaptures": {
+				"0": {
+					"name": "punctuation.section.parens.begin.bracket.round.c"
+				}
+			},
+			"end": "\\)",
+			"endCaptures": {
+				"0": {
+					"name": "punctuation.section.parens.end.bracket.round.c"
+				}
+			},
+			"patterns": [
+				{
+					"include": "$base"
+				}
+			]
+    },
+    "c_include_import": {
+			"begin": "^\\s*((#)\\s*(include(?:_next)?|import))\\b\\s*",
+			"beginCaptures": {
+				"1": {
+					"name": "keyword.control.directive.$3.c"
+				},
+				"2": {
+					"name": "punctuation.definition.directive.c"
+				}
+			},
+			"end": "(?=(?://|/\\*))|(?<!\\\\)(?=\\n)",
+			"name": "meta.preprocessor.include.c",
+			"patterns": [
+				{
+					"begin": "\"",
+					"beginCaptures": {
+						"0": {
+							"name": "punctuation.definition.string.begin.c"
+						}
+					},
+					"end": "\"",
+					"endCaptures": {
+						"0": {
+							"name": "punctuation.definition.string.end.c"
+						}
+					},
+          "name": "string.quoted.double.include.c",
+          "patterns": [
+            {
+              "name": "invalid.illegal.filepath.character.include",
+              "match": "[<>\"?*]"
+            }
+          ]
+				},
+        {
+          "name": "string.unquoted.include.c",
+          "match": ".*",
+          "captures": {
+            "0": {
+              "patterns": [
+                {
+                  "name": "invalid.illegal.filepath.character.include",
+                  "match": "[<>\"?*]"
+                }
+              ]
+            }
+          }
+        }
+			]
+		},
+    "operators": {
+      "name": "keyword.operator",
+      "match": "(?<=\\s|^)(?:(sizeof)|else|while|do|for|switch|case|range|default|goto|return|break|continue)|struct|union|enum|function|global|heap|void|char|byte|short|word|long|dword|float)(?=\\/\\/|\\s|$)",
+      "captures": {
+        "1": { "name": "keyword.operator.sizeof" }
+      }
+    },
+    "message.escapes.backslash": {
+      "name": "constant.character.escape.message.catsys.anm",
+      "comment": "(?<!\\\\)(\\\\{2})*(?:(\\\\(?:f[r]?(?:n|ss?|ll?|[+\\-]?\\d+)|p[lcr]|c[rs]?0x[0-9A-Fa-f]{8});?)|(\\\\[@p])|(\\\\[\\\\tnr\\[\\]])|(\\\\.))",
+      "match": "()(?:(\\\\(?:f(?:n|ss?|ll?|[r+\\-]?\\d+);?|c[rs]?0x[0-9A-Fa-f]{8};?|p[lcr]))|(\\\\[@p])|(\\\\[\\\\tnr\\[])|(\\\\.))",
+      "captures": {
+        "1": { "name": "constant.character.escape.character.catsys.anm" },
+        "2": { "name": "constant.language.escape.format.catsys.anm" },
+        "3": { "name": "constant.language.escape.message.catsys.anm" },
+        "4": { "name": "constant.character.escape.message.catsys.anm" },
+        "5": { "name": "invalid.illegal.escape.message.catsys.anm" }
+      }
+    },
+    "message.escapes.formats": {
+      "name": "constant.language.escape.format.size.catsys.anm",
+      "match": "(?:\\\\f(?:n|ss?|ll?|[r+\\-]?\\d+);?)|(\\\\f(?:r;.|r[+\\-]|[;+\\-])?)|(?:\\\\c[rs]?(0[Xx][0-9A-Fa-f]{8});?)|(\\\\c(?:[rs]?0(?:[xX][0-9A-Fa-f]*)?;?|[;rs])?)|(?:\\\\wf?\\d+;?|(\\\\wr))|(\\\\wf?)|(\\\\p[clr])|(\\\\p)|(\\\\@)",
+      "captures": {
+        "1": {"name": "invalid.illegal.escape.format.size.catsys.anm" },
+        "2": {"name": "constant.other.color.rgb-value" },
+        "3": {"name": "invalid.illegal.escape.format.color.catsys.anm" },
+        "4": {"name": "constant.language.escape.format.wait.reset.catsys.anm" },
+        "5": {"name": "invalid.illegal.escape.format.wait.catsys.anm" },
+        "6": {"name": "constant.language.escape.format.align.catsys.anm" },
+        "7": {"name": "constant.language.escape.format.paragraph.catsys.anm" },
+        "8": {"name": "constant.language.escape.format.blocking.catsys.anm" }
+      }
+    },
+    "message.escapes.characters": {
+      "name": "constant.character.escape.newline.catsys.anm",
+      "match": "(\\\\[nr])|(\\\\t)|(\\\\\\\\)|(\\\\\\[)|(\\\\.)",
+      "captures": {
+        "1": {"name": "constant.character.escape.newline.catsys.anm" },
+        "2": {"name": "constant.character.escape.tab.catsys.anm" },
+        "3": {"name": "constant.character.escape.backslash.catsys.anm" },
+        "4": {"name": "constant.character.escape.openbracket.catsys.anm" },
+        "5": {"name": "invalid.illegal.escape.character.catsys.anm" }
+      }
+    },
+    "message.escapes.word": {
+      "name": "constant.language.escape.word.catsys.anm",
+      "match": "(\\[)([^\\/\\]]*)(?:(\\/)([^\\]]*))?(\\])",
+      "captures": {
+        "1": { "name": "keyword.control.anchor.regexp.word-begin.catsys.anm" },
+        "5": { "name": "keyword.control.anchor.regexp.word-end.catsys.anm" },
+        "3": { "name": "keyword.control.anchor.regexp.word-separator.ruby.catsys.anm" },
+        "2": {
+          "name": "string.unquoted.word.catsys.anm",
+          "patterns": [
+            { "include": "#variable_string" },
+            { "include": "#message.escapes.formats" },
+            {
+              "name": "constant.character.escape.word.single-quote.catsys.anm",
+              "match": "(\\\\')"
+            },
+            { "include": "#message.escapes.characters" }
+          ]
+        },
+        "4": {
+          "name": "string.regexp.word.ruby.catsys.anm",
+          "patterns": [
+            { "include": "#variable_string" },
+            { "include": "#message.escapes.formats" },
+            { "include": "#message.escapes.characters" }
+          ]
+        }
+      }
+    },
+    "message.escapes.wordNEWTHREE": {
+      "name": "constant.language.escape.word.catsys.anm",
+      "match": "(\\[)([^\\/\\]]*)(?:(\\/)([^\\]]*))?(\\])",
+      "captures": {
+        "1": { "name": "constant.character.escape.word-begin.catsys.anm" },
+        "5": { "name": "constant.character.escape.word-end.catsys.anm" },
+        "3": { "name": "keyword.control.anchor.regexp.separator.word.ruby.catsys.anm" },
+        "2": { "name": "string.unquoted.word.catsys.anm" },
+        "4": { "name": "string.regexp.word.ruby.catsys.anm" }
+      }
+    },
+    "message.escapes.wordNEWTWO": {
+      "begin": "\\[",
+      "end": "\\]",
+      "contentName": "constant.language.escape.word.catsys.anm",
+      "beginCaptures": {
+        "0": { "name": "meta.embedded.word-begin.catsys.anm" }
+      },
+      "endCaptures": {
+        "0": { "name": "meta.embedded.word-end.catsys.anm" }
+      },
+      "patterns": [
+        {
+          "match": "([^\\/\\]]*)(?:(\\/)([^\\]]*))?",
+          "captures": {
+            "0": { "name": "meta.embedded.word.catsys.anm" },
+            "1": { "name": "string.unquoted.word.catsys.anm" },
+            "2": { "name": "meta.embedded.separator.word.ruby.catsys.anm" },
+            "3": { "name": "string.regexp.word.ruby.catsys.anm" }
+          }
+        }
+      ]
+    },
+    "message.escapes.wordOLDNEW2": {
+      "begin": "\\[",
+      "end": "\\]",
+      "contentName": "constant.language.escape.format.word.catsys.anm",
+      "beginCaptures": {
+        "0": { "name": "punctuation.definition.template-expression.begin.format.catsys.anm" }
+      },
+      "endCaptures": {
+        "0": { "name": "punctuation.definition.template-expression.end.format.catsys.anm" }
+      },
+      "patterns": [
+        {
+          "match": "([^\\/\\]]*)(?:(\\/)([^\\]]*))?",
+          "captures": {
+            "0": { "name": "punctuation.section.embedded.format.catsys.anm" },
+            "1": { "name": "string.unquoted.format.word.catsys.anm" },
+            "2": { "name": "punctuation.definition.format.ruby.catsys.anm" },
+            "3": { "name": "string.regexp.format.ruby.catsys.anm" }
+          }
+        }
+      ]
+    },
+    "message.escapes.wordOLD": {
+      "name": "constant.language.escape.format.word.catsys.anm",
+      "match": "([)([^\\/\\]*)(?:(/)([^\\/]*)(])",
+      "captures": {
+        "1": {"name": "punctuation.definition.format.word.begin.catsys.anm" },
+        "2": {"name": "keyword.control.anchor.regexp.format.word.catsys.anm" },
+        "3": {"name": "punctuation.definition.format.word.ruby.catsys.anm" },
+        "4": {"name": "string.regexp.format.word.catsys.anm" },
+        "5": {"name": "punctuation.definition.format.word.end.catsys.anm" }
+      }
+    },
+    "message.escape.format.size": {
+      "name": "constant.language.escape.format.size.catsys.anm",
+      "match": "(?:\\\\f(?:n|ss?|ll?|[r+\\-]?\\d+);?)|(\\\\f(?:r;.|r[+\\-]|[;+\\-])?)",
+      "captures": {
+        "1": {"name": "invalid.illegal.escape.format.size.catsys.anm" }
+      }
+    },
+    "message.escape.format.color": {
+      "name": "constant.language.escape.format.color.catsys.anm",
+      "match": "(?:\\\\c[rs]?(0[Xx][0-9A-Fa-f]{8});?)|(\\\\c(?:[rs]?0(?:[xX][0-9A-Fa-f]*)?;?|[;rs])?)",
+      "captures": {
+        "1": {"name": "constant.other.color.rgb-value" },
+        "2": {"name": "invalid.illegal.escape.format.color.catsys.anm" }
+      }
+    },
+    "message.escape.format.wait": {
+      "name": "constant.language.escape.format.wait.catsys.anm",
+      "match": "(?:\\\\wf?\\d+;?|(\\\\wr))|(\\\\wf?)",
+      "captures": {
+        "1": {"name": "constant.language.escape.format.wait.reset.catsys.anm" },
+        "2": {"name": "invalid.illegal.escape.format.wait.catsys.anm" }
+      }
+    },
+    "message.escape.format.align": {
+      "name": "constant.language.escape.format.align.catsys.anm",
+      "match": "\\\\p[clr]"
+    },
+    "message.escape.format.paragraph": {
+      "name": "constant.language.escape.format.paragraph.catsys.anm",
+      "match": "\\\\p"
+    },
+    "message.escape.format.blocking": {
+      "name": "constant.language.escape.format.blocking.catsys.anm",
+      "match": "\\\\@"
+    },
+    "message.escape.character.newline": {
+      "name": "constant.character.escape.newline.catsys.anm",
+      "match": "\\\\[nr]"
+    },
+    "message.escape.character.back-slash": {
+      "name": "constant.character.escape.back-slash.catsys.anm",
+      "match": "\\\\\\\\"
+    },
+    "message.escape.character.open-bracket": {
+      "name": "constant.character.escape.open-bracket.catsys.anm",
+      "match": "\\\\\\["
+    },
+    "message.escapes.dollar": {
+      "match": "(\\$str\\d+)|(\\$\\$)",
+      "captures": {
+        "1": { "name": "variable.language.string.catsys.anm" },
+        "2": { "name": "constant.character.escape.message.catsys.anm" }
+      }
+    },
+    "message_esc": {
+      "begin": "(?<!\\\\)(\\\\{2})*",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "constant.character.escape.character.backslash" }
+      },
+          "patterns": [
+            {
+              "name": "constant.language.escape.color",
+              "match": "^(\\\\)c[rs]?((0x)[0-9A-Fa-f]){8}(;)?"
+            },
+            {
+              "name": "constant.language.escape.size",
+              "match": "^(\\\\)fr?(?:([\\-+])?\\d+|ss?|n|ll?)(;)?"
+            },
+            {
+              "name": "constant.language.escape.align",
+              "match": "^\\\\p[lcr](;)?"
+            },
+            {
+              "name": "constant.language.escape.wait",
+              "match": "^(\\\\wf?)\\d+(;)?"
+            },
+            {
+              "name": "constant.language.escape.wait",
+              "match": "^(\\\\wr)(;)?"
+            },
+            {
+              "name": "constant.language.escape.wait",
+              "match": "^\\\\w(?:f?\\d+|r)(;)?"
+            },
+            {
+              "name": "constant.language.escape.paragraph",
+              "match": "^\\\\p"
+            },
+            {
+              "name": "constant.character.escape.newline",
+              "match": "^\\\\[nr]"
+            },
+            {
+              "name": "constant.character.escape.tab",
+              "match": "^\\\\t"
+            },
+            {
+              "name": "constant.character.escape.square-bracket",
+              "match": "^\\\\[\\[\\]]"
+            },
+            {
+              "name": "constant.language.escape.continue",
+              "match": "^\\\\@"
+            }
+          ]
+    },
+    "message.base.speaker": {
+      "name": "keyword.control.anchor.regexp.message.speaker.catsys.anm",
+      "match": ".*"
+    },
+    "message.base.text": {
+      "name": "string.unquoted.message.text.catsys.anm",
+      "match": ".*",
+      "captures": {
+        "0": { "patterns": [
+          { "include": "#variable_string" },
+          { "include": "#message.escapes.formats" },
+          { "include": "#message.escapes.characters" },
+          { "include": "#message.escapes.word" }
+         ] }
+      }
+    },
+    "messages.speaker": {
+      "name": "message.speaker.catsys.anm",
+      "match": "^([^ \t\u0021-\u005A\u005E-\u00FF\uFF61-\uFFDC\uFFE8-\uFFED][^ \t]*)[ \t]*$",
+      "captures": {
+        "1": {
+          "patterns": [ { "include": "#message.base.speaker" } ]
+        }
+      }
+    },
+    "message.attempt2": {
+      "begin": "^((\\\\)|([^ \t]+))?[ \t]*(?=[ \t]|$)",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "message.speaker.catsys.anm" },
+        "2": { "name": "constant.character.escape.monologue.catsys.anm" },
+        "3": { "name": "keyword.control.anchor.regexp.speaker.catsys.anm" }
+      },
+      "patterns": [
+
+      ]
+    },
+    "messages.speaker2": {
+      "name": "message.speaker.catsys.anm",
+      "begin": "^(?=[^ \t\u0021-\u005A\u005E-\u00FF\uFF61-\uFFDC\uFFE8-\uFFED])",
+      "end": "[ \t]|$",
+      "contentName": "keyword.control.anchor.regexp.speaker.catsys.anm",
+      "patterns": [
+        { "include": "#variable_string" }
+      ]
+    },
+    "messages.dialogue": {
+      "name": "message.dialogue.catsys.anm",
+      "match": "^([^ \t#][^ \t]*)[ \t]+([^ \t\u0021-\u005A\u005E-\u00FF\uFF61-\uFFDC\uFFE8-\uFFED].*)[ \t]*$",
+      "captures": {
+        "1": {
+          "name": "message.dialogue.speaker.catsys.anm",
+          "patterns": [ { "include": "#message.base.speaker" } ]
+        },
+        "2": {
+          "name": "message.dialogue.text.catsys.anm",
+          "patterns": [ { "include": "#message.base.text" } ]
+        }
+      }
+    },
+    "messages.dialogueOLDTWO": {
+      "name": "message.dialogue.catsys.anm",
+      "match": "^([^ \t\u0021-\u005A\u005E-\u00FF\uFF61-\uFFDC\uFFE8-\uFFED][^ \t]*)[ \t]+([^ \t\u0021-\u005A\u005E-\u00FF\uFF61-\uFFDC\uFFE8-\uFFED].*)[ \t]*$",
+      "captures": {
+        "1": {
+          "name": "message.dialogue.speaker.catsys.anm",
+          "patterns": [ { "include": "#message.base.speaker" } ]
+        },
+        "2": {
+          "name": "message.dialogue.text.catsys.anm",
+          "patterns": [ { "include": "#message.base.text" } ]
+        }
+      }
+    },
+    "messages.dialogue.newworld": {
+      "name": "message.dialogue.catsys.anm",
+      "contentName": "string.unquoted.dialogue.text.catsys.anm",
+      "begin": "^(?:(\\\\)[ \t+]|[ \t]+(?=[^ \t\u0021-\u005A\u005E-\u00FF\uFF61-\uFFDC\uFFE8-\uFFED]))",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "constant.character.escape.monologue.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#message.escapes.dollar" },
+        { "include": "#message.escapes.backslash" },
+        { "include": "#variable_numeric" },
+        { "include": "#variable_string" }
+      ]
+    },
+    "messages.monologue.newworld": {
+      "name": "message.monologue.catsys.anm",
+      "contentName": "emphasis.monologue.text.catsys.anm",
+      "begin": "^(?:(\\\\)[ \t+]|[ \t]+(?=[^ \t\u0021-\u005A\u005E-\u00FF\uFF61-\uFFDC\uFFE8-\uFFED]))",
+      "end": "$",
+      "beginCaptures": {
+        "1": { "name": "constant.character.escape.monologue.catsys.anm" }
+      },
+      "patterns": [
+        { "include": "#message.escapes.dollar" },
+        { "include": "#message.escapes.backslash" },
+        { "include": "#variable_numeric" },
+        { "include": "#variable_string" }
+      ]
+    },
+    "messages.monologue": {
+      "name": "message.monologue.catsys.anm",
+      "match": "^()[ \t]+([^ \t\u0021-\u005A\u005E-\u00FF\uFF61-\uFFDC\uFFE8-\uFFED].*)[ \t]*$",
+      "captures": {
+        "1": {
+
+        },
+        "2": {
+          "name": "emphasis.monologue.text.catsys.anm",
+          "patterns": [ { "include": "#message.base.text" } ]
+        }
+      }
+    },
+    "messages.monologue.escaped": {
+      "name": "message.monologue.escaped.catsys.anm",
+      "match": "^(\\\\)[ \t]+([^ \t].*)[ \t]*$",
+      "captures": {
+        "1": {
+          "name": "constant.character.escape.monologue.catsys.anm"
+        },
+        "2": {
+          "name": "emphasis.monologue.text.catsys.anm",
+          "patterns": [ { "include": "#message.base.text" } ]
+        }
+      }
+    },
+    "messages": {
+      "patterns": [
+        { "include": "#messages.monologue.escaped" },
+        { "include": "#messages.speaker" },
+        { "include": "#messages.dialogue" },
+        { "include": "#messages.monologue" }
+      ]
+    },
+    "messages.old": {
+      "patterns": [
+        { "include": "#message.speaker" },
+        { "include": "#message.dialogue" },
+        { "include": "#message.monologue" }
+      ],
+      "name": "string.unquoted.message.base.catsys.anm",
+      "match": "^([^ \t\u0021-\u005A\u005E-\u00FF\uFF61-\uFFDC\uFFE8-\uFFED][^ \t]*)?(?:[ \t]+([^ \t\u0021-\u005A\u005E-\u00FF\uFF61-\uFFDC\uFFE8-\uFFED].*))?[ \t]*$",
+      "captures": {
+        "1": {
+          "name": "markup.underline"
+        },
+        "2": {
+          "name": "string.unquoted.message.catsys.anm",
+          "patterns": [ { "include": "#message_text" } ]
+        }
+      }
+    },
+    "messages44": {
+      "name": "message.base.catsys.anm",
+      "match": "^([^\\u0000-\\u005B\\u005D-\\u00FF\\uFF61-\\uFFDC\\uFFE8-\\uFFED][^\\s]*)?(?:\\s+([^\\u0000-\\u005B\\u005D-\\u00FF\\uFF61-\\uFFDC\\uFFE8-\\uFFED][^\\n\\r]*?))?\\s*$",
+      "captures": {
+        "1": {
+          "name": "entity.name.tag.speaker"
+        },
+        "2": {
+          "name": "string.unquoted.message.catsys.anm",
+          "patterns": [
+            {
+              "begin": "(?<!\\\\)(\\\\{2})*?",
+              "end": "^",
+              "patterns": [
+                {
+                  "name": "constant.character.escape",
+                  "match": "^\\\\(?:[^\\s\\\\;\\u0100-\\uFFFF]+;?|.)",
+                  "patterns": [
+                    {
+                      "name": "constant.language.escape.color",
+                      "match": "\\\\c[rs]?0x[0-9A-Za-z]{8};?"
+                    },
+                    {
+                      "name": "constant.language.escape.size",
+                      "match": "\\\\f[r]?(?:[+\\-]?\\d+|ss?|n|ll?);?"
+                    },
+                    {
+                      "name": "constant.language.escape.align",
+                      "match": "\\\\p[lcr];?"
+                    },
+                    {
+                      "name": "constant.language.escape.wait",
+                      "match": "\\\\w(?:f?\\d+|r);?"
+                    },
+                    {
+                      "name": "constant.language.escape.paragraph",
+                      "match": "\\\\p"
+                    },
+                    {
+                      "name": "constant.character.escape.newline",
+                      "match": "\\\\[nr]"
+                    },
+                    {
+                      "name": "constant.character.escape.tab",
+                      "match": "\\\\t"
+                    },
+                    {
+                      "name": "constant.character.escape.square-bracket",
+                      "match": "\\\\[\\[\\]]"
+                    },
+                    {
+                      "name": "constant.language.escape.continue",
+                      "match": "\\\\@"
+                    }
+                  ]
+                }
+              ],
+              "match": "(?<!\\\\)(\\\\{2})*?(?:(\\\\[^\\s\\\\;\\u0100-\\uFFFF]+;?)|([^\\s\\\\\\u0100-\\uFFFF]+))",
+              "captures": {
+                "1": {
+                  "name": "constant.character.escape.backslash"
+                },
+                "2": {
+                  "name": "constant.language.escape",
+                  "patterns": [
+                    {
+                      "name": "constant.language.escape.color",
+                      "match": "\\\\c[rs]?0x[0-9A-Za-z]{8};?"
+                    },
+                    {
+                      "name": "constant.language.escape.size",
+                      "match": "\\\\f[r]?(?:[+\\-]?\\d+|ss?|n|ll?);?"
+                    },
+                    {
+                      "name": "constant.language.escape.align",
+                      "match": "\\\\p[lcr];?"
+                    },
+                    {
+                      "name": "constant.language.escape.wait",
+                      "match": "\\\\w(?:f?\\d+|r);?"
+                    },
+                    {
+                      "name": "constant.language.escape.paragraph",
+                      "match": "\\\\p"
+                    },
+                    {
+                      "name": "constant.character.escape.newline",
+                      "match": "\\\\[nr]"
+                    },
+                    {
+                      "name": "constant.character.escape.tab",
+                      "match": "\\\\t"
+                    },
+                    {
+                      "name": "constant.character.escape.square-bracket",
+                      "match": "\\\\[\\[\\]]"
+                    },
+                    {
+                      "name": "constant.language.escape.continue",
+                      "match": "\\\\@"
+                    }
+                  ]
+                },
+                "3": {
+                  "patterns": [
+                    {
+                      "name": "entity.other.userfont",
+                      "match": "[\\u2460-\\u2469]"
+                    },
+                    {
+                      "name": "string.interpolated.word.square-bracket",
+                      "match": "[\\[\\]]"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "messages2": {
+      "name": "message.catsys.anm",
+      "begin": "^([^\\u0000-\\u005B\\u005D-\\u00FF\\uFF61-\\uFFDC\\uFFE8-\\uFFED][^ \\s]*)?\\s+(?=[^\\u0000-\\u005B\\u005D-\\u00FF\\uFF61-\\uFFDC\\uFFE8-\\uFFED])",
+      "end": "\\s*$",
+      "beginCaptures": {
+        "1": { "name":"entity.name.tag.speaker" }
+      },
+      "match": "",
+      "captures": {},
+      
+      "patterns": [
+        {
+          "name": "string.unquoted.dialog",
+          "patterns": [
+            {
+              "match": "(?<=\\\\)(?:\\\\{2})*(@)",
+              "captures": {
+                "1": { "name": "variable.name" }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "hashcomments": {
+      "patterns": [
+        {
+          "begin": "(^[ \\t]+)?(?=#)",
+          "beginCaptures": {
+            "1": {
+              "name": "punctuation.whitespace.comment.leading.catsys.anm"
+            }
+          },
+          "end": "(?!\\G)",
+          "patterns": [
+            {
+              "begin": "#",
+              "beginCaptures": {
+                "0": {
+                  "name": "punctuation.definition.comment.catsys.anm"
+                }
+              },
+              "end": "\\n",
+              "name": "comment.line.number-sign.catsys.anm"
+            }
+          ]
+        }
+      ]
+    },
+		"strings": {
+			"patterns": [
+        {
+          "name": "string.quoted.single.catsys.anm",
+          "begin": "'",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.catsys.anm" }
+          },
+          "end": "'",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.catsys.anm" }
+          },
+          "patterns": [
+            {
+              "name": "constant.character.escape.string",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.double.catsys.anm",
+          "begin": "\"",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.catsys.anm" }
+          },
+          "end": "\"",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.catsys.anm" }
+          },
+          "patterns": [
+            {
+              "name": "constant.character.escape.string",
+              "match": "\\\\."
+            }
+          ]
+        }
+			]
+    },
+    "labelname": {
+      "name": "parameter.label.catsys.anm",
+      "match": "(?<=^[^#\\S]+|^)[A-Za-z_]\\w*(?=\\/\\/|\\s|$)"
+    },
+    "sections": {
+			"patterns": [
+        {
+          "comment": "previously name: punctuation.definition.tag.block-section.catsys.anm, OLD: ^\\s*(#)\\s*[A-Za-z_]\\w*(?=\\/\\/|\\s|$)",
+          "name": "entity.name.label.section.catsys.anm",
+          "match": "^(#)\\s*[A-Za-z_]\\w*(?=\\/\\/|\\s|$)",
+          "captures": {
+            "1": { "name": "punctuation.definition.label.section.catsys.anm" }
+          }
+        }
+      ]
+    },
+    "labelmeta2": {
+      "name": "meta.preprocessor.catsys.anm",
+      "match": "^\\s*#\\s*[A-Za-z_]\\w* #569cd6(?=\\/\\/|\\s|$)"
+    },
+    "keys": {
+      "captures": {
+        "1": { "name": "keyword.other.definition.catsys.anm" },
+        "2": { "name": "punctuation.separator.key-value.catsys.anm" }
+      },
+      "match": "^\\s*([a-zA-Z0-9_.-]+)\\b\\s+"
+		},
+		"numbers2": {
+      "patterns": [
+        {
+          "name": "constant.numeric.octal.catsys.anm",
+          "match": "(?<=[\\s,]|^)(?:(0)[0-7])(?=[\\s,]|\\/\\/|$)",
+          "captures": {
+            "1": { "name": "keyword.other.unit.octal.catsys.anm" }
+          }
+        },
+        {
+          "name": "constant.numeric.hexadecimal.catsys.anm",
+          "match": "(?<=[\\s,]|^)(?:(0[xX]|\\$)[0-9a-fA-F]+)(?=[\\s,]|\\/\\/|$)",
+          "captures": {
+            "1": { "name": "keyword.other.unit.hexadecimal.catsys.anm" }
+          }
+        },
+        {
+          "name": "constant.numeric.decimal.integer.catsys.anm",
+          "match": "(?<=[\\s,]|^)-?(?:0|[1-9]\\d*)(?!\\.)(?=[\\s,]|\\/\\/|$)"
+        },
+        {
+          "match": "((?=[0-9.])(?!0[xXbB]))([0-9](?:[0-9]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)?((?:(?<=[0-9])\\.|\\.(?=[0-9])))([0-9](?:[0-9]|((?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)?((?<!')([eE])(\\+?)(\\-?)((?:[0-9](?:[0-9]|(?:(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])))*)))?([lLfF](?!\\w))?$",
+          "captures": {
+            "2": {
+              "name": "constant.numeric.decimal.c",
+              "patterns": [
+                {
+                  "match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+                  "name": "punctuation.separator.constant.numeric"
+                }
+              ]
+            },
+            "3": {
+              "name": "punctuation.separator.constant.numeric"
+            },
+            "4": {
+              "name": "constant.numeric.decimal.point.c"
+            },
+            "5": {
+              "name": "constant.numeric.decimal.c",
+              "patterns": [
+                {
+                  "match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+                  "name": "punctuation.separator.constant.numeric"
+                }
+              ]
+            },
+            "6": {
+              "name": "punctuation.separator.constant.numeric"
+            },
+            "8": {
+              "name": "keyword.other.unit.exponent.decimal.c"
+            },
+            "9": {
+              "name": "keyword.operator.plus.exponent.decimal.c"
+            },
+            "10": {
+              "name": "keyword.operator.minus.exponent.decimal.c"
+            },
+            "11": {
+              "name": "constant.numeric.exponent.decimal.c",
+              "patterns": [
+                {
+                  "match": "(?<=[0-9a-fA-F])'(?=[0-9a-fA-F])",
+                  "name": "punctuation.separator.constant.numeric"
+                }
+              ]
+            },
+            "12": {
+              "name": "keyword.other.unit.suffix.floating-point.c"
+            }
+          }
+        },
+        {
+          "name": "constant.numeric.decimal.float.catsys.anm",
+          "match": "(?<=[\\s,]|^)-?(?:0|[1-9]\\d*)(?:(?:\\.\\d+)(?:[eE][+-]?\\d+)?|(?:[eE][+-]?\\d+))?(?=[\\s,]|\\/\\/|$)"
+        },
+        
+				{
+					"name": "constant.numeric.decimal.catsys.anm",
+					"match": "\\b([0-9_]+)?\\.[0-9_]+((e|E)[0-9]+)?(F|f|D|d|M|m)?\\b"
+				},
+				{
+					"name": "constant.numeric.decimal.catsys.anm",
+					"match": "\\b[0-9_]+(e|E)[0-9_]+(F|f|D|d|M|m)?\\b"
+				},
+				{
+					"name": "constant.numeric.decimal.catsys.anm",
+					"match": "\\b[0-9_]+(F|f|D|d|M|m)\\b"
+				},
+				{
+					"name": "constant.numeric.decimal.catsys.anm",
+					"match": "\\b[0-9_]+(U|u|L|l|UL|Ul|uL|ul|LU|Lu|lU|lu)?\\b"
+				}
+      ]
+    },
+		"constants": {
+			"name": "constant.language.catsys.anm.comments",
+			"match": "\\b(?:true|TRUE|false|FALSE|null|NULL)\\b"
+		}
+	},
+	"scopeName": "source.catsys.anm"
+}
