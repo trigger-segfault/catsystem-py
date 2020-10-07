@@ -1,8 +1,7 @@
+#include "common.h"
+#include "kclib_common.h"
 #include "token_parse_types.h"
 #include "ghidra_types_min.h"
-#include "shiftjis.h"
-#include <stdio.h>
-#include <windows.h>
 
 
 //TokUnk0 values:
@@ -12,6 +11,13 @@
 //6 = SYMBOL '!', '!=', '|', ...
 //7 = KEYWORD (TABLE_KEYWORDS)
 
+void __invalid_parameter_none()
+{
+    // dummy func, MSVC
+}
+
+// dummy data pointer
+#define _DAT_00000010 ((void*)0)
 
 // undefined4 __fastcall FUN_00411750(int **param_1)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411750
@@ -68,9 +74,9 @@ undefined4 __fastcall FUN_00411750(int **param_1)
 
 
 // this => SCRIPT_DECODER->ScrUnk71 (linked list?)
-// undefined4 __thiscall token_UnkFunction(void *this, char *str, undefined8 *outBuffer)
+// undefined4 __thiscall FUN_00411890(void *this, char *str, undefined8 *outBuffer)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411890
-BOOL __thiscall token_UnkFunction(void *this, IN const char *str, OUT unsigned char *outBuffer)
+BOOL __thiscall token_LookupIdentifier(void *this, IN const char *str, OUT unsigned char *outBuffer)
 
 {
     //this fields
@@ -172,15 +178,15 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
 {
     ///TODO: needs return values identified
 
-    // Stack written to from token_UnkFunction
-    undefined8 local_16c [40];
-    undefined4 local_28;
-    undefined4 local_24;
-    undefined4 local_20;
-    undefined4 local_1c;
-    undefined4 local_18;
-    undefined4 local_14;
-    undefined4 local_c;
+    // Stack written to from token_LookupIdentifier
+    unsigned char local_16c[320]; //undefined8 local_16c [40];
+    TOKEN_GROUP  local_28; //assigned to token->TokenGroup
+    TOKEN_TYPE   local_24; //assigned to token->TokenType
+    int          local_20; //assigned to token->TokUnk4
+    unsigned int local_1c; //assigned to token->TokUnk3
+    unsigned int local_18; //assigned to token->TokUnk5
+    unsigned int local_14; //assigned to token->TokUnk6
+    TOKEN_TYPE   local_c;  //assigned to token->LiteralType
 
 
 	//undefined8 *outBuffer; //to be removed
@@ -206,12 +212,12 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
     // *(undefined8 **)((int)this + 0xc) = (undefined8 *)((int)str - *(int *)this);
 
     if (str[0] == ' ' || str[0] == '\t') {
-        token->TokenGroup = assert_enum(3, GROUP_WHITESPACE);
-        token->TokenType = assert_enum(6, TOKEN_WHITESPACE);
+        token->TokenGroup   = assert_enum(3, GROUP_WHITESPACE);
+        token->TokenType    = assert_enum(6, TOKEN_WHITESPACE);
         token->TokenValue.Int32 = 0;
-        //*((undefined4 *)&token->TokenValue) = (undefined4)0;
 
-        memcpy(&token->TokenText[0], str, 1); //FUN_004126c0
+        //memcpy(&token->TokenText[0], str, 1); //FUN_004126c0
+        token->TokenText[0] = str[0];
         token->TokenText[1] = '\0';
         
         this->TokenPosition++;
@@ -226,19 +232,18 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
     }
 	else if (token_ParseInteger(str, &tokenLength, &tokenValue.Int32))
     {
-        token->TokenGroup = assert_enum(5, GROUP_LITERAL);
-        token->TokenType = assert_enum(0xd, TOKEN_INTEGER_LITERAL);
+        token->TokenGroup   = assert_enum(5, GROUP_LITERAL);
+        token->TokenType    = assert_enum(0xd, TOKEN_INTEGER_LITERAL);
         token->TokenValue.Int32 = tokenValue.Int32;
-        //*((int *)&token->TokenValue) = *((int *)&tokenValue);
+        token->TokUnk5      = 4;
+        token->TokUnk6      = 4;
+        token->LiteralType  = assert_enum(0x29, TOKEN_VOID_KEYWORD); // strange, not DWORD/LONG
         
         memcpy(&token->TokenText[0], str, tokenLength); //FUN_004126c0
         token->TokenText[tokenLength] = '\0';
         
         this->TokenPosition += tokenLength;
         this->LastTokenType = token->TokenType;
-        token->LiteralType = assert_enum(0x29, TOKEN_VOID_KEYWORD); // strange, not DWORD/LONG
-        token->TokUnk5 = 4;
-        token->TokUnk6 = 4;
 
 
         // *(undefined4 *)param_1 = 5;
@@ -254,19 +259,18 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
     }
     else if (token_ParseFloat(str, &tokenLength, &tokenValue.Single))
     {
+        token->TokenGroup   = assert_enum(5, GROUP_LITERAL);
+        token->TokenType    = assert_enum(0xe, TOKEN_FLOAT_LITERAL);
         token->TokenValue.Single = tokenValue.Single;
-        //*(float *)&token->TokenValue = *(float *)&tokenValue;
-        token->TokenGroup = assert_enum(5, GROUP_LITERAL);
-        token->TokenType = assert_enum(0xe, TOKEN_FLOAT_LITERAL);
+        token->TokUnk5      = 4;
+        token->TokUnk6      = 4;
+        token->LiteralType  = assert_enum(0x30, TOKEN_FLOAT_KEYWORD);
         
         memcpy(&token->TokenText[0], str, tokenLength); //FUN_004126c0
         token->TokenText[tokenLength] = '\0';
         
         this->TokenPosition += tokenLength;
         this->LastTokenType = token->TokenType;
-        token->LiteralType = assert_enum(0x30, TOKEN_FLOAT_KEYWORD);
-        token->TokUnk5 = 4;
-        token->TokUnk6 = 4;
 
 
         // *(float *)(param_1 + 1) = local_170;
@@ -282,17 +286,16 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
     }
     else if (token_ParseChar(str, &tokenLength, &tokenValue.UInt16))
     {
-        token->TokenGroup = assert_enum(5, GROUP_LITERAL);
+        token->TokenGroup   = assert_enum(5, GROUP_LITERAL);
+        token->TokenType    = assert_enum(0xd, TOKEN_INTEGER_LITERAL);
         token->TokenValue.Int32 = (int)tokenValue.UInt16 & 0xffff;
-        //*(unsigned int *)&token->TokenValue = *((unsigned int *)&tokenValue) & 0xffff;
-        token->TokenType = assert_enum(0xd, TOKEN_INTEGER_LITERAL);
+        token->LiteralType  = assert_enum(0x2a, TOKEN_CHAR_KEYWORD);
         
         memcpy(&token->TokenText[0], str, tokenLength); //FUN_004126c0
         token->TokenText[tokenLength] = '\0';
         
         this->TokenPosition += tokenLength;
         this->LastTokenType = token->TokenType;
-        token->LiteralType = assert_enum(0x2a, TOKEN_CHAR_KEYWORD);
         
 
         // *(undefined4 *)param_1 = 5;
@@ -306,13 +309,15 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
     }
     else if (token_ParseString(str, &tokenLength, &token->TokenText[0], sizeof(TOKEN_RESULT::TokenText)))
     {
-        token->TokenType = assert_enum(0xf, TOKEN_STRING_LITERAL);
-        token->TokenGroup = assert_enum(5, GROUP_LITERAL);
-        token->TokUnk4 = 1; // BOOL?
+        token->TokenGroup   = assert_enum(5, GROUP_LITERAL);
+        token->TokenType    = assert_enum(0xf, TOKEN_STRING_LITERAL);
+        token->TokUnk4      = 1; // BOOL?
+        token->LiteralType  = assert_enum(0xf, TOKEN_STRING_LITERAL);
+
+        // already copied directly into token->TokenText
         
         this->TokenPosition += tokenLength;
         this->LastTokenType = token->TokenType;
-        token->LiteralType = assert_enum(0xf, TOKEN_STRING_LITERAL);
 
 
         // *(undefined4 *)((int)param_1 + 4) = 0xf;
@@ -324,9 +329,8 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
     }
     else if (token_ParseSymbol(this, str, &tokenLength, &tokenValue.Symbol))
     {
-        token->TokenGroup = assert_enum(6, GROUP_SYMBOL);
+        token->TokenGroup   = assert_enum(6, GROUP_SYMBOL);
         token->TokenValue.Symbol = tokenValue.Symbol;
-        //*((TOKEN_TYPE *)token->TokenType) = *((TOKEN_TYPE *)&tokenValue);
         
         memcpy(&token->TokenText[0], str, tokenLength); //FUN_004126c0
         token->TokenText[tokenLength] = '\0';
@@ -344,19 +348,20 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
     }
     else if (token_ParseIdentifier(str, &tokenLength, &token->TokenText[0]))
     {
+        // copied directly into token->TokenText
+        
         this->TokenPosition += tokenLength;
+
         if (this->ScrUnk72 == 1)
         {
             // BOOL __stdcall token_ParseKeyword(IN const char *str, OUT int *outValue);
             ///NOTE: tokenLength used here in assembly, but we know its use is as tokenValue/Type
             if (token_ParseKeyword(&token->TokenText[0], &tokenValue.Symbol))
             {
-                token->TokenGroup = assert_enum(7, GROUP_KEYWORD);
-                token->TokenType = tokenValue.Symbol;
-                //token->TokenType = *((TOKEN_TYPE *)&tokenValue);
-                // this->LastTokenType = tokenValue.Symbol;
-                // //this->LastTokenType = *((TOKEN_TYPE *)&tokenValue);
-                this->LastTokenType = token->TokenType; // simpler form
+                token->TokenGroup   = assert_enum(7, GROUP_KEYWORD);
+                token->TokenType    = tokenValue.Symbol;
+
+                this->LastTokenType = token->TokenType;
                 
 
                 // *(undefined4 *)param_1 = 7;
@@ -366,8 +371,9 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
             }
             else if (strcmp(&token->TokenText[0], "sizeof") == 0)
             {
-                token->TokenType = assert_enum(0xb4, TOKEN_SIZEOF_OPERATOR);
-                token->TokenGroup = assert_enum(6, GROUP_SYMBOL);
+                token->TokenType    = assert_enum(0xb4, TOKEN_SIZEOF_OPERATOR);
+                token->TokenGroup   = assert_enum(6, GROUP_SYMBOL);
+
                 this->LastTokenType = token->TokenType;
 
 
@@ -379,44 +385,44 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
             else
             {
                 ///TODO: what are these?
-                token->TokenGroup = assert_enum(4, GROUP_4);
-                token->TokenType = assert_enum(7, TOKEN_7);
+                token->TokenGroup   = assert_enum(4, GROUP_IDENTIFIER);
+                token->TokenType    = assert_enum(7, TOKEN_IDENTIFIER);
+
                 // *(undefined4 *)param_1 = 4;
                 // *(undefined4 *)((int)param_1 + 4) = 7;
 
-                BOOL unkres = token_UnkFunction((void *)this->ScrPtr71, &token->TokenText[0], local_16c);
-                //iVar3 = token_UnkFunction(*(void **)((int)this + 0x11c),(char *)outBuffer,
-                //                                                    local_16c);
+                //iVar3 = token_LookupIdentifier(*(void **)((int)this + 0x11c),(char *)outBuffer, local_16c);
+                BOOL unkres = token_LookupIdentifier((void *)this->Identifiers, &token->TokenText[0], local_16c);
                 if (unkres) {
                     // assign everything but token->TokenValue
-                    //ORIGINAL ORDER:
-                    token->TokUnk3 = local_1c; // (int)param_1 + 0xc
-                    token->TokUnk4 = local_20; // param_1 + 2
-                    token->TokenType = local_24; // (int)param_1 + 4
-                    token->TokenGroup = local_28; // param_1
-                    token->TokUnk5 = local_18; // (int)param_1 + 0x14
-                    token->TokUnk6 = local_14; // param_1 + 3
-                    token->LiteralType = local_c; // (int)param_1 + 0x1c
+                    // //ORIGINAL ORDER:
+                    // token->TokUnk3      = local_1c; // (int)param_1 + 0xc
+                    // token->TokUnk4      = local_20; // param_1 + 2
+                    // token->TokenType    = local_24; // (int)param_1 + 4
+                    // token->TokenGroup   = local_28; // param_1
+                    // token->TokUnk5      = local_18; // (int)param_1 + 0x14
+                    // token->TokUnk6      = local_14; // param_1 + 3
+                    // token->LiteralType  = local_c; // (int)param_1 + 0x1c
 
                     //TOKEN_RESULT ORDER:
-                    token->TokenGroup = local_28; // param_1
-                    token->TokenType = local_24; // (int)param_1 + 4
+                    token->TokenGroup   = local_28; // param_1
+                    token->TokenType    = local_24; // (int)param_1 + 4
 
-                    token->TokUnk3 = local_1c; // (int)param_1 + 0xc
-                    token->TokUnk4 = local_20; // param_1 + 2
-                    token->TokUnk5 = local_18; // (int)param_1 + 0x14
-                    token->TokUnk6 = local_14; // param_1 + 3
-                    token->LiteralType = local_c; // (int)param_1 + 0x1c
+                    token->TokUnk3      = local_1c; // (int)param_1 + 0xc
+                    token->TokUnk4      = local_20; // param_1 + 2
+                    token->TokUnk5      = local_18; // (int)param_1 + 0x14
+                    token->TokUnk6      = local_14; // param_1 + 3
+                    token->LiteralType  = local_c; // (int)param_1 + 0x1c
 
-                    //LOCAL STACK ORDER:
-                    token->TokenGroup = local_28; // param_1
-                    token->TokenType = local_24; // (int)param_1 + 4
-                    token->TokUnk4 = local_20; // param_1 + 2
-                    token->TokUnk3 = local_1c; // (int)param_1 + 0xc
-                    token->TokUnk5 = local_18; // (int)param_1 + 0x14
-                    token->TokUnk6 = local_14; // param_1 + 3
+                    // //LOCAL STACK ORDER:
+                    // token->TokenGroup   = local_28; // param_1
+                    // token->TokenType    = local_24; // (int)param_1 + 4
+                    // token->TokUnk4      = local_20; // param_1 + 2
+                    // token->TokUnk3      = local_1c; // (int)param_1 + 0xc
+                    // token->TokUnk5      = local_18; // (int)param_1 + 0x14
+                    // token->TokUnk6      = local_14; // param_1 + 3
 
-                    token->LiteralType = local_c; // (int)param_1 + 0x1c
+                    // token->LiteralType  = local_c; // (int)param_1 + 0x1c
                     
 
                     // *(undefined4 *)((int)param_1 + 0xc) = local_1c;
@@ -432,32 +438,33 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
         else
         {
             if (strcmp(&token->TokenText[0], "@") == 0) {
-                token ->TokenType = assert_enum(0x27, TOKEN_ATSIGN_KEYWORD);
-                token->TokenGroup = assert_enum(7, GROUP_KEYWORD);
+                token ->TokenType   = assert_enum(0x27, TOKEN_ATSIGN_KEYWORD);
+                token->TokenGroup   = assert_enum(7, GROUP_KEYWORD);
+
                 this->LastTokenType = token->TokenType;
 
 
                 // *(undefined4 *)((int)param_1 + 4) = 0x27;
                 // *(undefined4 *)param_1 = 7;
                 // *(undefined4 *)((int)this + 0x118) = *(undefined4 *)((int)param_1 + 4);
-                return;
             }
             else
             {
                 ///TODO: what are these?
-                token->TokenGroup = assert_enum(4, GROUP_4);
-                token->TokenType = assert_enum(7, TOKEN_7);
-                iVar3 = token_UnkFunction(this->ScrPtr71, &token->TokenText[0], local_16c);
-                if (iVar3 != 0) {
+                token->TokenGroup   = assert_enum(4, GROUP_IDENTIFIER);
+                token->TokenType    = assert_enum(7, TOKEN_IDENTIFIER);
+                BOOL unkres = token_LookupIdentifier(this->Identifiers, &token->TokenText[0], local_16c);
+                if (unkres) {
                     // assign everything but token->TokenValue
                     //ORIGINAL ORDER:
-                    token->TokUnk3 = local_1c;
-                    token->TokenType = local_24;
-                    token->TokUnk4 = local_20;
-                    token->TokenGroup = local_28;
-                    token->TokUnk6 = local_14;
-                    token->TokUnk5 = local_18;
-                    token->LiteralType = local_c;
+                    token->TokUnk3      = local_1c;
+                    token->TokenType    = local_24;
+                    token->TokUnk4      = local_20;
+                    token->TokenGroup   = local_28;
+                    token->TokUnk6      = local_14;
+                    token->TokUnk5      = local_18;
+                    token->LiteralType  = local_c;
+
                     this->LastTokenType = token->TokenType;
 
 
@@ -469,7 +476,6 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
                     // *(undefined4 *)((int)param_1 + 0x14) = local_18;
                     // *(undefined4 *)((int)param_1 + 0x1c) = local_c;
                     // *(undefined4 *)((int)this + 0x118) = *(undefined4 *)((int)param_1 + 4);
-                    return;
                 }
             }
             this->LastTokenType = token->TokenType;
@@ -477,13 +483,14 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
     }
     else
     {
-        token->TokenGroup = assert_enum(0, GROUP_NONE);
-        token->TokenType = assert_enum(0, TOKEN_NONE);
+        token->TokenGroup   = assert_enum(0, GROUP_NONE);
+        token->TokenType    = assert_enum(0, TOKEN_NONE);
         if (shiftjis_IsCharDoubleByte(str))
         {
             token->TokenText[0] = str[0];
             token->TokenText[1] = str[1];
             token->TokenText[2] = '\0';
+
             this->TokenPosition += 2;
             this->LastTokenType = token->TokenType;
         }
@@ -491,6 +498,7 @@ BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
         {
             token->TokenText[0] = str[0];
             token->TokenText[1] = '\0';
+
             this->TokenPosition += 1;
             this->LastTokenType = token->TokenType;
         }

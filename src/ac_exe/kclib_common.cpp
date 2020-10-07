@@ -1,15 +1,20 @@
-#include "shiftjis.h"
-#include <windows.h>
+#include "common.h"
+#include "kclib_common.h"
 
-////// WINAPI USED //////
 
-// DWORD GetFullPathNameA(
-//   LPCSTR lpFileName,
-//   DWORD  nBufferLength,
-//   LPSTR  lpBuffer,
-//   LPSTR  *lpFilePart
-// );
-// <https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfullpathnamea>
+///FID:cs2_full_v401/tool/ac.exe: FUN_00407bc0
+void kclib_LogSendMessageA(char *param_1, ...)
+{
+    // dummy func
+}
+
+//undefined4 FUN_00407b50(void)
+///FID:cs2_full_v401/tool/ac.exe: FUN_00407b50
+BOOL kcFileBase_Close(void)
+
+{
+    return FALSE; // actual implementation (for polymorphism)
+}
 
 
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00412200
@@ -63,25 +68,6 @@ BOOL __cdecl shiftjis_GetParentDirectory(IN const char *fullpath, OUT char *outP
     return seppos != 0;
 }   
 
-///FID:cs2_full_v401/tool/ac.exe: FUN_00411ff0
-BOOL __cdecl shiftjis_GetAbsolutePath(IN const char *filename, OUT char *outFullpath, OUT char **outBasename)
-
-{
-    // wrapper call for WINAPI GetFullPathNameA
-
-    char *basename; // this will just be a pointer offset from outFullpath,
-                    // so no worries about cleanup
-    
-    if (!GetFullPathNameA(filename, MAX_PATH, outFullpath, &basename))
-    {
-        return FALSE;
-    }
-    if (outBasename != (char **)NULL)
-    {
-        *outBasename = basename;
-    }
-    return TRUE;
-}
 
 //undefined4 __cdecl FUN_004120e0(char *param_1,undefined4 *param_2)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_004120e0

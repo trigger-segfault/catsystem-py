@@ -1,28 +1,9 @@
-#pragma once
-
-#ifndef KCLIB_TABLE_KEYWORDS_H
-#define KCLIB_TABLE_KEYWORDS_H
-
-//#include <windows.h>
-//#include "token_type.h"
+#include "common.h"
+#include "token_type.h"
 
 
-///TODO: make TABLE_KEYWORDS extern in .cpp file
-//       figure out clean method for assert_enum with keyword ID field
-
-
-#pragma pack(push, 1)
-
-typedef struct kclib_KEYWORD_ENTRY
-{
-    /*$0,4*/   unsigned int ID; // actually TOKEN_TYPE
-    /*$4,10*/  char Name[16];
-} KEYWORD_ENTRY;
-
-#pragma pack(pop)
-
-
-KEYWORD_ENTRY TABLE_KEYWORDS[] = {
+// defined in "token_type.h"
+KEYWORD_ENTRY TABLE_KEYWORDS[29] = {
     { 0x12, "if" },
     { 0x13, "else" },
     { 0x14, "while" },
@@ -58,4 +39,4 @@ KEYWORD_ENTRY TABLE_KEYWORDS[] = {
     { 0xbd, "" }
 };
 
-#endif /* end include guard */
+static_assert(TOKEN_END == 0xbd);

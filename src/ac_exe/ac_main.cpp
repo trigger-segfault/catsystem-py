@@ -1,6 +1,7 @@
+#include "common.h"
+#include "kclib_common.h"
 #include "token_parse_types.h"
-#include "shiftjis.h"
-#include <stdio.h>
+#include "kcAnmScript.h"
 #include <windows.h>
 #include <vector>
 #include <list>
@@ -80,343 +81,113 @@ BOOL __cdecl ac_CoInitializeSetup(unsigned int param_1, int param_2)
 
 
 
-typedef enum kclib_ANM_CMD
-{
-    CMD_ID    = 0, // [ID] [min] (max)
-    CMD_SET   = 1, // set [var] [min] (max)
-    CMD_LOOP  = 2, // loop [var] [label]
-    CMD_JUMP  = 3, // jump [label]
-    CMD_IF    = 4, // if [var] [label]
-    CMD_IFE   = 5, // ife [var] [value] [label]
-    CMD_IFN   = 6, // ifn [var] [value] [label]
-    CMD_IFG   = 7, // ifg [var] [value] [label]
-    CMD_IFS   = 8, // ifs [var] [value] [label]
-    CMD_IFGE  = 9, // ifge [var] [value] [label]
-    CMD_IFSE  = 10, // ifse [var] [value] [label]
-    CMD_MAX   = 11, // max [var]
-    CMD_BLEND = 12, // blend [param]
-    CMD_DISP  = 13, // disp [param]
-    CMD_POS   = 14, // pos [x] [y]
-    CMD_WAIT  = 15, // wait [min] [max]
-    CMD_ADD   = 16, // add [var] [value]
-    CMD_SUB   = 17  // sub [var] [value]
-} ANM_CMD;
+// typedef enum kclib_ANM_CMD
+// {
+//     CMD_ID    = 0, // [ID] [min] (max)
+//     CMD_SET   = 1, // set [var] [min] (max)
+//     CMD_LOOP  = 2, // loop [var] [label]
+//     CMD_JUMP  = 3, // jump [label]
+//     CMD_IF    = 4, // if [var] [label]
+//     CMD_IFE   = 5, // ife [var] [value] [label]
+//     CMD_IFN   = 6, // ifn [var] [value] [label]
+//     CMD_IFG   = 7, // ifg [var] [value] [label]
+//     CMD_IFS   = 8, // ifs [var] [value] [label]
+//     CMD_IFGE  = 9, // ifge [var] [value] [label]
+//     CMD_IFSE  = 10, // ifse [var] [value] [label]
+//     CMD_MAX   = 11, // max [var]
+//     CMD_BLEND = 12, // blend [param]
+//     CMD_DISP  = 13, // disp [param]
+//     CMD_POS   = 14, // pos [x] [y]
+//     CMD_WAIT  = 15, // wait [min] [max]
+//     CMD_ADD   = 16, // add [var] [value]
+//     CMD_SUB   = 17  // sub [var] [value]
+// } ANM_CMD;
 
-typedef enum kclib_ANM_VAR_TYPE
-{
-    TYPE_CONST    = 0, // 16
-    TYPE_VARIABLE = 1, // @16
-    TYPE_LABEL    = 2  // MyLabel
-} VAR_TYPE;
-
-
-// "ANM\0" (little endian)
-#define MAGIC_ANM 0x4d4e41
+// typedef enum kclib_ANM_VAR_TYPE
+// {
+//     TYPE_CONST    = 0, // 16
+//     TYPE_VARIABLE = 1, // @16
+//     TYPE_LABEL    = 2  // MyLabel
+// } VAR_TYPE;
 
 
-
-// KCANMSCRIPT STRUCTS:
-
-#pragma pack(push, 1)
-
-// (field offset,size prefixes are in hex)
-
-typedef struct kclib_ANM_ARG
-{
-    /*$0,4*/   VAR_TYPE VarType;
-    /*$4,4*/   unsigned int Value;
-    /*$8*/
-} ANM_ARG;
-
-typedef struct kclib_ANM_TIMELINE
-{
-    /*$0,4*/   ANM_CMD CmdType;
-    /*$4,40*/  ANM_ARG Args[8];
-    /*$44*/
-} ANM_TIMELINE;
-
-
-typedef struct kclib_unk_ANM_UNK72  // likely STL class
-{
-    // /*$0,18*/  char UnkName[24]; // 0x0:0x16?
-    /*$0,18*/  unsigned int padding[6];
-    /*$18,1c*/ int **Field72Unk6ptr;
-    /*$1c,20*/ int Field72Unk7;
-    /*$20*/
-} ANM_UNK72;
-
-typedef struct kclib_ANM_SCRIPT
-{
-    /*$0,4*/   unsigned int TimelineCount; // Number of timelines
-    // /*$4,4*/   std::shared_ptr<ANM_TIMELINE> Timelines; // Pointer timelines
-    /*$4,4*/   ANM_TIMELINE *Timelines; // Pointer timelines, this field is created with a reference counter at address -4, with the function HeapAlloc
-    /*$8,4*/   unsigned int Unk2; // (unknown)
-    /*$c,4*/   unsigned int Unk3; // (unknown)
-    /*$10,4*/  unsigned int Counter; // used in CMD_ID, CMD_WAIT, and during command loop
-    /*$14,4*/  int Instruction; // instruction ptr index
-    /*$18,4*/  unsigned int Wait; // used in CMD_ID, CMD_WAIT
-    /*$1c,4*/  unsigned int MaxFrame; // used in CMD_MAX
-    /*$20,ff*/ int Variables[64]; // live variables
-    /*$120,4*/ ANM_UNK72 *Unk72stl; // (ptr to unknown stl structure, probably)
-    /*$124,4*/ float Unk73; // (unknown)
-    /*$128,4*/ int FrameID; // current frame
-    /*$12c,4*/ int Blend; // used in CMD_BLEND
-    /*$130,4*/ BOOL Disp; // used in CMD_DISP
-    /*$134,4*/ int PosX; // used in CMD_POS
-    /*$138,4*/ int PosY; // used in CMD_POS
-    /*$140*/
-} ANM_SCRIPT;
-
-typedef struct kclib_ANM_FILEHEADER
-{
-    /*$0,4*/   unsigned int Magic; // "ANM\0" MAGIC_ANM
-    /*$4,4*/   unsigned int AnmUnk1;
-    /*$8,4*/   unsigned int TimelineCount;
-    /*$c,4*/   unsigned int AnmUnk3;
-    /*$10,4*/  unsigned int AnmUnk4;
-    /*$14,4*/  unsigned int AnmUnk5;
-    /*$18,4*/  unsigned int AnmUnk6;
-    /*$1c,4*/  unsigned int AnmUnk7;
-    /*$20*/
-} ANM_FILEHEADER;
-
-typedef struct kclib_ANM_FILEINFO
-{
-    /*$0,20*/  ANM_FILEHEADER Header;
-    /*$20,*/   ANM_TIMELINE Timelines[1]; // Treat as start address, variable-length
-} ANM_FILEINFO;
-
-#pragma pack(pop)
+// // "ANM\0" (little endian)
+// #define MAGIC_ANM 0x4d4e41
 
 
 
+// // KCANMSCRIPT STRUCTS:
 
-//     while (bufpos >= bufferSize && str[*outLength] != '\0')
-//     {
-//         char c = str[*outLength];
-//         if (c == '\"')
-//         {
-//             *outLength++;
-//             break;
-//         }
-//         if (!shiftjis_IsCharDoubleByte(&str[*outLength]))
-//         {
-//             outBuffer[bufpos] = str[*outLength];
-//             bufpos++; *outLength++;
-//             outBuffer[bufpos] = str[*outLength];
-//         }
-//         else 
-//         {
-//             if (c == '\"')
-//             {
-//                 *outLength++;
-//                 break;
-//             }
-//             // no double-backslash escape makes sense in Windows env
-//             if (c == '\\' && str[*outLength + 1] == '\"')
-//             {
-//                 *outLength++;
-//                 c = str[*outLength];
-//             }
-//             outBuffer[bufpos] = c;
-//         }
-//         bufpos++; *outLength++;
-//         if (bufpos >= bufferSize)
-//         {
-//             break; // potential access violation, see blow
-//         }
-//     }
-//     outBuffer[bufpos] = '\0'; // potential access violation, nice
-//     return TRUE;
-//     if (bufferSize != 0)
-//     {
-//         while (str[*outLength] != '\0')
-//         {
-//             if (!shiftjis_IsCharDoubleByte(&str[*outLength]))
-//             {
-//                 char c = str[*outLength];
-//                 if (c == '\"') {
-//                     *outLength++;
-//                     break;
-//                 }
-//                 if (c == '\\' && str[*outLength + 1] != '\"')
-//                 {
-//                     *outLength++;
-//                     c = str[*outLength];
-//                 }
-//                 else
-//                 {
-//                     outBuffer[bufpos] = c;
-//                 }
-//                     if (str[*outLength + 1] != '\"')
-//                     {
-//                         outBuffer[bufpos] = '\\';
-//                         // *(undefined *)(uVar4 + param_3) = 0x5c;
-//                         goto LAB_00410e5a;
-//                     }
-//                     else
-//                     {
-//                         *outLength++;
-//                         c = str[*outLength];
-//                     }
-//                     // *param_2 = iVar1 + 1;
-//                     // cVar3 = param_1[iVar1 + 1];
-//                 }
-//                 else
-//                 {
-//                     outBuffer[bufpos] = c;
-//                 }              
-//                 // *(char *)(uVar4 + param_3) = cVar3;
-//             }
-//             else
-//             {
-//                 outBuffer[bufpos] = str[*outLength];
-//                 *outLength++;
-//                 bufpos++;
-//                 outBuffer[bufpos] = str[*outLength];
-//             }
-//             *outLength++;
-//             bufpos++;
-//             if (bufpos >= bufferSize)
-//             {
-//                 outBuffer[bufpos] = '\0'; // potential memory leak, nice
-//                 return TRUE;
-//             }
-//             *param_2 = *param_2 + 1;
-//             uVar4 += 1;
-//             if (param_4 <= uVar4) {
-//                 *(undefined *)(uVar4 + param_3) = 0;
-//                 return TRUE;
-//             }
-//         }
-//     }
-//     int iVar1;
-//     BOOL BVar2;
-//     char cVar3;
-//     uint uVar4;
-//     if (*param_1 != '\"') {
-//         return FALSE;
-//     }
-//     uVar4 = 0;
-//     *param_2 = 1;
-//     if (param_4 != 0) {
-//         while (param_1[*param_2] != 0) {
-//             BVar2 = shiftjis_IsCharDoubleByte((byte *)(param_1 + *param_2));
-//             if (BVar2 == 0) {
-//                 iVar1 = *param_2;
-//                 cVar3 = param_1[iVar1];
-//                 if (cVar3 == '\"') {
-//                 *param_2 = *param_2 + 1;
-//                 break;
-//                 }
-//                 if (cVar3 == '\\') {
-//                     if (param_1[iVar1 + 1] != '\"') {
-//                         *(undefined *)(uVar4 + param_3) = 0x5c;
-//                         goto LAB_00410e5a;
-//                     }
-//                     *param_2 = iVar1 + 1;
-//                     cVar3 = param_1[iVar1 + 1];
-//                 }
-//                 *(char *)(uVar4 + param_3) = cVar3;
-//             }
-//             else {
-//                 *(char *)(uVar4 + param_3) = param_1[*param_2];
-//                 *param_2 = *param_2 + 1;
-//                 uVar4 += 1;
-//                 *(char *)(uVar4 + param_3) = param_1[*param_2];
-//             }
-//         LAB_00410e5a:
-//             *param_2 = *param_2 + 1;
-//             uVar4 += 1;
-//             if (param_4 <= uVar4) {
-//                 *(undefined *)(uVar4 + param_3) = 0;
-//                 return TRUE;
-//             }
-//         }
-//     }
-//     *(undefined *)(uVar4 + param_3) = 0;
-//     return TRUE;
-// }
-//     c = str[*outLength];
-//     while (c >= '0' && c <= '9')
-//     {
-//         atof_buffer[*outLength] = c; // is a dec digit
-//         outLength++;
-//         c = str[*outLength];
-//     }
-//     c = str[*outLength];
-//     if (c == '.')
-//     {
-//         atof_buffer[*outLength] = c; // is a decimal point
-//         outLength++;
-//         c = str[*outLength];
-//         while (c >= '0' && c <= '9')
-//         {
-//             atof_buffer[*outLength] = c; // is a dec digit
-//             *outLength++;
-//             c = str[*outLength];
-//         }
-//     }
-//     else if (c != 'f' && c != 'F')
-//     {
-//         return FALSE; // no decimal point or 'f' postfix
-//     }  
-//     atof_buffer[*outLength] = '\0';
-//     *outValue = (float)atof(atof_buffer);
-//     if (str[*outLength] == 'f' || str[*outLength] == 'F')
-//         *outLength++;
-//     if (str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
-//     {
-//     char cVar1;
-//     int iVar2;
-//     double dVar3;
-//     char local_404 [1024];
-//     if ((*str < '0') || ('9' < *str)) goto LAB_004110d7;
-//     *outLength = 0;
-//     *outValue = 0.00000000;
-//     cVar1 = str[*outLength];
-//     while ('/' < cVar1) {
-//         iVar2 = *outLength;
-//         if ('9' < str[iVar2]) break;
-//         local_404[iVar2] = str[iVar2];
-//         *outLength = iVar2 + 1;
-//         cVar1 = str[iVar2 + 1];
-//     }
-//     iVar2 = *outLength;
-//     cVar1 = str[iVar2];
-//     if (cVar1 == '.') {
-// LAB_0041107a:
-//         if ((cVar1 != 'f') && (cVar1 != 'F')) {
-//             local_404[iVar2] = cVar1;
-//             iVar2 += 1;
-//             *outLength = iVar2;
-//             cVar1 = str[iVar2];
-//             while (('/' < cVar1 && (str[iVar2] < ':'))) {
-//                 local_404[iVar2] = str[iVar2];
-//                 iVar2 += 1;
-//                 *outLength = iVar2;
-//                 cVar1 = str[iVar2];
-//             }
-//         }
-//     }
-//     else {
-//         if (cVar1 != 'f') {
-//             if (cVar1 != 'F') goto LAB_004110d7;
-//             goto LAB_0041107a;
-//         }
-//     }
-//     local_404[*outLength] = '\0';
-//     dVar3 = atof(local_404);
-//     *outValue = (float)dVar3;
-//     if ((str[*outLength] == 'f') || (str[*outLength] == 'F')) {
-//         *outLength = *outLength + 1;
-//     }
-// LAB_004110d7:
-//     return;
-// }
+// #pragma pack(push, 1)
 
-// //undefined4 __thiscall
-// FUN_00410880(void *this,undefined *param_1,undefined4 *param_2,undefined4 *param_3)
+// // (field offset,size prefixes are in hex)
+
+// typedef struct kclib_ANM_ARG
+// {
+//     /*$0,4*/   VAR_TYPE VarType;
+//     /*$4,4*/   unsigned int Value;
+//     /*$8*/
+// } ANM_ARG;
+
+// typedef struct kclib_ANM_TIMELINE
+// {
+//     /*$0,4*/   ANM_CMD CmdType;
+//     /*$4,40*/  ANM_ARG Args[8];
+//     /*$44*/
+// } ANM_TIMELINE;
+
+
+// typedef struct kclib_unk_ANM_UNK72  // likely STL class
+// {
+//     // /*$0,18*/  char UnkName[24]; // 0x0:0x16?
+//     /*$0,18*/  unsigned int padding[6];
+//     /*$18,1c*/ int **Field72Unk6ptr;
+//     /*$1c,20*/ int Field72Unk7;
+//     /*$20*/
+// } ANM_UNK72;
+
+// typedef struct kclib_ANM_SCRIPT
+// {
+//     /*$0,4*/   unsigned int TimelineCount; // Number of timelines
+//     // /*$4,4*/   std::shared_ptr<ANM_TIMELINE> Timelines; // Pointer timelines
+//     /*$4,4*/   ANM_TIMELINE *Timelines; // Pointer timelines, this field is created with a reference counter at address -4, with the function HeapAlloc
+//     /*$8,4*/   unsigned int Unk2; // (unknown)
+//     /*$c,4*/   unsigned int Unk3; // (unknown)
+//     /*$10,4*/  unsigned int Counter; // used in CMD_ID, CMD_WAIT, and during command loop
+//     /*$14,4*/  int Instruction; // instruction ptr index
+//     /*$18,4*/  unsigned int Wait; // used in CMD_ID, CMD_WAIT
+//     /*$1c,4*/  unsigned int MaxFrame; // used in CMD_MAX
+//     /*$20,ff*/ int Variables[64]; // live variables
+//     /*$120,4*/ ANM_UNK72 *Unk72stl; // (ptr to unknown stl structure, probably)
+//     /*$124,4*/ float Unk73; // (unknown)
+//     /*$128,4*/ int FrameID; // current frame
+//     /*$12c,4*/ int Blend; // used in CMD_BLEND
+//     /*$130,4*/ BOOL Disp; // used in CMD_DISP
+//     /*$134,4*/ int PosX; // used in CMD_POS
+//     /*$138,4*/ int PosY; // used in CMD_POS
+//     /*$140*/
+// } ANM_SCRIPT;
+
+// typedef struct kclib_ANM_FILEHEADER
+// {
+//     /*$0,4*/   unsigned int Magic; // "ANM\0" MAGIC_ANM
+//     /*$4,4*/   unsigned int AnmUnk1;
+//     /*$8,4*/   unsigned int TimelineCount;
+//     /*$c,4*/   unsigned int AnmUnk3;
+//     /*$10,4*/  unsigned int AnmUnk4;
+//     /*$14,4*/  unsigned int AnmUnk5;
+//     /*$18,4*/  unsigned int AnmUnk6;
+//     /*$1c,4*/  unsigned int AnmUnk7;
+//     /*$20*/
+// } ANM_FILEHEADER;
+
+// typedef struct kclib_ANM_FILEINFO
+// {
+//     /*$0,20*/  ANM_FILEHEADER Header;
+//     /*$20,*/   ANM_TIMELINE Timelines[1]; // Treat as start address, variable-length
+// } ANM_FILEINFO;
+
+// #pragma pack(pop)
 
 
 
@@ -439,7 +210,7 @@ void __cdecl ac_parseLines(char *filename)
         
         local_80c = local_604;
         local_8 = (uint)local_8._1_3_ << 8;
-        FUN_00411c50(acscr);
+        ScriptDecoder_Close(decoder);
         local_8 = 0xffffffff;
         FUN_004112a0(local_600);
         return;
@@ -484,7 +255,7 @@ void __cdecl ac_parseLines(char *filename)
     int local_30;
     int local_2c;
     undefined4 local_28;
-    SCRIPT_DECODER acscr; //int local_24 [4];
+    SCRIPT_DECODER decoder; //int local_24 [4];
     int local_14;
     int *local_10;
     undefined *puStack12;
@@ -500,14 +271,14 @@ void __cdecl ac_parseLines(char *filename)
     local_28 = 0;
     FUN_00403cf0(&local_4b0);
     FUN_00403cf0(&local_4a8);
-    FUN_00411c40(&acscr);
+    ScriptDecoder_ctor(decoder);
     local_8._0_1_ = 1;
     local_604 = 0;
     FUN_00410870(local_600, 0);
     FUN_00403be0((int)&DAT_004a29bc);
     FUN_00403be0((int)&DAT_004a29a0);
     // open file
-    iVar1 = FUN_00411dd0(acscr, filename);
+    iVar1 = ScriptDecoder_Open(decoder, filename);
     if (iVar1 == 0) {
         local_604 += 1;
         ///JP: printf("ファイルのロードに失敗しました : %s", filename);
@@ -515,7 +286,7 @@ void __cdecl ac_parseLines(char *filename)
         
         local_80c = local_604;
         local_8 = (uint)local_8._1_3_ << 8;
-        FUN_00411c50(&acscr);
+        ScriptDecoder_Close(decoder);
         local_8 = 0xffffffff;
         FUN_004112a0(local_600);
         return;
@@ -524,9 +295,9 @@ void __cdecl ac_parseLines(char *filename)
     // Find all labels/lines
     local_30 = 0;
     local_14 = 1;
-    while (uVar2 = ScriptDecoder_IsEOF(&acscr), uVar2 == 0)
+    while (uVar2 = ScriptDecoder_IsEOF(decoder), uVar2 == 0)
     {
-        ScriptDecoder_NextLine(&acscr, (int)local_808);// FUN_00411cf0(acscr, (int)local_808);
+        ScriptDecoder_NextLine(decoder, (int)local_808);// FUN_00411cf0(decoder, (int)local_808);
         FUN_004107e0(local_600, local_808);
         iVar1 = token_Next(local_600, &local_458);
         if ((iVar1 != 0) && (local_458._4_4_ == 1))
@@ -559,11 +330,11 @@ void __cdecl ac_parseLines(char *filename)
         local_14 += 1;
     }
     // parse commands
-    FUN_00411cd0(acscr, 0);
+    ScriptDecoder_SetPosition(decoder, 0);
     local_30 = 0;
     local_14 = 1;
-    while (uVar2 = ScriptDecoder_IsEOF(&acscr), uVar2 == 0) {
-        FUN_00411cf0(acscr, (int)local_808);
+    while (uVar2 = ScriptDecoder_IsEOF(decoder), uVar2 == 0) {
+        ScriptDecoder_NextLine(decoder, (int)local_808);
        
         memset(&local_4a0, 0, sizeof(ANM_TIMELINE)); // FUN_00412740(&local_4a0, 0x44);
         FUN_004107e0(local_600, local_808);
@@ -1082,7 +853,7 @@ void __cdecl ac_parseLines(char *filename)
         FUN_00403d30(&local_4b0,local_83c);
     }
     local_8 = (uint)local_8._1_3_ << 8;
-    FUN_00411c50(acscr);
+    ScriptDecoder_Close(decoder);
     local_8 = 0xffffffff;
     FUN_004112a0(local_600);
 }

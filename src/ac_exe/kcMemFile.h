@@ -1,10 +1,11 @@
 #pragma once
 
-#ifndef KCLIB_KCMEMFILE_H
-#define KCLIB_KCMEMFILE_H
+#ifndef KCLIB_KCMEMFILE_CLASS_H
+#define KCLIB_KCMEMFILE_CLASS_H
 
+#include "common.h"
+#include "kclib_common.h"
 #include "ghidra_types_min.h"
-#include <stdio.h>
 #include <windows.h>
 
 
@@ -12,71 +13,41 @@
 // but... never finished...
 
 
+#pragma pack(push, 1)
+
 typedef struct kclib_kcMemFile
 {
-    /*$0,4*/    void      *vftable;
+    /*$0,4*/    void *vftable;
 //public:
-    /*$10c,4*/  undefined4 Position; //MemUnk67
-    /*$110,4*/  void      *MemoryBuffer; //MemUnk68
-    /*$114,4*/  undefined4 Size; //MemUnk69
-    /*$118,?*/  undefined4 MemUnk70;
-    /*$11c,4*/  undefined4 MemUnk71;
+    /*$4,4*/    unsigned int MemUnk1; // flags? (at least for kcFile)
+    /*$8,4*/    unsigned int MemUnk2; // handle? (at least for kcFile)
+    /*$c,100*/  char Filename[256]; // <unused> (at least for kcFile)
+    /*$10c,4*/  unsigned int Position; //MemUnk67
+    /*$110,4*/  void      *MemoryBuffer; //lpMem *(int *)((char *)lpMem - 4) is ref count
+    /*$114,4*/  unsigned int Size; //MemUnk69
+    /*$118,4*/  undefined4 MemUnk70;
+    /*$11c,4*/  int MemUnk71; // reference count?
+    /*$120??*/
 } kcMemFile;
 
-typedef struct kclib_unk_SHAREDBUFFER
+typedef struct kclib_KCMEM_REF
 {
-    /*$-4,4*/  undefined4 LpMemUnk_4;
+    /*$0,4*/   int RefCount;
+    /*$4,0+*/  unsigned char MemData[1];
+    /*4+*/
+} KCMEM_REF;
 
-} SHAREDBUFFER;
+#pragma pack(pop)
 
-//void __cdecl kclib_HeapFree(int param_1)
-void __cdecl kclib_HeapFree(void* param_1) // lpMem
-
-{
-    BOOL BVar1;
-    
-    if (param_1 != NULL) {
-        if (*(int *)(param_1 + -4) < 2) {
-            BVar1 = HeapFree(DAT_004c3ef0,0,(int *)(param_1 + -4));
-            if (BVar1 == 0) {
-                FUN_00407b50();
-                return;
-            }
-        }
-            else {
-            *(int *)(param_1 + -4) = *(int *)(param_1 + -4) + -1;
-        }
-    }
-    return;
-
-    BOOL BVar1;
-    
-    if (param_1 != 0) {
-        if (*(int *)(param_1 + -4) < 2) {
-            BVar1 = HeapFree(DAT_004c3ef0,0,(int *)(param_1 + -4));
-            if (BVar1 == 0) {
-                FUN_00407b50();
-                return;
-            }
-        }
-            else {
-            *(int *)(param_1 + -4) = *(int *)(param_1 + -4) + -1;
-        }
-    }
-    return;
-}
 
 //uint __thiscall FUN_0040c4b0(void *this, OUT undefined8 *param_1, uint param_2)
+///FID:cs2_full_v401/tool/ac.exe: 
 unsigned int __thiscall kcMemFile_Read(kcMemFile *this, OUT void *outBuffer, unsigned int bytesCount)
 
 {
-    uint uVar1;
-    uint uVar2;
-    
     if (this->MemoryBuffer == NULL)
     {
-        //FUN_00407bc0("kcMemFile : ファイルがオープンされていません");
-        ///JP: printf("kcMemFile : ファイルがオープンされていません");
+        ///JP: printf("kcMemFile : ファイルがオープンされていません"); //FUN_00407bc0
         printf("kcMemFile : File is not open");
     }
     else if (this->Position < this->Size)
@@ -92,157 +63,114 @@ unsigned int __thiscall kcMemFile_Read(kcMemFile *this, OUT void *outBuffer, uns
     return 0xffffffff;
 }
 
-int __fastcall FUN_0040c470(int param_1)
 
-{
-  int iVar1;
-  
-  iVar1 = *(int *)(param_1 + 0x110);
-  if (iVar1 == 0) {
-    return iVar1;
-  }
-  if (*(int *)(param_1 + 0x11c) == 0) {
-    kclib_HeapFree(iVar1);
-  }
-  *(undefined4 *)(param_1 + 0x110) = 0;
-  *(undefined4 *)(param_1 + 0x114) = 0;
-  return 1;
-}
+// ///FID:cs2_full_v401/tool/ac.exe: FUN_004141f0
+// int * __cdecl memset(int *param_1,uint param_2,uint param_3);
+// 
+// //void __cdecl kclib_MemZero(undefined8 *param_1,uint param_2)
+// ///FID:cs2_full_v401/tool/ac.exe: FUN_00412740
+// void __cdecl kclib_MemZero(undefined8 *param_1,uint param_2)
+// {
+//     int iVar1;
+//     if (param_2 != 0) {
+//         if (DAT_004c29dc == (void *)0x0) {
+//             memset((int *)param_1, 0, param_2);
+//             return;
+//         }
+//         iVar1 = FUN_00405cf0(DAT_004c29dc, (undefined4 *)0x0);
+//         if (*(int *)(iVar1 + 0x28) == 0) {
+//             if ((param_2 & 3) == 0) {
+//                 param_2 >>= 2;
+//                 do {
+//                     *(undefined4 *)param_1 = 0;
+//                     param_1 = (undefined8 *)((int)param_1 + 4);
+//                     param_2 -= 1;
+//                 } while (param_2 != 0);
+//                 return;
+//             }
+//         }
+//         else {
+//             if ((param_2 & 7) == 0) {
+//                 param_2 >>= 3;
+//                 do {
+//                     *param_1 = 0;
+//                     param_1 = param_1 + 1;
+//                     param_2 -= 1;
+//                 } while (param_2 != 0);
+//                 return;
+//             }
+//             if ((param_2 & 3) == 0) {
+//                 FUN_00412500((undefined4 *)param_1, param_2);
+//                 return;
+//             }
+//         }
+//         memset((int *)param_1, 0, param_2);
+//     }
+//     return;
+// }
 
-//uint __thiscall FUN_0040c7b0(void *this,undefined8 *param_1,uint param_2)
-
-// undefined4 __thiscall kcMemFile_Write_Resize(void *this,int param_1)
+// undefined4 __thiscall FUN_0040c6f0(void *this,int param_1)
+///FID:cs2_full_v401/tool/ac.exe: FUN_0040c6f0
 BOOL __thiscall kcMemFile_Write_Resize(kcMemFile *this, unsigned int bytesCount)
 
 {
-    unsigned int origSize;
-    void *newBuffer;
-    
-
     if (this->MemoryBuffer == NULL)
-    {
         return FALSE;
-    }
     if (this->Position + bytesCount < this->Size)
-    {
         return FALSE;
-    }
 
-    origSize = this->Size;
+    unsigned int origSize = this->Size;
     do
     {
-        this->Size = this->Size + this->MemUnk70; // Chunk Size?/ Capacity of sorts?
+        this->Size += this->MemUnk70; // Chunk Size?/ Capacity of sorts?
     } while (this->Position + bytesCount >= this->Size);
 
-    // Allocate new
-    newBuffer = FUN_00422a60(0, this->Position); //*(uint *)((int)this + 0x114));
-
-    // Extend to new size?
-    FUN_00412740(newBuffer, this->Size); //*(uint *)((int)this + 0x114));
-    // Copy original data
-    memcpy(newBuffer, this->MemoryBuffer, origSize);
-    // Free old
-    kclib_HeapFree(this->MemoryBuffer);
+    void *newBuffer = kclib_HeapAlloc(0, this->Size); // allocate new
+    memset(newBuffer, 0, this->Size); // zero new data
+    memcpy(newBuffer, this->MemoryBuffer, origSize); // copy original data
+    kclib_HeapFree(this->MemoryBuffer); // free old
     this->MemoryBuffer = newBuffer;
-    return TRUE;
-
-
-    memcpy(puVar2,*(undefined8 **)((int)this + 0x110),uVar1);
-    kclib_HeapFree(*(int *)((int)this + 0x110));
-    *(undefined8 **)((int)this + 0x110) = puVar2;
-    return TRUE;
-    
-    uint uVar1;
-    undefined8 *puVar2;
-    
-    if (*(int *)((int)this + 0x110) == 0) {
-        return FALSE;
-    }
-    uVar1 = *(uint *)((int)this + 0x114);
-    if ((uint)(*(int *)((int)this + 0x10c) + param_1) < uVar1) {
-        return FALSE;
-    }
-    do {
-        *(int *)((int)this + 0x114) = *(int *)((int)this + 0x114) + *(int *)((int)this + 0x118);
-    } while (*(uint *)((int)this + 0x114) <= (uint)(*(int *)((int)this + 0x10c) + param_1));
-    puVar2 = (undefined8 *)FUN_00422a60(0,*(uint *)((int)this + 0x114));
-    FUN_00412740(puVar2,*(uint *)((int)this + 0x114));
-    memcpy(puVar2,*(undefined8 **)((int)this + 0x110),uVar1);
-    kclib_HeapFree(*(int *)((int)this + 0x110));
-    *(undefined8 **)((int)this + 0x110) = puVar2;
     return TRUE;
 }
 
-
+//uint __thiscall FUN_0040c7b0(void *this,undefined8 *param_1,uint param_2)
+///FID:cs2_full_v401/tool/ac.exe: FUN_0040c7b0
 unsigned int __thiscall kcMemFile_Write(kcMemFile *this, IN void *inBuffer, unsigned int bytesCount)
 
 {
-    int iVar1;
-    
     if (this->MemoryBuffer == NULL)
     {
-        //FUN_00407bc0("kcMemFile : ファイルがオープンされていません");
-        ///JP: printf("kcMemFile : ファイルがオープンされていません");
+        ///JP: printf("kcMemFile : ファイルがオープンされていません"); //FUN_00407bc0
         printf("kcMemFile : File is not open");
         return 0xffffffff;
     }
-    else
-    {
-        kcMemFile_Write_Resize(this, bytesCount);
-        iVar1 = this->Position;
-        if (this->Position + bytesCount > this->Size)
-        {
-            bytesCount = this->Size - this->Position;
-        }
-        memcpy(this->MemoryBuffer + this->Position, inBuffer, bytesCount);
-        this->Position += bytesCount;
-        return bytesCount;
-    }
-    // kcMemFile_Write_Resize(this,param_2);
-    // iVar1 = *(int *)((int)this + 0x10c);
-    // if (*(uint *)((int)this + 0x114) < iVar1 + param_2) {
-    //     param_2 = *(uint *)((int)this + 0x114) - iVar1;
-    // }
-    // memcpy((undefined8 *)(*(int *)((int)this + 0x110) + iVar1),param_1,param_2);
-    // *(int *)((int)this + 0x10c) = *(int *)((int)this + 0x10c) + param_2;
-    // return param_2;
-}
 
+    kcMemFile_Write_Resize(this, bytesCount);
+    if (this->Position + bytesCount > this->Size)
+    {
+        bytesCount = this->Size - this->Position;
+    }
+    memcpy(this->MemoryBuffer + this->Position, inBuffer, bytesCount);
+    this->Position += bytesCount;
+    return bytesCount;
+}
 
 
 
 //int __fastcall FUN_0040c470(int param_1)
+///FID:cs2_full_v401/tool/ac.exe: FUN_0040c470
 BOOL __fastcall kcMemFile_Close(kcMemFile *this)
 
 {
     if (this->MemoryBuffer == NULL)
-    {
         return FALSE;
-    }
+
     if (this->MemUnk71 == 0)
     {
         kclib_HeapFree(this->MemoryBuffer);
     }
-    // if (*(int *)(param_1 + 0x11c) == 0) {
-    //     kclib_HeapFree(iVar1);
-    // }
     this->MemoryBuffer = NULL;
     this->Size = 0;
-    *(undefined4 *)(param_1 + 0x110) = 0;
-    *(undefined4 *)(param_1 + 0x114) = 0;
-    return TRUE;
-
-    int iVar1;
-    
-    iVar1 = *(int *)(param_1 + 0x110);
-    if (iVar1 == 0) {
-        return FALSE;
-    }
-    if (*(int *)(param_1 + 0x11c) == 0) {
-        kclib_HeapFree(iVar1);
-    }
-    *(undefined4 *)(param_1 + 0x110) = 0;
-    *(undefined4 *)(param_1 + 0x114) = 0;
     return TRUE;
 }
 

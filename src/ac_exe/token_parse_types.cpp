@@ -1,9 +1,7 @@
+#include "common.h"
+#include "kclib_common.h"
 #include "token_parse_types.h"
-#include "table_keywords.h"
 #include "ghidra_types_min.h"
-#include "shiftjis.h"
-#include <stdio.h>
-#include <windows.h>
 
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411c40
 void __fastcall ScriptDecoder_ctor(SCRIPT_DECODER *this)
@@ -14,21 +12,140 @@ void __fastcall ScriptDecoder_ctor(SCRIPT_DECODER *this)
     this->TokenPosition = 0;
 }
 
-// uint __fastcall FUN_00411d40(int param_1)
+//uint __fastcall FUN_00411d40(int param_1)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411d40
 BOOL __fastcall ScriptDecoder_IsEOF(SCRIPT_DECODER *this)
 
 {
-    //int param_1;
     //return (uint)(*(uint *)(param_1 + 4) <= *(uint *)(param_1 + 8));
-    //return (BOOL)(this->Length <= this->LinePosition);
     return (BOOL)(this->LinePosition >= this->Length);
 }
 
 
-// void __thiscall FUN_00411cf0(void *this,int param_1)
+// Used to strip CRLF from script?
+//void __fastcall FUN_00411d50(char **param_1)
+///FID:cs2_full_v401/tool/ac.exe: FUN_00411d50
+void __fastcall ScriptDecoder_ConvertToLF(SCRIPT_DECODER *this)
+
+{
+    if (this->Buffer == NULL)
+        return;
+
+    unsigned int str_len = (unsigned int)strlen(this->Buffer);
+
+    // temporary heap to hold script decoder buffer,
+    // it seems this may be a unnecessary, since the write length
+    //   is at least shorter and most equal in length,
+    //   and wont override read position.
+    //   at most this may be done for the double-null termination??
+    char *puHeap = (char *)kclib_HeapAlloc(0, str_len + 1); // +1 for double-null termination
+    memcpy(puHeap, this->Buffer, str_len);
+
+    // replace CRLF ("\r\n") with LF ("\n")
+    unsigned int j = 0; // output position
+    for (unsigned int i = 0; i < str_len; i++, j++)
+    {
+        if (puHeap[i] == '\r' && puHeap[i + 1] == '\n') // CRLF "\r\n"
+        {
+            this->Buffer[j] = '\n'; // LF "\n"
+            i++;
+        }
+        else
+        {
+            this->Buffer[j] = puHeap[i];
+        }
+    }
+
+    // double-null terminate it seems
+    this->Buffer[j] = '\0';
+    this->Buffer[j + 1] = '\0';
+    kclib_HeapFree(puHeap);
+}
+
+//void __thiscall FUN_00411cd0(void *this,uint param_1)
+///FID:cs2_full_v401/tool/ac.exe: FUN_00411cd0
+void __thiscall ScriptDecoder_SetPosition(SCRIPT_DECODER *this, unsigned int newPosition)
+
+{
+    if (newPosition >= this->Length)
+    {
+        newPosition = this->Length;
+    }
+    this->LinePosition = newPosition;
+}
+
+//void __fastcall FUN_00411c50(int *param_1)
+///FID:cs2_full_v401/tool/ac.exe: FUN_00411c50
+void __fastcall ScriptDecoder_Close(SCRIPT_DECODER *this)
+
+{
+    if (this->Buffer != NULL)
+    {
+        kclib_HeapFree(this->Buffer);
+    }
+}
+
+
+
+//uint __fastcall FUN_00411c60(int *param_1)
+///FID:cs2_full_v401/tool/ac.exe: FUN_00411c60
+unsigned int __fastcall ScriptDecoder_FUN_00411c60(SCRIPT_DECODER *this)
+
+{
+    if (this->LinePosition >= this->Length)
+        return 0;
+
+    if (shiftjis_IsCharDoubleByte(this->Buffer + this->LinePosition))
+    {
+        unsigned int c1 = (unsigned int)this->Buffer[this->LinePosition] & 0xff;
+        unsigned int c2 = (unsigned int)this->Buffer[this->LinePosition + 1] & 0xff;
+        this->LinePosition += 2;
+        return this->LinePosition & 0xffff0000 | (c2 << 8 | c1);
+
+        // CONCAT31(x,y) - concatenates two operands together into a larger size object
+        // The "3" is the size of x in bytes.
+        // The "1" is the size of y in bytes.
+        // The result is the 4-byte concatenation of the bits in "x" with the bits in "y". The "x" forms the most signifigant part of the result, "y" the least.
+        //return this->LinePosition & 0xffff0000 | (unsigned int)CONCAT11(c2, c1);
+    }
+    else
+    {
+        char c = this->Buffer[this->LinePosition];
+        this->LinePosition++;
+        return (this->LinePosition & 0xffff0000) | (unsigned int)c;
+    }
+}
+
+
+//undefined4 __thiscall FUN_00411dd0(void *this,char *filename)
+///FID:cs2_full_v401/tool/ac.exe: FUN_00411dd0
+BOOL __thiscall ScriptDecoder_Open(SCRIPT_DECODER *this, IN const char *filename)
+
+{
+    int iVar2 = 1;
+    //DAT_004c3430 is likely kcFileServer,
+    // or whatever id used to manage integration files
+    ///TMP:IGNORE: int iVar2 = kcBigFile_unkLookupOpenMessage(DAT_004c3430, filename, 0, 3); // 3 may be some identifier type, like to open as ScriptDecode2 class, etc. Or maybe flags
+    if (iVar2 == 0)
+        return FALSE;
+        
+    char *buffer = (char *)kclib_HeapAlloc(0, iVar2 + 8U);
+    this->Buffer = buffer; //*(undefined8 **)this = buffer;
+    memset(buffer, 0, iVar2 + 8U); //kclib_MemZero(buffer, iVar2 + 8U);
+    
+    ///TMP:IGNORE: kcBigFile_unkLookupOpenMessage(DAT_004c3430, filename, *(int *)this, 3);
+    
+    this->LinePosition = 0; //*(undefined4 *)((int)this + 8) = 0;
+
+    ScriptDecoder_ConvertToLF(this);
+    
+    this->Length = strlen(this->Buffer);
+    return TRUE;
+}
+
+//void __thiscall FUN_00411cf0(void *this,int param_1)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411cf0
-void __thiscall ScriptDecoder_NextLine(SCRIPT_DECODER *this, OUT char *outLine)
+void __thiscall ScriptDecoder_NextLine(SCRIPT_DECODER *this, OPTIONAL OUT char *outLine)
 
 {
     // outLine is optional, if excluded, decoder still advances to next line
@@ -56,8 +173,6 @@ void __thiscall ScriptDecoder_NextLine(SCRIPT_DECODER *this, OUT char *outLine)
     return;
     //return linepos;
 }
-
-static_assert(TOKEN_END == 0xbd);
 
 
 //undefined4 __cdecl FUN_004036b0(void *param_1,undefined8 *param_2)
@@ -326,14 +441,14 @@ BOOL __stdcall token_ParseString(IN const char *str, OUT int *outLength, OUT cha
 
 
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411190
-BOOL token_ParseKeyword(IN const char *str, OUT int *outValue)
+BOOL token_ParseKeyword(IN const char *str, OUT TOKEN_TYPE *outValue)
 
 {
     for (int i = 0; TABLE_KEYWORDS[i].ID != TOKEN_END; i++)
     {
         if (strcmp(str, TABLE_KEYWORDS[i].Name) == 0)
         {
-            *outValue = TABLE_KEYWORDS[i].ID;
+            *outValue = (TOKEN_TYPE) TABLE_KEYWORDS[i].ID;
             return TRUE;
         }
     }
@@ -377,7 +492,7 @@ BOOL token_ParseIdentifier(IN const char *str, OUT int *outLength, OUT char *out
 
 
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00410880
-BOOL __thiscall token_ParseSymbol(void *thiscls, IN const char *str, OUT int *outLength, OUT int *outValue)
+BOOL __thiscall token_ParseSymbol(void *thiscls, IN const char *str, OUT int *outLength, OUT TOKEN_TYPE *outValue)
 
 {
     *outLength = 0;
@@ -556,7 +671,7 @@ BOOL __thiscall token_ParseSymbol(void *thiscls, IN const char *str, OUT int *ou
         }
         return TRUE;
     case '?':
-        *outValue = assert_enum(0xa7, TOKEN_QUESTIONMARK);
+        *outValue = assert_enum(0xa7, TOKEN_QUESTION_OPERATOR);
         *outLength = 1;
         return TRUE;
     case '[':
@@ -573,10 +688,10 @@ BOOL __thiscall token_ParseSymbol(void *thiscls, IN const char *str, OUT int *ou
         return TRUE;
     case '^':
         if (str[1] == '=') {
-            *outValue = assert_enum(0xa2, TOKEN_BITWISEXOR_ASSIGN_OPERATOR);
+            *outValue = assert_enum(0xa2, TOKEN_XOR_ASSIGN_OPERATOR);
             *outLength = 2;
         } else {
-            *outValue = assert_enum(0xaa, TOKEN_BITWISEXOR_OPERATOR);
+            *outValue = assert_enum(0xaa, TOKEN_XOR_OPERATOR);
             *outLength = 1;
         }
         return TRUE;
