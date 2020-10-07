@@ -86,11 +86,11 @@ void kclib_logError(LPCSTR message, ...)
 // );
 
 typedef struct {
-    /*0,4*/   undefined4 reserved0; //vftable?
-    /*4,4*/   unsigned int Mode; //KCFILE_MODE
-    /*8,4*/   HANDLE Handle;
+    /*$0,4*/   undefined4 reserved0; //vftable?
+    /*$4,4*/   unsigned int Mode; //KCFILE_MODE
+    /*$8,4*/   HANDLE Handle;
     /*c,100*/ char Name[256];
-    /*10c,4*/ unsigned int Position;
+    /*$10c,4*/ unsigned int Position;
     //unsigned int Size;
 } kcFile;
 

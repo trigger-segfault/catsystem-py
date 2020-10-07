@@ -3,35 +3,35 @@
 #include <string.h>
 
 typedef struct {
-    /*0,4*/  int SliceIndex;
-    /*4,4*/  int SliceLength;
-    /*8,4*/  int DataPacked;
+    /*$0,4*/  int SliceIndex;
+    /*$4,4*/  int SliceLength;
+    /*$8,4*/  int DataPacked;
     /*C,4*/  int DataUnpacked;
-    /*10,4*/ int CtlPacked;
-    /*14,4*/ int CtlUnpacked;
-    /*18*/
+    /*$10,4*/ int CtlPacked;
+    /*$14,4*/ int CtlUnpacked;
+    /*$18*/
 } HGSLICE;
 
 typedef struct {
     // Version 0x10:
-    /*0,4*/  int Width;
-    /*4,4*/  int Height;
-    /*8,2*/  short BPP;
+    /*$0,4*/  int Width;
+    /*$4,4*/  int Height;
+    /*$8,2*/  short BPP;
     /*A,2*/  short Depth;
     /*C,18*/ HGSLICE Slice;
     // Version 0x20:
-    /*24,4*/ int OffsetToData;
-    /*28,4*/ int ID;
-    /*2C,4*/ int CanvasWidth;
-    /*30,4*/ int CanvasHeight;
-    /*34,4*/ int OffsetX;
-    /*38,4*/ int OffsetY;
-    /*3C,4*/ int HasTransparency; //bool32
-    /*40,4*/ int OffsetToNext;
+    /*$24,4*/ int OffsetToData;
+    /*$28,4*/ int ID;
+    /*$2C,4*/ int CanvasWidth;
+    /*$30,4*/ int CanvasHeight;
+    /*$34,4*/ int OffsetX;
+    /*$38,4*/ int OffsetY;
+    /*$3C,4*/ int HasTransparency; //bool32
+    /*$40,4*/ int OffsetToNext;
     // Version 0x25:
-    /*44,4*/ int OriginX;
-    /*48,4*/ int OriginY;
-    /*4C*/
+    /*$44,4*/ int OriginX;
+    /*$48,4*/ int OriginY;
+    /*$4C*/
 } HG2METADATA;
 
 int main(void) {

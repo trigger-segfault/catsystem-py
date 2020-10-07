@@ -127,45 +127,52 @@
 			"editor.insertSpaces": false,
 			"editor.tabSize": 4,
       "editor.wordWrap": "on",
-			"files.encoding": "shiftjis"
+      "files.encoding": "shiftjis",
+      "files.eol": "\r\n"
 		},
 		"[dfn]": {
       /* older format extension for DFN */
 			"editor.insertSpaces": false,
 			"editor.tabSize": 4,
       "editor.wordWrap": "on",
-      "files.encoding": "shiftjis"
+      "files.encoding": "shiftjis",
+      "files.eol": "\r\n"
 		},
 		"[catsystem2-cst]": { /* CatSystem 2: CatScene script */
-			"editor.insertSpaces": false, //!IMPORTANT: part of format (required by mc.exe)
+			"editor.insertSpaces": false,  //!IMPORTANT: part of format (required by mc.exe)
 			"editor.tabSize": 4,
       "editor.wrappingIndent": "same",
-      "editor.wordWrap": "on",      //!QoL: long message strings
-			"files.encoding": "shiftjis"  //!Useful: required by mc.exe
+      "editor.wordWrap": "on",       //!QoL: long message strings
+      "files.encoding": "shiftjis",  //!Useful: required by mc.exe
+      "files.eol": "\r\n"
 		},
 		"[catsystem2-fes]": { /* CatSystem 2: Front End script */
-			"editor.insertSpaces": false, //!Useful: part of format? (required by fes.exe?)
+			"editor.insertSpaces": false,  //!Useful: part of format? (required by fes.exe?)
 			"editor.tabSize": 4,
       "editor.wordWrap": "on",
-			"files.encoding": "shiftjis"  //!Useful: required by fes.exe
+      "files.encoding": "shiftjis",  //!Useful: required by fes.exe
+      "files.eol": "\r\n"
 		},
 		"[catsystem2-anm]": { /* CatSystem 2: Animation script */
-			"editor.insertSpaces": false, //!Useful: part of format? (required by ac.exe?)
+			"editor.insertSpaces": false,  //!Useful: part of format? (required by ac.exe?)
 			"editor.tabSize": 4,
       "editor.wordWrap": "on",
-			"files.encoding": "shiftjis"  //!Useful: rare case of CJK comment with ac.exe
+      "files.encoding": "shiftjis",  //!Useful: rare case of CJK comment with ac.exe
+      "files.eol": "\r\n"
 		},
 		"[catsystem2-dfn]": { /* CatSystem 2: Definition file */
 			"editor.insertSpaces": false,
 			"editor.tabSize": 4,
       "editor.wordWrap": "on",
-			"files.encoding": "shiftjis"  //!IMPORTANT: required by cs2.exe, bootmenu.exe, install.exe, uninst.exe, etc.
+      "files.encoding": "shiftjis",  //!IMPORTANT: required by cs2.exe, bootmenu.exe, install.exe, uninst.exe, etc.
+      "files.eol": "\r\n"
     },
 		"[catsystem2-language]": {
 			"editor.insertSpaces": false,
 			"editor.tabSize": 4,
-      "editor.wordWrap": "on",      //!QoL: long translation strings
-			"files.encoding": "utf8"      //!IMPORTANT: always read in UTF-8 by cs2.exe and bootmenu.exe
+      "editor.wordWrap": "on",       //!QoL: long translation strings
+      "files.encoding": "utf8",      //!IMPORTANT: always read in UTF-8 by cs2.exe and bootmenu.exe
+      "files.eol": "\r\n"
     },
 
     ////////////////////////////////////////////////////////

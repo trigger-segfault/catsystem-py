@@ -498,9 +498,9 @@ typedef unsigned int undefined4;
 
 // Header of both HG-2 and HG-3 images.
 typedef struct {
-    /*0,4*/  unsigned int Magic;
-    /*4,4*/  unsigned int HeaderSize;
-    /*8,2*/  short Version; // compared as short in HG-2
+    /*$0,4*/  unsigned int Magic;
+    /*$4,4*/  unsigned int HeaderSize;
+    /*$8,2*/  short Version; // compared as short in HG-2
     /*A,2*/  short x_padding;
     /*C*/
 } HGHEADER;
@@ -508,90 +508,90 @@ typedef struct {
 
 
 typedef struct {
-    /*0,4*/  int SliceIndex;
-    /*4,4*/  int SliceLength;
-    /*8,4*/  int DataPacked;
+    /*$0,4*/  int SliceIndex;
+    /*$4,4*/  int SliceLength;
+    /*$8,4*/  int DataPacked;
     /*C,4*/  int DataUnpacked;
-    /*10,4*/ int CtlPacked;
-    /*14,4*/ int CtlUnpacked;
-    /*18*/
+    /*$10,4*/ int CtlPacked;
+    /*$14,4*/ int CtlUnpacked;
+    /*$18*/
 } HGSLICE;
 
 typedef struct {
     // Version 0x10:
-    /*0,4*/  int Width;
-    /*4,4*/  int Height;
-    /*8,2*/  short BPP;
+    /*$0,4*/  int Width;
+    /*$4,4*/  int Height;
+    /*$8,2*/  short BPP;
     /*A,2*/  short Depth;
     /*C,18*/ HGSLICE Slice;
     //    /*C,4*/  int SliceIndex;
-    //    /*10,4*/ int SliceLength;
-    //    /*14,4*/ int DataPacked;
-    //    /*18,4*/ int DataUnpacked;
-    //    /*1C,4*/ int CtlPacked;
-    //    /*20,4*/ int CtlUnpacked;
+    //    /*$10,4*/ int SliceLength;
+    //    /*$14,4*/ int DataPacked;
+    //    /*$18,4*/ int DataUnpacked;
+    //    /*$1C,4*/ int CtlPacked;
+    //    /*$20,4*/ int CtlUnpacked;
     // Version 0x20:
-    /*24,4*/ int OffsetToData;
-    /*28,4*/ int ID;
-    /*2C,4*/ int CanvasWidth;
-    /*30,4*/ int CanvasHeight;
-    /*34,4*/ int OffsetX;
-    /*38,4*/ int OffsetY;
-    /*3C,4*/ int HasTransparency; //bool32
-    /*40,4*/ int OffsetToNext;
+    /*$24,4*/ int OffsetToData;
+    /*$28,4*/ int ID;
+    /*$2C,4*/ int CanvasWidth;
+    /*$30,4*/ int CanvasHeight;
+    /*$34,4*/ int OffsetX;
+    /*$38,4*/ int OffsetY;
+    /*$3C,4*/ int HasTransparency; //bool32
+    /*$40,4*/ int OffsetToNext;
     // Version 0x25:
-    /*44,4*/ int OriginX;
-    /*48,4*/ int OriginY;
-    /*4C*/
+    /*$44,4*/ int OriginX;
+    /*$48,4*/ int OriginY;
+    /*$4C*/
 } HG2METADATA;
 
 typedef struct {
-    /*0,4*/  unsigned int Magic;
-    /*4,4*/  unsigned int HeaderSize;
-    /*8,2*/  short Version; // compared as short in HG-2
+    /*$0,4*/  unsigned int Magic;
+    /*$4,4*/  unsigned int HeaderSize;
+    /*$8,2*/  short Version; // compared as short in HG-2
     /*A,2*/  short x_padding;
     /*C,4C*/ HG2METADATA Image;
 } HG2FILEINFO;
 
 typedef struct {
-    /*0,4*/  HG2FILEINFO *FileInfo;
-    /*4,4*/  undefined4 Unk4;
-    /*8,4*/  int Width;
+    /*$0,4*/  HG2FILEINFO *FileInfo;
+    /*$4,4*/  undefined4 Unk4;
+    /*$8,4*/  int Width;
     /*C,4*/  int Height;
 
 } kcImageHg2;
 
 typedef struct {
-    /*0,4*/  int ID;
-    /*4,4*/ int Width; //iVar6
-    /*8,4*/ int Height; //iVar4
+    /*$0,4*/  int ID;
+    /*$4,4*/ int Width; //iVar6
+    /*$8,4*/ int Height; //iVar4
 
     /*C,4*/ int UnkC;
-    /*10,4*/ int Unk10; //(unnassigned?)
+    /*$10,4*/ int Unk10; //(unnassigned?)
 
-    /*14,4*/ int Stride; //iVar7 * iVar6
-    /*18,4*/ int ByteDepth; //iVar7
-    /*1C,4*/ int CanvasWidth; //local_30[2]
-    /*20,4*/ int CanvasHeight; //local_30[3]
+    /*$14,4*/ int Stride; //iVar7 * iVar6
+    /*$18,4*/ int ByteDepth; //iVar7
+    /*$1C,4*/ int CanvasWidth; //local_30[2]
+    /*$20,4*/ int CanvasHeight; //local_30[3]
 
-    /*24,4*/ int Unk24; //OffsetX?  local_20
-    /*28,4*/ int Unk28; //OffsetX?  local_1c
+    /*$24,4*/ int Unk24; //OffsetX?  local_20
+    /*$28,4*/ int Unk28; //OffsetX?  local_1c
 
-    /*2C,4*/ int Unk2C; //HasTransparency?  0, 1, or 2?  local_18, 0 for version < 0x20
+    /*$2C,4*/ int Unk2C; //HasTransparency?  0, 1, or 2?  local_18, 0 for version < 0x20
     //NOTE: Skips OffsetToNext field
-    /*30,4*/ int Unk30; //OriginX?  local_10
-    /*34,4*/ int Unk34; //OriginY?  local_c
+    /*$30,4*/ int Unk30; //OriginX?  local_10
+    /*$34,4*/ int Unk34; //OriginY?  local_c
 
-    /*38,4*/ int Unk38; //0
-    /*3C,4*/ int Unk3C; //0
-    /*40,4*/ int Width40; //iVar6
-    /*44,4*/ int Height44; //iVar4
+    /*$38,4*/ int Unk38; //0
+    /*$3C,4*/ int Unk3C; //0
+    /*$40,4*/ int Width40; //iVar6
+    /*$44,4*/ int Height44; //iVar4
 
-    /*48,4*/ int Unk48; //
-    /*4C,4*/ int Unk4C; //
-    /*50,4*/ int Unk50; //
-    /*54,4*/ int Unk54; //
-    /*58,4*/ int Unk58; //ptr
+    /*$48,4*/ int Unk48; //
+    /*$4C,4*/ int Unk4C; //
+    /*$50,4*/ int Unk50; //
+    /*$54,4*/ int Unk54; //
+    /*$58,4*/ int Unk58; //ptr
 } kcImageSearch;
     // *(int *)((int)search + 0x14) = iVar7 * iVar6;
     // *(int *)((int)search + 4) = iVar6;

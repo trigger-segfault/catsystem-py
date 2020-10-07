@@ -77,52 +77,52 @@ typedef enum {
 // (field offset,size prefixes are in hex)
 
 typedef struct {
-  /*0,4*/   VAR_TYPE VarType;
-  /*4,4*/   UINT Value;
-  /*8*/
+  /*$0,4*/   VAR_TYPE VarType;
+  /*$4,4*/   UINT Value;
+  /*$8*/
 } ANM_ARG;
 
 typedef struct {
-  /*0,4*/   ANM_CMD CmdType;
-  /*4,40*/  ANM_ARG Args[8];
-  /*44*/
+  /*$0,4*/   ANM_CMD CmdType;
+  /*$4,40*/  ANM_ARG Args[8];
+  /*$44*/
 } ANM_TIMELINE;
 
 typedef struct {
-  /*0,4*/   UINT TimelineCount; // Number of timelines
-  /*4,4*/   ANM_TIMELINE *Timelines; // Pointer timelines
-  /*8,4*/   UINT Unk2; // (unused)
+  /*$0,4*/   UINT TimelineCount; // Number of timelines
+  /*$4,4*/   ANM_TIMELINE *Timelines; // Pointer timelines
+  /*$8,4*/   UINT Unk2; // (unused)
   /*c,4*/   UINT Unk3; // (unused)
-  /*10,4*/  UINT Counter; // used in CMD_ID, CMD_WAIT, and during command loop
-  /*14,4*/  UINT Instruction; // instruction ptr index
-  /*18,4*/  UINT Wait; // used in CMD_ID, CMD_WAIT
-  /*1c,4*/  UINT MaxFrame; // used in CMD_MAX
-  /*20,ff*/ INT Variables[64]; // live variables
-  /*120,4*/ INT UnkVar65; // (unused)
-  /*124,4*/ INT UnkVar66; // (unused)
-  /*128,4*/ INT FrameID; // current frame
-  /*12c,4*/ INT Blend; // used in CMD_BLEND
-  /*130,4*/ INT Disp; // used in CMD_DISP
-  /*134,4*/ INT PosX; // used in CMD_POS
-  /*138,4*/ INT PosY; // used in CMD_POS
-  /*13c*/
+  /*$10,4*/  UINT Counter; // used in CMD_ID, CMD_WAIT, and during command loop
+  /*$14,4*/  UINT Instruction; // instruction ptr index
+  /*$18,4*/  UINT Wait; // used in CMD_ID, CMD_WAIT
+  /*$1c,4*/  UINT MaxFrame; // used in CMD_MAX
+  /*$20,100*/ INT Variables[64]; // live variables
+  /*$120,4*/ INT UnkVar65; // (unused)
+  /*$124,4*/ INT UnkVar66; // (unused)
+  /*$128,4*/ INT FrameID; // current frame
+  /*$12c,4*/ INT Blend; // used in CMD_BLEND
+  /*$130,4*/ INT Disp; // used in CMD_DISP
+  /*$134,4*/ INT PosX; // used in CMD_POS
+  /*$138,4*/ INT PosY; // used in CMD_POS
+  /*$13c*/
 } ANM_SCRIPT;
 
 typedef struct {
-  /*0,4*/   UINT Magic; // "ANM" MAGIC_ANM
-  /*4,4*/   UINT AnmUnk1;
-  /*8,4*/   UINT TimelineCount;
+  /*$0,4*/   UINT Magic; // "ANM" MAGIC_ANM
+  /*$4,4*/   UINT AnmUnk1;
+  /*$8,4*/   UINT TimelineCount;
   /*c,4*/   UINT AnmUnk3;
-  /*10,4*/  UINT AnmUnk4;
-  /*14,4*/  UINT AnmUnk5;
-  /*18,4*/  UINT AnmUnk6;
-  /*1c,4*/  UINT AnmUnk7;
-  /*20*/
+  /*$10,4*/  UINT AnmUnk4;
+  /*$14,4*/  UINT AnmUnk5;
+  /*$18,4*/  UINT AnmUnk6;
+  /*$1c,4*/  UINT AnmUnk7;
+  /*$20*/
 } ANM_FILEHEADER;
 
 typedef struct {
-  /*0,20*/  ANM_FILEHEADER Header;
-  /*20,*/   ANM_TIMELINE Timelines[1]; // Treat as start address, variable-length
+  /*$0,20*/  ANM_FILEHEADER Header;
+  /*$20,*/   ANM_TIMELINE Timelines[1]; // Treat as start address, variable-length
 } ANM_FILEINFO;
 
 // static_assert(sizeof(ANM_ARG) == 0x8, "ANM_ARG struct size is not 8 bytes");

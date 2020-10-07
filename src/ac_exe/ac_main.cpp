@@ -1,6 +1,15 @@
+#include "token_parse_types.h"
+#include "shiftjis.h"
 #include <stdio.h>
 #include <windows.h>
 #include <vector>
+#include <list>
+
+
+// This is very out-of-date from the rest of the files,
+// it's sitting in wait of when the rest of the functions are better understood
+// Sit tight!
+
 
 ////// WINAPI USED //////
 
@@ -12,15 +21,22 @@
 // );
 // <https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-getfullpathnamea>
 
+///FID:cs2_full_v401/tool/ac.exe: FUN_00405bd0
 void __cdecl ac_CoUninitializeCleanup(void)
 
 {
-
 }
 
+///FID:cs2_full_v401/tool/ac.exe: FUN_00405b10
 BOOL __cdecl ac_CoInitializeSetup(unsigned int param_1, int param_2)
 
 {
+    // This likely sets up some globals of importance, like for detecting memory leaks.
+    // 
+    // We can see that absolute path with kcBaseClass.h in it, which is likely for an
+    // STL std::list<kcBaseClass> or std::vector<kcBaseClass> (probably the first)
+
+
     // undefined4 *puVar1;
     // void *this;
     // int iVar2;
@@ -62,209 +78,42 @@ BOOL __cdecl ac_CoInitializeSetup(unsigned int param_1, int param_2)
     return TRUE;
 }
 
-//BOOL __cdecl FUN_00412200(const unsigned char *param_1)
-BOOL __cdecl shiftjis_IsCharDoubleByte(IN const char *lpChar)
 
+
+typedef enum kclib_ANM_CMD
 {
-    const unsigned char *ch = (const unsigned char *)lpChar;
-    if (ch == NULL || ch[0] == 0x00)
-        return FALSE;
-    // ch[0] in range [$81-$9f, $e0-$ef]
-    // ch[1] in range [$40-$7e, $80-$fc]
-    return ((ch[0] > 0x80 && ch[0] < 0xa0) || (ch[0] > 0xdf && ch[0] < 0xf0)) &&
-           ((ch[1] > 0x3f && ch[1] < 0x7f) || (ch[1] > 0x7f && ch[1] < 0xfd));
-}
-//BOOL __cdecl FUN_00412520(char *param_1, char *param_2)
-BOOL __cdecl shiftjis_GetParentDirectory(const char *fullpath, char *outParentdir)
-
-{
-    int seppos = 0;
-    // get index of last path separator
-    for (int i = 0; fullpath[i] != '\0'; i++)
-    {
-        if (shiftjis_IsCharDoubleByte(&fullpath[i]))
-        {
-            i++;
-        }
-        else if (fullpath[i] == '\\' || fullpath[i] == '/')
-        {
-            seppos = i;
-        }
-    }
-    // copy basepath
-    //memcpy(outParentdir, fullpath, seppos);
-    for (int i = 0; i < seppos; i++)
-    {
-        outParentdir[i] = fullpath[i];
-    }
-    outParentdir[seppos] = '\0';
-
-    return seppos != 0;
-}   
-
-
-BOOL __cdecl shiftjis_GetAbsolutePath(IN const char *filename, OUT char *outFullpath, OUT char **outBasename)
-
-{
-    LPSTR basename;
-    
-    if (!GetFullPathNameA(filename, MAX_PATH, outFullpath, &basename))
-    {
-        return FALSE;
-    }
-    if (outBasename != (char **)NULL)
-    {
-        *outBasename = basename;
-    }
-    return TRUE;
-}
-
-//undefined4 __cdecl FUN_004120e0(char *param_1,undefined4 *param_2)
-BOOL __cdecl shiftjis_ChangeExtension(char *filename, char *extension)
-
-{
-    if (filename == NULL)
-        return FALSE;
-    
-    int extpos = -1;
-    int namelen = strlen(filename);
-    for (int i = namelen - 1; i >= 0; i--)
-    {
-        if (filename[i] == '\\' || filename[i] == '/')
-        {
-            extpos = namelen;
-            break;
-        }
-        if (filename[i] == '.')
-        {
-            extpos = i;
-            break;
-        }
-    }
-    if (extension != NULL)
-    {
-        filename[extpos++] = '.';
-        for (int i = 0; extension[i] != '\0'; i++)
-        {
-            filename[extpos++] = extension[i];
-        }
-    }
-    filename[extpos] = '\0';
-    return TRUE;
-}
-
-// //undefined4 __cdecl FUN_004120e0(char *param_1,undefined4 *param_2)
-// BOOL __cdecl shiftjis_ChangeExtension(char *filename, char *extension)
-
-// {
-
-//     char cVar1;
-//     char *pcVar2;
-//     undefined4 *puVar3;
-//     uint uVar4;
-//     undefined4 *puVar5;
-//     undefined2 *puVar6;
-//     undefined4 *puVar7;
-    
-//     if (param_1 == (char *)0x0) {
-//         return 0;
-//     }
-//     pcVar2 = param_1;
-//     do {
-//         cVar1 = *pcVar2;
-//         pcVar2 = pcVar2 + 1;
-//     } while (cVar1 != '\0');
-//     pcVar2 = pcVar2 + (-1 - (int)(param_1 + 1));
-//     while( true ) {
-//         if ((int)pcVar2 < 0) goto LAB_00412129;
-//         cVar1 = pcVar2[(int)param_1];
-//         if ((cVar1 == '\\') || (cVar1 == '/')) break;
-//         if (cVar1 == '.') goto LAB_00412129;
-//         pcVar2 = pcVar2 + -1;
-//     }
-//     pcVar2 = param_1;
-//     do {
-//         cVar1 = *pcVar2;
-//         pcVar2 = pcVar2 + 1;
-//     } while (cVar1 != '\0');
-//     pcVar2 = pcVar2 + -(int)(param_1 + 1);
-//     LAB_00412129:
-//     if (pcVar2 == (char *)0xffffffff) {
-//         pcVar2 = param_1;
-//         do {
-//             cVar1 = *pcVar2;
-//             pcVar2 = pcVar2 + 1;
-//         } while (cVar1 != '\0');
-//         pcVar2 = pcVar2 + -(int)(param_1 + 1);
-//     }
-//     pcVar2[(int)param_1] = '\0';
-//     if (param_2 != (undefined4 *)0x0) {
-//         puVar6 = (undefined2 *)(param_1 + -1);
-//         do {
-//             pcVar2 = (char *)((int)puVar6 + 1);
-//             puVar6 = (undefined2 *)((int)puVar6 + 1);
-//         } while (*pcVar2 != '\0');
-//         *puVar6 = 0x2e;
-//         puVar3 = param_2;
-//         do {
-//             cVar1 = *(char *)puVar3;
-//             puVar3 = (undefined4 *)((int)puVar3 + 1);
-//         } while (cVar1 != '\0');
-//         puVar7 = (undefined4 *)(param_1 + -1);
-//         do {
-//             pcVar2 = (char *)((int)puVar7 + 1);
-//             puVar7 = (undefined4 *)((int)puVar7 + 1);
-//         } while (*pcVar2 != '\0');
-//         uVar4 = (uint)(undefined4 *)((int)puVar3 - (int)param_2) >> 2;
-//         puVar5 = param_2;
-//         while (uVar4 != 0) {
-//             uVar4 -= 1;
-//             *puVar7 = *puVar5;
-//             puVar5 = puVar5 + 1;
-//             puVar7 = puVar7 + 1;
-//         }
-//         uVar4 = (uint)(undefined4 *)((int)puVar3 - (int)param_2) & 3;
-//         while (uVar4 != 0) {
-//             uVar4 -= 1;
-//             *(undefined *)puVar7 = *(undefined *)puVar5;
-//             puVar5 = (undefined4 *)((int)puVar5 + 1);
-//             puVar7 = (undefined4 *)((int)puVar7 + 1);
-//         }
-//     }
-//     return 1;
-// }
-
-
-typedef enum {
-  CMD_ID    = 0, // [ID] [min] (max)
-  CMD_SET   = 1, // set [var] [min] (max)
-  CMD_LOOP  = 2, // loop [var] [label]
-  CMD_JUMP  = 3, // jump [label]
-  CMD_IF    = 4, // if [var] [label]
-  CMD_IFE   = 5, // ife [var] [value] [label]
-  CMD_IFN   = 6, // ifn [var] [value] [label]
-  CMD_IFG   = 7, // ifg [var] [value] [label]
-  CMD_IFS   = 8, // ifs [var] [value] [label]
-  CMD_IFGE  = 9, // ifge [var] [value] [label]
-  CMD_IFSE  = 10, // ifse [var] [value] [label]
-  CMD_MAX   = 11, // max [var]
-  CMD_BLEND = 12, // blend [param]
-  CMD_DISP  = 13, // disp [param]
-  CMD_POS   = 14, // pos [x] [y]
-  CMD_WAIT  = 15, // wait [min] [max]
-  CMD_ADD   = 16, // add [var] [value]
-  CMD_SUB   = 17  // sub [var] [value]
+    CMD_ID    = 0, // [ID] [min] (max)
+    CMD_SET   = 1, // set [var] [min] (max)
+    CMD_LOOP  = 2, // loop [var] [label]
+    CMD_JUMP  = 3, // jump [label]
+    CMD_IF    = 4, // if [var] [label]
+    CMD_IFE   = 5, // ife [var] [value] [label]
+    CMD_IFN   = 6, // ifn [var] [value] [label]
+    CMD_IFG   = 7, // ifg [var] [value] [label]
+    CMD_IFS   = 8, // ifs [var] [value] [label]
+    CMD_IFGE  = 9, // ifge [var] [value] [label]
+    CMD_IFSE  = 10, // ifse [var] [value] [label]
+    CMD_MAX   = 11, // max [var]
+    CMD_BLEND = 12, // blend [param]
+    CMD_DISP  = 13, // disp [param]
+    CMD_POS   = 14, // pos [x] [y]
+    CMD_WAIT  = 15, // wait [min] [max]
+    CMD_ADD   = 16, // add [var] [value]
+    CMD_SUB   = 17  // sub [var] [value]
 } ANM_CMD;
 
-typedef enum {
-  TYPE_CONST    = 0, // 16
-  TYPE_VARIABLE = 1, // @16
-  TYPE_LABEL    = 2  // MyLabel
+typedef enum kclib_ANM_VAR_TYPE
+{
+    TYPE_CONST    = 0, // 16
+    TYPE_VARIABLE = 1, // @16
+    TYPE_LABEL    = 2  // MyLabel
 } VAR_TYPE;
 
 
 // "ANM\0" (little endian)
 #define MAGIC_ANM 0x4d4e41
+
+
 
 // KCANMSCRIPT STRUCTS:
 
@@ -272,334 +121,76 @@ typedef enum {
 
 // (field offset,size prefixes are in hex)
 
-typedef struct {
-    /*0,4*/   VAR_TYPE VarType;
-    /*4,4*/   UINT Value;
-    /*8*/
+typedef struct kclib_ANM_ARG
+{
+    /*$0,4*/   VAR_TYPE VarType;
+    /*$4,4*/   unsigned int Value;
+    /*$8*/
 } ANM_ARG;
 
-typedef struct {
-    /*0,4*/   ANM_CMD CmdType;
-    /*4,40*/  ANM_ARG Args[8];
-    /*44*/
+typedef struct kclib_ANM_TIMELINE
+{
+    /*$0,4*/   ANM_CMD CmdType;
+    /*$4,40*/  ANM_ARG Args[8];
+    /*$44*/
 } ANM_TIMELINE;
 
 
-typedef struct {
-    // /*0,18*/  CHAR UnkName[24]; // 0x0:0x16?
-    /*0,18*/  UINT padding[6];
-    /*18,1c*/ INT **Field72Unk6ptr;
-    /*1c,20*/ INT Field72Unk7;
-    /*20*/
+typedef struct kclib_unk_ANM_UNK72  // likely STL class
+{
+    // /*$0,18*/  char UnkName[24]; // 0x0:0x16?
+    /*$0,18*/  unsigned int padding[6];
+    /*$18,1c*/ int **Field72Unk6ptr;
+    /*$1c,20*/ int Field72Unk7;
+    /*$20*/
 } ANM_UNK72;
 
-typedef struct {
-    /*0,4*/   UINT TimelineCount; // Number of timelines
-    // /*4,4*/   std::shared_ptr<ANM_TIMELINE> Timelines; // Pointer timelines
-    /*4,4*/   ANM_TIMELINE *Timelines; // Pointer timelines, this field is created with a reference counter at address -4, with the function HeapAlloc
-    /*8,4*/   UINT Unk2; // (unknown)
-    /*c,4*/   UINT Unk3; // (unknown)
-    /*10,4*/  UINT Counter; // used in CMD_ID, CMD_WAIT, and during command loop
-    /*14,4*/  INT Instruction; // instruction ptr index
-    /*18,4*/  UINT Wait; // used in CMD_ID, CMD_WAIT
-    /*1c,4*/  UINT MaxFrame; // used in CMD_MAX
-    /*20,ff*/ INT Variables[64]; // live variables
-    /*120,4*/ ANM_UNK72 *Unk72stl; // (ptr to unknown stl structure, probably)
-    /*124,4*/ FLOAT Unk73; // (unknown)
-    /*128,4*/ INT FrameID; // current frame
-    /*12c,4*/ INT Blend; // used in CMD_BLEND
-    /*130,4*/ BOOL Disp; // used in CMD_DISP
-    /*134,4*/ INT PosX; // used in CMD_POS
-    /*138,4*/ INT PosY; // used in CMD_POS
-    /*140*/
+typedef struct kclib_ANM_SCRIPT
+{
+    /*$0,4*/   unsigned int TimelineCount; // Number of timelines
+    // /*$4,4*/   std::shared_ptr<ANM_TIMELINE> Timelines; // Pointer timelines
+    /*$4,4*/   ANM_TIMELINE *Timelines; // Pointer timelines, this field is created with a reference counter at address -4, with the function HeapAlloc
+    /*$8,4*/   unsigned int Unk2; // (unknown)
+    /*$c,4*/   unsigned int Unk3; // (unknown)
+    /*$10,4*/  unsigned int Counter; // used in CMD_ID, CMD_WAIT, and during command loop
+    /*$14,4*/  int Instruction; // instruction ptr index
+    /*$18,4*/  unsigned int Wait; // used in CMD_ID, CMD_WAIT
+    /*$1c,4*/  unsigned int MaxFrame; // used in CMD_MAX
+    /*$20,ff*/ int Variables[64]; // live variables
+    /*$120,4*/ ANM_UNK72 *Unk72stl; // (ptr to unknown stl structure, probably)
+    /*$124,4*/ float Unk73; // (unknown)
+    /*$128,4*/ int FrameID; // current frame
+    /*$12c,4*/ int Blend; // used in CMD_BLEND
+    /*$130,4*/ BOOL Disp; // used in CMD_DISP
+    /*$134,4*/ int PosX; // used in CMD_POS
+    /*$138,4*/ int PosY; // used in CMD_POS
+    /*$140*/
 } ANM_SCRIPT;
 
-typedef struct {
-    /*0,4*/   UINT Magic; // "ANM\0" MAGIC_ANM
-    /*4,4*/   UINT AnmUnk1;
-    /*8,4*/   UINT TimelineCount;
-    /*c,4*/   UINT AnmUnk3;
-    /*10,4*/  UINT AnmUnk4;
-    /*14,4*/  UINT AnmUnk5;
-    /*18,4*/  UINT AnmUnk6;
-    /*1c,4*/  UINT AnmUnk7;
-    /*20*/
+typedef struct kclib_ANM_FILEHEADER
+{
+    /*$0,4*/   unsigned int Magic; // "ANM\0" MAGIC_ANM
+    /*$4,4*/   unsigned int AnmUnk1;
+    /*$8,4*/   unsigned int TimelineCount;
+    /*$c,4*/   unsigned int AnmUnk3;
+    /*$10,4*/  unsigned int AnmUnk4;
+    /*$14,4*/  unsigned int AnmUnk5;
+    /*$18,4*/  unsigned int AnmUnk6;
+    /*$1c,4*/  unsigned int AnmUnk7;
+    /*$20*/
 } ANM_FILEHEADER;
 
-typedef struct {
-    /*0,20*/  ANM_FILEHEADER Header;
-    /*20,*/   ANM_TIMELINE Timelines[1]; // Treat as start address, variable-length
+typedef struct kclib_ANM_FILEINFO
+{
+    /*$0,20*/  ANM_FILEHEADER Header;
+    /*$20,*/   ANM_TIMELINE Timelines[1]; // Treat as start address, variable-length
 } ANM_FILEINFO;
 
 #pragma pack(pop)
 
 
-typedef struct {
-    CHAR *Buffer;
-    UINT Length;
-    UINT Position;
-    UINT ScrUnk3;
-} AC_SCRIPTDECODER;
-
-// uint __fastcall FUN_00411d40(int param_1)
-BOOL __fastcall ac_ScriptDecoder_IsEOF(AC_SCRIPTDECODER *acscr)
-
-{
-    return (BOOL)(acscr->Length <= acscr->Position);
-}
-
-//undefined4 __stdcall FUN_00410f10(char *param_1,int *param_2,int *param_3)
-BOOL __stdcall token_ParseInteger(IN const char *str, OUT int *outLength, OUT int *outValue)
-
-{
-    if (str[0] < '0' || str[0] > '9')
-        return FALSE; // not an numeric literal
-
-    *outLength = 0;
-    *outValue  = 0;
-    
-    if (str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
-    {
-        // hexidecimal literal (0x)
-        *outLength += 2;
-        while (true)
-        {
-            char c = str[*outLength];
-            if (c >= '0' && c <= '9')
-                c -= '0'; //('0' - 0x0);
-            else if (c >= 'a' && c <= 'f')
-                c -= ('a' - 0xa);
-            else if (c >= 'A' && c <= 'F')
-                c -= ('A' - 0xA);
-            else
-                break; // not a hex digit
-            *outValue = *outValue * 0x10 + (int)c; // c is set to value of digit
-            *outLength++;
-        }
-    }
-    else
-    {
-        // decimal literal (avoid floating literal, cancel at '.')
-        while (true)
-        {
-            char c = str[*outLength];
-            if (c >= '0' && c <= '9')
-                c -= '0'; //('0' - 0x0);
-            else
-                break; // not a dec digit
-            *outValue = *outValue * 10 + (int)c; // c is set to value of digit
-            *outLength++;
-        }
-        while (str[*outLength] >= '0' && str[*outLength] <= '9')
-        {
-            *outValue = *outValue * 10 + str[*outLength] - '0';
-            *outLength++;
-            char c = str[*outLength];
-            if (c >= '0' && c <= '9')
-                c -= '0'; //('0' - 0x0);
-            else
-                break; // not a dec digit
-            *outValue = *outValue * 10 + (int)c; // c is set to value of digit
-            *outLength++;
-        }
-        if (str[*outLength] == '.')
-            return FALSE; // no floating points, strangely no checks for 'f'
-    }
-    return TRUE;
-}
-//         c = str[*outLength];
-//         while (('/' < cVar1 && (str[*outLength] < ':'))) {
-//             iVar2 = *outValue;
-//             *outValue = iVar2 * 10;
-//             *outValue = (int)str[*outLength] + -0x30 + iVar2 * 10;
-//             *outLength = *outLength + 1;
-//             cVar1 = str[*outLength];
-//         }
-//         if (str[*outLength] == '.') {
-//             return FALSE;
-//         }
-//     }
-//         while (true)
-//         {
-//             while (true)
-//             {
-//                 while ((cVar1 = str[*outLength], '/' < cVar1 && (cVar1 < ':')))
-//                 {
-//                     *outValue = *outValue * 0x10 + (int)cVar1 + -0x30;
-//                     *outLength = *outLength + 1;
-//                 }
-//                 if ((cVar1 < 'a') || ('f' < cVar1)) break;
-//                 *outValue = *outValue * 0x10 + (int)cVar1 + -0x57;
-//                 *outLength = *outLength + 1;
-//             }
-//             if ((cVar1 < 'A') || ('F' < cVar1)) break;
-//             *outValue = *outValue * 0x10 + (int)cVar1 + -0x37;
-//             *outLength = *outLength + 1;
-//         }
-//     }
-//     char cVar1;
-//     int iVar2;
-//     if ((*str < '0') || ('9' < *str)) {
-//         return FALSE;
-//     }
-//     *outLength = 0;
-//     *outValue = 0;
-//     if ((*str == '0') && ((str[1] == 'x' || (str[1] == 'X')))) {
-//         *outLength = *outLength + 2;
-//         while( true ) {
-//             while( true ) {
-//                 while ((cVar1 = str[*outLength], '/' < cVar1 && (cVar1 < ':'))) {
-//                     *outValue = *outValue * 0x10 + (int)cVar1 + -0x30;
-//                     *outLength = *outLength + 1;
-//                 }
-//                 if ((cVar1 < 'a') || ('f' < cVar1)) break;
-//                 *outValue = *outValue * 0x10 + (int)cVar1 + -0x57;
-//                 *outLength = *outLength + 1;
-//             }
-//             if ((cVar1 < 'A') || ('F' < cVar1)) break;
-//             *outValue = *outValue * 0x10 + (int)cVar1 + -0x37;
-//             *outLength = *outLength + 1;
-//         }
-//     }
-//     else {
-//         cVar1 = str[*outLength];
-//         while (('/' < cVar1 && (str[*outLength] < ':'))) {
-//             iVar2 = *outValue;
-//             *outValue = iVar2 * 10;
-//             *outValue = (int)str[*outLength] + -0x30 + iVar2 * 10;
-//             *outLength = *outLength + 1;
-//             cVar1 = str[*outLength];
-//         }
-//         if (str[*outLength] == '.') {
-//             return FALSE;
-//         }
-//     }
-//     return TRUE;
-// }
 
 
-//void __stdcall FUN_00411000(char *param_1,int *param_2,float *param_3)
-BOOL __stdcall token_ParseFloat(IN const char *str, OUT int *outLength, OUT float *outValue)
-
-{
-    if (str[0] < '0' || str[0] > '9')
-        return FALSE; // not a numeric literal
-
-    *outLength = 0;
-    *outValue  = 0.00000000;
-    
-    char atof_buffer[1024];
-
-    // floating decimal literal (require '.' point or 'f' specifier)
-    while (true)
-    {
-        char c = str[*outLength];
-        if (c < '0' || c > '9')
-            break; // not a dec digit
-        atof_buffer[*outLength] = c; // is a dec digit
-        *outLength++;
-    }
-    if (str[*outLength] == '.')
-    {
-        atof_buffer[*outLength] = '.'; // is a decimal point
-        *outLength++;
-        while (true)
-        {
-            char c = str[*outLength];
-            if (c < '0' || c > '9')
-                break; // not a dec digit
-            atof_buffer[*outLength] = c; // is a dec digit
-            *outLength++;
-        }
-    }
-    else if (str[*outLength] != 'f' && str[*outLength] != 'F')
-    {
-        return FALSE; // no decimal point or 'f' postfix
-    }
-    
-    atof_buffer[*outLength] = '\0'; // null-terminate buffer
-    *outValue = (float) atof(atof_buffer); // floating precision only
-
-    if (str[*outLength] == 'f' || str[*outLength] == 'F')
-        *outLength++; // include 'f' specifier in token length
-
-    return TRUE;
-}
-
-//undefined4 __stdcall FUN_00410e90(char *param_1, int *param_2, ushort *param_3)
-BOOL __stdcall token_ParseChar(IN const char *str, OUT int *outLength, OUT unsigned short *outValue)
-
-{
-    int iVar1;
-    
-    if (*str != '\'')
-    {
-        return FALSE;
-    }
-    *outLength = 1;
-    *outValue  = 0;
-
-    // yup, this is as broken as it looks (first char value always <<= 8, unless EOF)
-    while (str[*outLength] == '\0')
-    {
-        // shift character value before checking for exit quote. Very bad
-        *outValue = *outValue << 8;
-        char c = str[*outLength];
-        if (c == '\'')
-        {
-            *outLength++;
-            break;
-        }
-        // limited escape character support
-        if (c == '\\' && (str[*outLength + 1] == '\'' || str[*outLength + 1] == '\\'))
-        {
-            *outLength++;
-            c = str[*outLength];
-        }
-        *outValue = *outValue | (short)c;
-        *outLength++;
-    }
-    return TRUE;
-}
-
-
-//undefined4 __stdcall FUN_00410de0(char *param_1,int *param_2,int param_3,uint param_4)
-BOOL __stdcall token_ParseString(IN const char *str, OUT int *outLength, OUT char *outBuffer, unsigned int bufferSize)
-
-{
-    if (*str != '\"')
-    {
-        return FALSE;
-    }
-
-    *outLength = 1;
-    unsigned int bufpos = 0;
-    
-    for (int i = 0; i < bufferSize; i++, *outLength++)
-    {
-        char c = str[*outLength];
-        if (c == '\0')
-            break;
-        if (c == '\"')
-        {
-            *outLength++;
-            break;
-        }
-        if (c == '\\' && str[*outLength + 1] == '\"')
-        {
-            *outLength++;
-        }
-        else if (!shiftjis_IsCharDoubleByte(&str[*outLength]))
-        {
-            outBuffer[bufpos] = str[*outLength];
-            bufpos++, *outLength++;
-        }
-        outBuffer[bufpos] = str[*outLength];
-    }
-
-    outBuffer[bufpos] = '\0'; // potential access violation, nice
-    return TRUE;
-}
 //     while (bufpos >= bufferSize && str[*outLength] != '\0')
 //     {
 //         char c = str[*outLength];
@@ -637,7 +228,6 @@ BOOL __stdcall token_ParseString(IN const char *str, OUT int *outLength, OUT cha
 //     }
 //     outBuffer[bufpos] = '\0'; // potential access violation, nice
 //     return TRUE;
-
 //     if (bufferSize != 0)
 //     {
 //         while (str[*outLength] != '\0')
@@ -675,9 +265,7 @@ BOOL __stdcall token_ParseString(IN const char *str, OUT int *outLength, OUT cha
 //                 else
 //                 {
 //                     outBuffer[bufpos] = c;
-//                 }
-                
-                
+//                 }              
 //                 // *(char *)(uVar4 + param_3) = cVar3;
 //             }
 //             else
@@ -702,12 +290,10 @@ BOOL __stdcall token_ParseString(IN const char *str, OUT int *outLength, OUT cha
 //             }
 //         }
 //     }
-
 //     int iVar1;
 //     BOOL BVar2;
 //     char cVar3;
 //     uint uVar4;
-    
 //     if (*param_1 != '\"') {
 //         return FALSE;
 //     }
@@ -751,9 +337,6 @@ BOOL __stdcall token_ParseString(IN const char *str, OUT int *outLength, OUT cha
 //     *(undefined *)(uVar4 + param_3) = 0;
 //     return TRUE;
 // }
-
-
-
 //     c = str[*outLength];
 //     while (c >= '0' && c <= '9')
 //     {
@@ -777,20 +360,17 @@ BOOL __stdcall token_ParseString(IN const char *str, OUT int *outLength, OUT cha
 //     else if (c != 'f' && c != 'F')
 //     {
 //         return FALSE; // no decimal point or 'f' postfix
-//     }
-    
+//     }  
 //     atof_buffer[*outLength] = '\0';
 //     *outValue = (float)atof(atof_buffer);
 //     if (str[*outLength] == 'f' || str[*outLength] == 'F')
 //         *outLength++;
-    
 //     if (str[0] == '0' && (str[1] == 'x' || str[1] == 'X'))
 //     {
 //     char cVar1;
 //     int iVar2;
 //     double dVar3;
 //     char local_404 [1024];
-    
 //     if ((*str < '0') || ('9' < *str)) goto LAB_004110d7;
 //     *outLength = 0;
 //     *outValue = 0.00000000;
@@ -835,67 +415,16 @@ BOOL __stdcall token_ParseString(IN const char *str, OUT int *outLength, OUT cha
 //     return;
 // }
 
-//undefined4 __thiscall
-FUN_00410880(void *this,undefined *param_1,undefined4 *param_2,undefined4 *param_3)
+// //undefined4 __thiscall
+// FUN_00410880(void *this,undefined *param_1,undefined4 *param_2,undefined4 *param_3)
 
 
-
-// undefined4 __cdecl FUN_004036b0(void *param_1,undefined8 *param_2)
-undefined4 __cdecl FUN_004036b0(void *param_1,undefined8 *param_2)
-
-{
-  int iVar1;
-  
-  while( true ) {
-    if (false) {
-      return 1;
-    }
-    iVar1 = FUN_004112e0(param_1,param_2); // deep rabbit hole, token parsing (i.e. dec 10,hex 0x1f, floating 0.0f, "string", 'char', keywords, operators?, etc)
-    if (iVar1 == 0) break;
-    if (*(int *)((int)param_2 + 4) != 6) {
-      return 1;
-    }
-  }
-  return 0;
-}
-
-
-// void __thiscall FUN_00411cf0(void *this,int param_1)
-void __thiscall ac_ScriptDecoder_NextLine(AC_SCRIPTDECODER *acscr, char *outLine)
-
-{
-    int linepos = 0;
-    while (acscr->Position < acscr->Length) {
-        char c = acscr->Buffer[acscr->Position];
-        if (c == '\n') {
-            acscr->Position++;
-            break;
-        }
-        if (outLine != NULL) {
-            outLine[linepos] = c;
-        }
-        acscr->Position++;
-        linepos++;
-    }
-    if (outLine != NULL) {
-        outLine[linepos] = '\0';
-    }
-    return;
-    //return linepos;
-}
-
-void __fastcall ac_ScriptDecoder_ctor(AC_SCRIPTDECODER *acscr)
-
-{
-    acscr->Buffer = NULL;
-    acscr->Position = 0;
-    acscr->ScrUnk3 = 0;
-}
 
 // There's A LOT of nasty C++ STL (std::vector, std::list) in these functions.
 // Recreating using the decompiled code as 'guide',
 //  rather than as the desired result may work better
 
+///FID:cs2_full_v401/tool/ac.exe: FUN_00402190
 void __cdecl ac_parseLines(char *filename)
 
 {
@@ -905,7 +434,7 @@ void __cdecl ac_parseLines(char *filename)
     if (file == NULL)
     {
         local_604 += 1;
-        //JP: printf("ファイルのロードに失敗しました : %s", filename);
+        ///JP: printf("ファイルのロードに失敗しました : %s", filename);
         printf("Failed to load file : %s", filename);
         
         local_80c = local_604;
@@ -955,7 +484,7 @@ void __cdecl ac_parseLines(char *filename)
     int local_30;
     int local_2c;
     undefined4 local_28;
-    AC_SCRIPTDECODER acscr; //int local_24 [4];
+    SCRIPT_DECODER acscr; //int local_24 [4];
     int local_14;
     int *local_10;
     undefined *puStack12;
@@ -981,7 +510,7 @@ void __cdecl ac_parseLines(char *filename)
     iVar1 = FUN_00411dd0(acscr, filename);
     if (iVar1 == 0) {
         local_604 += 1;
-        //JP: printf("ファイルのロードに失敗しました : %s", filename);
+        ///JP: printf("ファイルのロードに失敗しました : %s", filename);
         printf("Failed to load file : %s", filename);
         
         local_80c = local_604;
@@ -995,17 +524,17 @@ void __cdecl ac_parseLines(char *filename)
     // Find all labels/lines
     local_30 = 0;
     local_14 = 1;
-    while (uVar2 = ac_ScriptDecoder_IsEOF(&acscr), uVar2 == 0)
+    while (uVar2 = ScriptDecoder_IsEOF(&acscr), uVar2 == 0)
     {
-        ac_ScriptDecoder_NextLine(&acscr, (int)local_808);// FUN_00411cf0(acscr, (int)local_808);
+        ScriptDecoder_NextLine(&acscr, (int)local_808);// FUN_00411cf0(acscr, (int)local_808);
         FUN_004107e0(local_600, local_808);
-        iVar1 = FUN_004036b0(local_600, &local_458);
+        iVar1 = token_Next(local_600, &local_458);
         if ((iVar1 != 0) && (local_458._4_4_ == 1))
         {
-            iVar1 = FUN_004036b0(local_600, &local_458);
+            iVar1 = token_Next(local_600, &local_458);
             if (iVar1 == 0)
             {
-                //JP: printf("error (%d) : 不正なラベル名です。\n", local_14);
+                ///JP: printf("error (%d) : 不正なラベル名です。\n", local_14);
                 printf("error (%d) : Illegal label name.\n", local_14);
                 local_604 += 1;
                 break;
@@ -1016,7 +545,7 @@ void __cdecl ac_parseLines(char *filename)
             piVar3 = (int *)FUN_00403b50(&DAT_004a29a0, local_81c);
             uVar2 = operator!=(&local_4a8, piVar3);
             if ((uVar2 & 0xff) != 0) {
-                //JP: printf("error (%d) : %s このラベル名は既に使用されています。\n", local_14, local_438);
+                ///JP: printf("error (%d) : %s このラベル名は既に使用されています。\n", local_14, local_438);
                 printf("error (%d) : %s Label name already in use.\n", local_14, local_438);
                 local_604 += 1;
                 break;
@@ -1033,15 +562,15 @@ void __cdecl ac_parseLines(char *filename)
     FUN_00411cd0(acscr, 0);
     local_30 = 0;
     local_14 = 1;
-    while (uVar2 = ac_ScriptDecoder_IsEOF(&acscr), uVar2 == 0) {
+    while (uVar2 = ScriptDecoder_IsEOF(&acscr), uVar2 == 0) {
         FUN_00411cf0(acscr, (int)local_808);
        
         memset(&local_4a0, 0, sizeof(ANM_TIMELINE)); // FUN_00412740(&local_4a0, 0x44);
         FUN_004107e0(local_600, local_808);
-        iVar1 = FUN_004036b0(local_600, &local_458);
+        iVar1 = token_Next(local_600, &local_458);
         if (iVar1 != 0) {
             if (local_458._4_4_ == 1) {
-                iVar1 = FUN_004036b0(local_600,&local_458);
+                iVar1 = token_Next(local_600,&local_458);
                 if (iVar1 != 0) {
                     piVar3 = FUN_00403860(local_824,local_438);
                     local_4a8 = *piVar3;
@@ -1078,7 +607,7 @@ void __cdecl ac_parseLines(char *filename)
                 if (local_458._4_4_ == 0x27) {
                 local_4a0 = 0;
                 local_49c = 1;
-                iVar1 = FUN_004036b0(local_600,&local_458);
+                iVar1 = token_Next(local_600,&local_458);
                 if (iVar1 == 0) {
                     printf(s_error_(%d)_:_0045140c,local_14);
                     local_604 += 1;
@@ -1558,13 +1087,14 @@ void __cdecl ac_parseLines(char *filename)
     FUN_004112a0(local_600);
 }
 
+///FID:cs2_full_v401/tool/ac.exe: FUN_00403990
 void __cdecl ac_WriteAnmFile(char *filename)
 
 {
     FILE *file = fopen(filename, "wb+");
     if (file == NULL)
     {
-        //JP: printf("出力ファイル %s がオープンできません。\n", filename); //, uVar1
+        ///JP: printf("出力ファイル %s がオープンできません。\n", filename); //, uVar1
         printf("Output file %s cannot be opened.\n", filename);
         return;
     }
@@ -1572,7 +1102,7 @@ void __cdecl ac_WriteAnmFile(char *filename)
     ANM_FILEHEADER anmhdr = {0};
     anmhdr.Magic = MAGIC_ANM; // "ANM\0"
     anmhdr.AnmUnk1 = 0;
-    anmhdr.TimelineCount = (UINT) timelines.size();
+    anmhdr.TimelineCount = (unsigned int) timelines.size();
     fwrite((void *)&anmhdr, sizeof(anmhdr), 1, file);
 
     for (int i = 0; i < anmhdr.TimelineCount; i++)
@@ -1631,7 +1161,7 @@ void __cdecl ac_WriteAnmFile(char *filename)
     FUN_00403cf0(&local_18);
     BVar2 = kcFile_Open(kcfile,filename,0x402);
     if (BVar2 == 0) {
-        //JP: printf("出力ファイル %s がオープンできません。\n", filename, uVar1);
+        ///JP: printf("出力ファイル %s がオープンできません。\n", filename, uVar1);
         printf("Output file %s cannot be opened.\n", filename, uVar1);
         local_19c = 0;
         local_8 = 0xffffffff;
@@ -1682,12 +1212,13 @@ void __cdecl ac_WriteAnmFile(char *filename)
     return;
 }
 
+///FID:cs2_full_v401/tool/ac.exe: FUN_00401fe0
 int main(int argc, char** argv)
 
 {
     if (argc < 0)
     {
-        //JP: printf("アニメーションスクリプトコンバータ\n");
+        ///JP: printf("アニメーションスクリプトコンバータ\n");
         printf("Animation script converter\n");
         printf("usage : ac [file] [file] ...\n");
         return 1;
@@ -1705,7 +1236,7 @@ int main(int argc, char** argv)
         HANDLE hFindFile = FindFirstFileA(argv[i], (LPWIN32_FIND_DATAA)&findData);
         if (hFindFile == INVALID_HANDLE_VALUE)
         {
-            //JP: printf("ファイルが見つかりません : %s\n", argv[i]);
+            ///JP: printf("ファイルが見つかりません : %s\n", argv[i]);
             printf("File not found : %s\n", argv[i]);
             continue;
         }
