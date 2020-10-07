@@ -21,7 +21,8 @@ This library is heavily tied to [TriggersTools.CatSystem2](https://github.com/tr
 ## Contents
 
 * Semi-functional Python library for Cs2 file formats, and other aspects. (`src/catsys/`)
-* Unpublished tools used for decompiling script formats, extracting int archives with inline decompile options, and extracting and displaying Cs2.exe decrypted vcodes and keycodes. (`tool/trigger/`)
+* WIP reconstruction of ac.exe for better understanding of Cs2 script parsing. (`scr/ac_exe`)
+* Unpublished tools used for decompiling script formats, extracting int archives with inline decompile options, and extracting and displaying cs2.exe decrypted vcodes and keycodes. (`tool/trigger/`)
 * Rough English UI translations of official Cs2 toolset programs for creating and extracting HG2 and HG3 images. (`tool/cs2-translate/`)
 * VSCode extensions for Cs2 script format syntax highlighting, WIP, CST is the most functional. (`plugin/vscode-catsystem2/`)
 * Expanded detailed notes on the HG image encoding patent filed in the late 80's/early 90's. It nearly describes the format and compression in HG images down to smallest details. (`docs/document_US4982282A_*.md`, also see image encoding in Python library for heavy amount of comments)
