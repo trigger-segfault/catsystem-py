@@ -8,6 +8,14 @@
 // * TRUE FALSE numeric constants (for returning BOOL)
 //   So we don't have to drag windows.h around everywhere
 
+///OPTION: UNICODE for wmain
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+#ifndef UNICODE
+#define UNICODE
+#endif
+
 ///OPTION: comment/uncomment until cpp_properties.json file is setup
 #define KCLIB_OOP
 
@@ -22,6 +30,7 @@
 
 #else
 
+#include <cwchar>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -91,9 +100,11 @@ typedef int BOOL; // 32-bit boolean (0 or 1, often checked for as such)
 // #define assert_enum(value, enumval) (_my_static_assert<(value == enumval)>, enumval)
 
 // src: <https://stackoverflow.com/a/31311923>
+#ifndef NDEBUG
 #define assert_enum(value, enumval) ([]{static_assert(value == enumval, "");}, enumval)
-
-// #define assert_enum(value, enumval) enumval; static_assert(value == enumval)
+#else
+#define assert_enum(value, enumval) (enumval)
+#endif
 
 #ifndef KCLIB_OOP
 

@@ -16,6 +16,7 @@
 bool kclib::TokenParser::LookupIdentifier(IN const char *str, OUT kclib::IDENTIFIER_INFO *outInfo)
 {
     std::memset(outInfo, 0, sizeof(IDENTIFIER_INFO));
+    return false;
     //this fields
     //this -> 0x0 -> 0x1c (int) (val - 1, likely length of some sort, maybe kcFile?)
     //0x1c (-)
@@ -115,14 +116,14 @@ bool kclib::TokenParser::ParseToken(OUT kclib::TOKEN_RESULT *token)
     ///TODO: needs return values identified
 
     // Stack written to from token_LookupIdentifier
-    unsigned char local_16c[320]; //undefined8 local_16c [40];
-    TOKEN_GROUP  local_28; //assigned to token->TokenGroup
-    TOKEN_TYPE   local_24; //assigned to token->TokenType
-    int          local_20; //assigned to token->TokUnk4
-    unsigned int local_1c; //assigned to token->TokUnk3
-    unsigned int local_18; //assigned to token->TokUnk5
-    unsigned int local_14; //assigned to token->TokUnk6
-    TOKEN_TYPE   local_c;  //assigned to token->LiteralType
+    // unsigned char local_16c[320]; //undefined8 local_16c [40];
+    // TOKEN_GROUP  local_28; //assigned to token->TokenGroup
+    // TOKEN_TYPE   local_24; //assigned to token->TokenType
+    // int          local_20; //assigned to token->TokUnk4
+    // unsigned int local_1c; //assigned to token->TokUnk3
+    // unsigned int local_18; //assigned to token->TokUnk5
+    // unsigned int local_14; //assigned to token->TokUnk6
+    // TOKEN_TYPE   local_c;  //assigned to token->LiteralType
     IDENTIFIER_INFO identifier;
 
 
@@ -267,7 +268,7 @@ bool kclib::TokenParser::ParseToken(OUT kclib::TOKEN_RESULT *token)
     else if (this->ParseSymbol(str, &tokenLength, &tokenValue.Symbol))
     {
         token->TokenGroup   = assert_enum(6, GROUP_SYMBOL);
-        token->TokenValue.Symbol = tokenValue.Symbol;
+        token->TokenType = tokenValue.Symbol;
         
         std::memcpy(&token->TokenText[0], str, tokenLength); //FUN_004126c0
         token->TokenText[tokenLength] = '\0';
@@ -370,10 +371,10 @@ bool kclib::TokenParser::ParseToken(OUT kclib::TOKEN_RESULT *token)
                     // *(undefined4 *)(param_1 + 3) = local_14;
                     // *(undefined4 *)((int)param_1 + 0x1c) = local_c;
                 }
-                else
-                {
-                    return false;
-                }
+                // else
+                // {
+                //     return false;
+                // }
             }
         }
         else
@@ -398,13 +399,23 @@ bool kclib::TokenParser::ParseToken(OUT kclib::TOKEN_RESULT *token)
                 if (unkres) {
                     // assign everything but token->TokenValue
                     //ORIGINAL ORDER:
-                    token->TokUnk3      = local_1c;
-                    token->TokenType    = local_24;
-                    token->TokUnk4      = local_20;
-                    token->TokenGroup   = local_28;
-                    token->TokUnk6      = local_14;
-                    token->TokUnk5      = local_18;
-                    token->LiteralType  = local_c;
+                    // token->TokUnk3      = local_1c;
+                    // token->TokenType    = local_24;
+                    // token->TokUnk4      = local_20;
+                    // token->TokenGroup   = local_28;
+                    // token->TokUnk6      = local_14;
+                    // token->TokUnk5      = local_18;
+                    // token->LiteralType  = local_c;
+                    
+                    //TOKEN_RESULT ORDER:
+                    token->TokenGroup   = identifier.TokenGroup; // param_1
+                    token->TokenType    = identifier.TokenType; // (int)param_1 + 4
+
+                    token->TokUnk3      = identifier.IdnTokUnk3; // (int)param_1 + 0xc
+                    token->TokUnk4      = identifier.IdnTokUnk4; // param_1 + 2
+                    token->TokUnk5      = identifier.IdnTokUnk5; // (int)param_1 + 0x14
+                    token->TokUnk6      = identifier.IdnTokUnk6; // param_1 + 3
+                    token->LiteralType  = identifier.LiteralType; // (int)param_1 + 0x1c
 
                     this->LastTokenType = token->TokenType;
 
@@ -418,10 +429,10 @@ bool kclib::TokenParser::ParseToken(OUT kclib::TOKEN_RESULT *token)
                     // *(undefined4 *)((int)param_1 + 0x1c) = local_c;
                     // *(undefined4 *)((int)this + 0x118) = *(undefined4 *)((int)param_1 + 4);
                 }
-                else
-                {
-                    return false;
-                }
+                // else
+                // {
+                //     return false;
+                // }
             }
             this->LastTokenType = token->TokenType;
         }

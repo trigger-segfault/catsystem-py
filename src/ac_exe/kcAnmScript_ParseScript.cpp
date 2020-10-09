@@ -17,16 +17,16 @@
 
 //void __cdecl FUN_004036f0(void *param_1,undefined4 *param_2,undefined4 param_3)
 ///FID: FUN_004036f0
-bool kclib::kcAnmScript::ac_ParseAnmArg(TokenParser *decoder, ANM_ARG *arg, unsigned int lineNumber)
+bool kclib::kcAnmScript::ac_ParseAnmArg(TokenParser *decoder, OUT ANM_ARG *arg, unsigned int lineNumber)
 ///ARGS: local_600
 {
-  int iVar1;
-  int *piVar2;
-  uint uVar3;
-  undefined local_444 [8];
-  int local_43c [2];
-  int local_434;
-  int local_430;
+  // int iVar1;
+  // int *piVar2;
+  // uint uVar3;
+  // undefined local_444 [8];
+  // int local_43c [2];
+  // int local_434;
+  // int local_430;
   TOKEN_RESULT token; //undefined8 local_42c;
   // undefined8 local_42c;
   // undefined4 local_424;
@@ -37,12 +37,14 @@ bool kclib::kcAnmScript::ac_ParseAnmArg(TokenParser *decoder, ANM_ARG *arg, unsi
     if (token.TokenType == assert_enum(0xd, TOKEN_INTEGER_LITERAL)) {
       arg->VarType = assert_enum(0, ANM_TYPE_CONST);
       arg->Value = token.TokenValue.UInt32; //local_424;
+      return true;
     }
     else if (token.TokenType == assert_enum(0x27, TOKEN_ATSIGN_KEYWORD)) {
       if (decoder->NextToken(&token) &&
         token.TokenType == assert_enum(0xd, TOKEN_INTEGER_LITERAL)) {
         arg->VarType = assert_enum(1, ANM_TYPE_VARIABLE);
         arg->Value = token.TokenValue.UInt32; //local_424;
+        return true;
       }
       else {
         ///JP: std::printf("error (%d) : 変数番号が不正です。\n", lineNumber);
@@ -67,7 +69,7 @@ bool kclib::kcAnmScript::ac_ParseAnmArg(TokenParser *decoder, ANM_ARG *arg, unsi
       //                or std::map<const char *, LABEL_STRUCT>
       for (int k = 0; k < (int)this->ac_LabelNames.size(); k++)
       {
-        if (strncmp(this->ac_LabelNames[k].LabelName, &token.TokenText[0], 0x20) == 0)
+        if (std::strncmp(this->ac_LabelNames[k].LabelName, &token.TokenText[0], 0x20) == 0)
         {
           arg->VarType = assert_enum(2, ANM_TYPE_LABEL);
           arg->Value = this->ac_LabelNames[k].LabelIndex;
@@ -95,11 +97,12 @@ bool kclib::kcAnmScript::ac_ParseAnmArg(TokenParser *decoder, ANM_ARG *arg, unsi
       // }
     }
   }
-  return true;
+  // return true;
+  return false;
 }
 
 
-bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned int *outErrorCount)
+bool kclib::kcAnmScript::ac_ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned int *outErrorCount)
 
 {
   //BOOL BVar1;
@@ -204,7 +207,7 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
     if (decoder.NextToken(&token) &&
         (token.TokenType == assert_enum(1, TOKEN_POUND)))
     {
-      if (decoder.NextToken(&token)) {
+      if (!decoder.NextToken(&token)) {
         ///JP: std::printf("error (%d) : 不正なラベル名です。\n", lineNumber);
         std::printf("error (%d) : Illegal label name.\n", lineNumber);
         errorCount++;
@@ -215,7 +218,7 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       bool labelExists = false;
       for (int k = 0; k < (int)this->ac_LabelNames.size(); k++)
       {
-        if (strncmp(this->ac_LabelNames[k].LabelName, &token.TokenText[0], 0x20) == 0)
+        if (std::strncmp(this->ac_LabelNames[k].LabelName, &token.TokenText[0], 0x20) == 0)
         {
           labelExists = true;
           break;
@@ -274,7 +277,7 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
         if (decoder.NextToken(&token)) {
           for (int k = 0; k < (int)this->ac_LabelNames.size(); k++)
           {
-            if (strncmp(this->ac_LabelNames[k].LabelName, &token.TokenText[0], 0x20) == 0)
+            if (std::strncmp(this->ac_LabelNames[k].LabelName, &token.TokenText[0], 0x20) == 0)
             {
               this->ac_LabelNames[k].LabelAddress = cmdIndex;
               break;
@@ -296,13 +299,13 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
         anmline.CmdType = assert_enum(0, ANM_CMD_ID);
         anmline.Args[0].VarType = assert_enum(0, ANM_TYPE_CONST);
         anmline.Args[0].Value = token.TokenValue.UInt32;
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
         else { // optional max range parameter
-          if (!ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
+          if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
             anmline.Args[2].VarType = anmline.Args[1].VarType;
             anmline.Args[2].Value   = anmline.Args[1].Value;
           }
@@ -315,7 +318,7 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
         anmline.CmdType = assert_enum(0, ANM_CMD_ID);
         anmline.Args[0].VarType = assert_enum(1, ANM_TYPE_VARIABLE);
         // read next token for [@ID] variable number
-        if (decoder.NextToken(&token)) {
+        if (!decoder.NextToken(&token)) {
           ///JP: std::printf("error (%d) : 変数番号が不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid variable number.\n", lineNumber);
           errorCount++;
@@ -328,13 +331,13 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
         }
         else {
           anmline.Args[0].Value = token.TokenValue.UInt32;
-          if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+          if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
             ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
             std::printf("error (%d) : Invalid parameter.\n", lineNumber);
             errorCount++;
           }
           else { // optional max range parameter
-            if (!ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
+            if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
               anmline.Args[2].VarType = anmline.Args[1].VarType;
               anmline.Args[2].Value   = anmline.Args[1].Value;
             }
@@ -345,7 +348,7 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "jump") == 0) {
         anmline.CmdType = assert_enum(3, ANM_CMD_JUMP);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -357,12 +360,12 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "loop") == 0) {
         anmline.CmdType = assert_enum(2, ANM_CMD_LOOP);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -374,18 +377,18 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "set") == 0) {
         anmline.CmdType = assert_enum(1, ANM_CMD_SET);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
         else { // optional max range parameter
-          if (!ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
+          if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
               anmline.Args[2].VarType = anmline.Args[1].VarType;
               anmline.Args[2].Value   = anmline.Args[1].Value;
           }
@@ -395,12 +398,12 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "if") == 0) {
         anmline.CmdType = assert_enum(4, ANM_CMD_IF);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -412,17 +415,17 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "ife") == 0) {
         anmline.CmdType = assert_enum(5, ANM_CMD_IFE);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -434,17 +437,17 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "ifn") == 0) {
         anmline.CmdType = assert_enum(6, ANM_CMD_IFN);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -456,17 +459,17 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "ifg") == 0) {
         anmline.CmdType = assert_enum(7, ANM_CMD_IFG);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -478,17 +481,17 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "ifs") == 0) {
         anmline.CmdType = assert_enum(8, ANM_CMD_IFS);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -500,17 +503,17 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "ifge") == 0) {
         anmline.CmdType = assert_enum(9, ANM_CMD_IFGE);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -522,17 +525,17 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "ifse") == 0) {
         anmline.CmdType = assert_enum(10, ANM_CMD_IFSE);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[2], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -544,7 +547,7 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "max") == 0) {
         anmline.CmdType = assert_enum(0xb, ANM_CMD_MAX);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -556,7 +559,7 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "blend") == 0) {
         anmline.CmdType = assert_enum(0xc, ANM_CMD_BLEND);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -568,7 +571,7 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "disp") == 0) {
         anmline.CmdType = assert_enum(0xd, ANM_CMD_DISP);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -580,12 +583,12 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "pos") == 0) {
         anmline.CmdType = assert_enum(0xe, ANM_CMD_POS);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -597,13 +600,13 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "wait") == 0) {
         anmline.CmdType = assert_enum(0xf, ANM_CMD_WAIT);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
         else { // optional max range parameter
-          if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+          if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
             anmline.Args[1].VarType = anmline.Args[0].VarType;
             anmline.Args[1].Value   = anmline.Args[0].Value;
           }
@@ -613,12 +616,12 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "add") == 0) {
         anmline.CmdType = assert_enum(0x10, ANM_CMD_ADD);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -630,12 +633,12 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
       }
       else if (_stricmp(&token.TokenText[0], "sub") == 0) {
         anmline.CmdType = assert_enum(0x11, ANM_CMD_SUB);
-        if (!ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
+        if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[0], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
         }
-        else if (!ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
+        else if (!this->ac_ParseAnmArg(&decoder, &anmline.Args[1], lineNumber)) {
           ///JP: std::printf("error (%d) : パラメータが不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid parameter.\n", lineNumber);
           errorCount++;
@@ -669,12 +672,6 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
           std::printf("error : An error occurred during label conversion.\n");
           break;
       }
-
-      ///TODO: Magic things...
-
-      ///PLACEHOLDER:
-      unsigned int *curlabel = ((unsigned int *)0);
-
 
       curarg->VarType = assert_enum(0, ANM_TYPE_CONST);
       curarg->Value = this->ac_LabelNames[labelIndex].LabelAddress;
@@ -726,7 +723,9 @@ bool kclib::kcAnmScript::ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned
   // So errorcount only returns on a failure to open the file,
   // so that's what's happening
   *outErrorCount = errorCount;
-  return true; //errorCount;
+
+  // success if at least one command is parsed (not sure if done this way by Cs2)
+  return !this->ac_AnmLines.empty(); //errorCount;
 }
 
 #endif

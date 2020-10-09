@@ -56,7 +56,7 @@ bool kclib::ScriptReader::OpenFile(IN const char *filename)
 
             this->ConvertToLF();
             
-            this->Length = strlen(this->Buffer);
+            this->Length = std::strlen(this->Buffer);
             return true;
         }
         else
@@ -80,7 +80,66 @@ bool kclib::ScriptReader::OpenFile(IN const char *filename)
 
     // this->ConvertToLF();
     
-    // this->Length = strlen(this->Buffer);
+    // this->Length = std::strlen(this->Buffer);
+    // return true;
+}
+bool kclib::ScriptReader::OpenFile(IN const wchar_t *filename)
+{
+    if (this->Buffer != nullptr)
+    {
+        this->Close();
+    }
+
+    // int length = 1;
+    //DAT_004c3430 is likely kcFileServer,
+    // or whatever id used to manage integration files
+    ///TMP:IGNORE: int length = kcBigFile_unkLookupOpenMessage(DAT_004c3430, filename, 0, 3); // 3 may be some identifier type, like to open as ScriptDecode2 class, etc. Or maybe flags
+    FILE *file = _wfopen(filename, L"rb");
+    if (file == nullptr)
+        return false;
+
+    std::fseek(file, 0, SEEK_END);
+    unsigned int length = std::ftell(file);
+    std::fseek(file, 0, SEEK_SET);
+    if (length != 0U)
+    {
+        char *buffer = new char[length + 8U]; //char *buffer = (char *)kclib_HeapAlloc(0, length + 8U);
+        this->Buffer = buffer; //*(undefined8 **)this = buffer;
+        std::memset(buffer, 0, length + 8U); //kclib_MemZero(buffer, length + 8U);
+
+        ///TMP:IGNORE: kcBigFile_unkLookupOpenMessage(DAT_004c3430, filename, *(int *)this, 3);
+        if (std::fread(this->Buffer, length, 1, file) != 0)
+        {
+            std::fclose(file);
+            this->Position = 0; //*(undefined4 *)((int)this + 8) = 0;
+
+            this->ConvertToLF();
+            
+            this->Length = std::strlen(this->Buffer);
+            return true;
+        }
+        else
+        {
+            std::fclose(file);
+            delete[] this->Buffer;
+            this->Buffer = nullptr;
+            return false;
+        }
+    }
+    std::fclose(file);
+    return false;
+    
+    // char *buffer = new char[length + 8U]; //char *buffer = (char *)kclib_HeapAlloc(0, length + 8U);
+    // this->Buffer = buffer; //*(undefined8 **)this = buffer;
+    // std::fread()
+    // std::memset(buffer, 0, length + 8U); //kclib_MemZero(buffer, length + 8U);
+    
+    
+    // this->Position = 0; //*(undefined4 *)((int)this + 8) = 0;
+
+    // this->ConvertToLF();
+    
+    // this->Length = std::strlen(this->Buffer);
     // return true;
 }
 
@@ -130,7 +189,7 @@ bool kclib::ScriptReader::OpenBuffer(IN const char *newBuffer)
 
         this->ConvertToLF();
         
-        this->Length = strlen(this->Buffer);
+        this->Length = std::strlen(this->Buffer);
         return true;
     }
     return false;
@@ -249,13 +308,13 @@ unsigned int kclib::ScriptReader::FUN_00411c60()
         unsigned int c1 = (unsigned int)this->Buffer[this->Position] & 0xff;
         unsigned int c2 = (unsigned int)this->Buffer[this->Position + 1] & 0xff;
         this->Position += 2;
-        return this->Position & 0xffff0000 | (c2 << 8 | c1);
+        return (this->Position & 0xffff0000) | (c2 << 8 | c1);
 
         // CONCAT31(x,y) - concatenates two operands together into a larger size object
         // The "3" is the size of x in bytes.
         // The "1" is the size of y in bytes.
         // The result is the 4-byte concatenation of the bits in "x" with the bits in "y". The "x" forms the most signifigant part of the result, "y" the least.
-        //return this->Position & 0xffff0000 | (unsigned int)CONCAT11(c2, c1);
+        //return (this->Position & 0xffff0000) | (unsigned int)CONCAT11(c2, c1);
     }
     else
     {

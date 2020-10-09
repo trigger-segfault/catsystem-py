@@ -1,0 +1,41 @@
+{
+    "version": 4,
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                // "${workspaceFolder}/src/ac_exe/**"
+                // ,
+                // "C:/Env/Lib/MSYS2-amd64/mingw64/include/**"
+            ],
+            "defines": [
+                // "DEBUG", "_DEBUG" // debug mode
+                "NDEBUG", "_NDEBUG" // release mode
+                // No unicode main right now, that would require extra changes
+                ,"UNICODE"
+                ,"_UNICODE"
+            ],
+            "compilerArgs": [
+                //"-lz", // zlib
+                "-Wall",
+                "-Wextra",
+                "-Wpedantic"
+                ,"-O3", "-s", "-DNDEBUG" // release mode
+                //,"-DDEBUG", "-g" // debug mode
+                // No unicode main right now, that would require extra changes
+                ,"-municode"
+            ],
+            "compilerPath": "C:/Env/Lib/MSYS2-amd64/mingw64/bin/g++.exe",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/src/ac_exe/**"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        }
+    ]
+}

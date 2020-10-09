@@ -211,8 +211,13 @@ bool kclib::TokenParser::NextToken(OUT kclib::TOKEN_RESULT *token)
 {
     while (this->ParseToken(token))
     {
-        if (token->TokenType == TOKEN_WHITESPACE)
+        if (token->TokenType != TOKEN_WHITESPACE)
+        {
+            #ifndef NDEBUG
+            std::printf("token : type=0x%x val=%u \"%s\"\n", (unsigned int)token->TokenType, token->TokenValue.UInt32, token->TokenText);
+            #endif
             return true;
+        }
     }
     return false;
 }
@@ -257,7 +262,7 @@ const char * kclib::TokenParser::SkipComments(IN const char *str, OUT int *outLi
             {
                 if (str[0] == '\r' && str[1] == '\n')
                 {
-                    *outLines++; // lines-consumed in block comment? very strange
+                    ++*outLines; // lines-consumed in block comment? very strange
                     str += 2;
                 }
                 else
@@ -303,7 +308,7 @@ bool kclib::TokenParser::ParseInteger(IN const char *str, OUT int *outLength, OU
             else
                 break; // not a hex digit
             *outValue = *outValue * 0x10 + (int)c; // c is set to value of digit
-            *outLength++;
+            ++*outLength;
         }
     }
     else
@@ -317,19 +322,19 @@ bool kclib::TokenParser::ParseInteger(IN const char *str, OUT int *outLength, OU
             else
                 break; // not a dec digit
             *outValue = *outValue * 10 + (int)c; // c is set to value of digit
-            *outLength++;
+            ++*outLength;
         }
         while (str[*outLength] >= '0' && str[*outLength] <= '9')
         {
             *outValue = *outValue * 10 + str[*outLength] - '0';
-            *outLength++;
+            ++*outLength;
             char c = str[*outLength];
             if (c >= '0' && c <= '9')
                 c -= '0'; //('0' - 0x0);
             else
                 break; // not a dec digit
             *outValue = *outValue * 10 + (int)c; // c is set to value of digit
-            *outLength++;
+            ++*outLength;
         }
         if (str[*outLength] == '.')
             return false; // no floating points, strangely no checks for 'f'
@@ -356,19 +361,19 @@ bool kclib::TokenParser::ParseFloat(IN const char *str, OUT int *outLength, OUT 
         if (c < '0' || c > '9')
             break; // not a dec digit
         atof_buffer[*outLength] = c; // is a dec digit
-        *outLength++;
+        ++*outLength;
     }
     if (str[*outLength] == '.')
     {
         atof_buffer[*outLength] = '.'; // is a decimal point
-        *outLength++;
+        ++*outLength;
         while (true)
         {
             char c = str[*outLength];
             if (c < '0' || c > '9')
                 break; // not a dec digit
             atof_buffer[*outLength] = c; // is a dec digit
-            *outLength++;
+            ++*outLength;
         }
     }
     else if (str[*outLength] != 'f' && str[*outLength] != 'F')
@@ -380,7 +385,7 @@ bool kclib::TokenParser::ParseFloat(IN const char *str, OUT int *outLength, OUT 
     *outValue = (float) std::atof(atof_buffer); // floating precision only
 
     if (str[*outLength] == 'f' || str[*outLength] == 'F')
-        *outLength++; // include 'f' specifier in token length
+        ++*outLength; // include 'f' specifier in token length
 
     return true;
 }
@@ -389,9 +394,7 @@ bool kclib::TokenParser::ParseFloat(IN const char *str, OUT int *outLength, OUT 
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00410e90
 bool kclib::TokenParser::ParseChar(IN const char *str, OUT int *outLength, OUT unsigned short *outValue)
 {
-    int iVar1;
-    
-    if (*str != '\'')
+    if (str[0] != '\'')
     {
         return false;
     }
@@ -406,17 +409,17 @@ bool kclib::TokenParser::ParseChar(IN const char *str, OUT int *outLength, OUT u
         char c = str[*outLength];
         if (c == '\'')
         {
-            *outLength++;
+            ++*outLength;
             break;
         }
         // limited escape character support
         if (c == '\\' && (str[*outLength + 1] == '\'' || str[*outLength + 1] == '\\'))
         {
-            *outLength++;
+            ++*outLength;
             c = str[*outLength];
         }
         *outValue = *outValue | (short)c;
-        *outLength++;
+        ++*outLength;
     }
     return true;
 }
@@ -425,37 +428,37 @@ bool kclib::TokenParser::ParseChar(IN const char *str, OUT int *outLength, OUT u
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00410de0
 bool kclib::TokenParser::ParseString(IN const char *str, OUT int *outLength, OUT char *outBuffer, unsigned int bufferSize)
 {
-    if (*str != '\"')
+    if (str[0] != '\"')
     {
         return false;
     }
 
     *outLength = 1;
-    unsigned int bufpos = 0;
+    unsigned int i = 0;
     
-    for (int i = 0; i < bufferSize; i++, *outLength++)
+    for (; i < bufferSize; i++, ++*outLength)
     {
         char c = str[*outLength];
         if (c == '\0')
             break;
         if (c == '\"')
         {
-            *outLength++;
+            ++*outLength;
             break;
         }
         if (c == '\\' && str[*outLength + 1] == '\"')
         {
-            *outLength++;
+            ++*outLength;
         }
         else if (kclib::IsCharDoubleByte(&str[*outLength]))
         {
-            outBuffer[bufpos] = str[*outLength];
-            bufpos++, *outLength++;
+            outBuffer[i] = str[*outLength];
+            i++, ++*outLength;
         }
-        outBuffer[bufpos] = str[*outLength];
+        outBuffer[i] = str[*outLength];
     }
 
-    outBuffer[bufpos] = '\0'; // potential access violation, nice
+    outBuffer[i] = '\0'; // potential access violation, nice
     return true;
 }
 
@@ -464,7 +467,7 @@ bool kclib::TokenParser::ParseKeyword(IN const char *str, OUT kclib::TOKEN_TYPE 
 {
     for (int i = 0; TABLE_KEYWORDS[i].ID != TOKEN_END; i++)
     {
-        if (strcmp(str, TABLE_KEYWORDS[i].Name) == 0)
+        if (std::strcmp(str, TABLE_KEYWORDS[i].Name) == 0)
         {
             *outValue = (TOKEN_TYPE) TABLE_KEYWORDS[i].ID;
             return true;
@@ -483,9 +486,9 @@ bool kclib::TokenParser::ParseIdentifier(IN const char *str, OUT int *outLength,
     if (c == '@')
     {
         outBuffer[0] = '@';
-        *outLength++;
+        ++*outLength;
     }
-    else if ((c >= 'a' || c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_')
+    else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_')
     {
         while (true)
         {
@@ -496,7 +499,7 @@ bool kclib::TokenParser::ParseIdentifier(IN const char *str, OUT int *outLength,
                 break;
             }
             outBuffer[*outLength] = c;
-            *outLength++;
+            ++*outLength;
         }
     }
     else

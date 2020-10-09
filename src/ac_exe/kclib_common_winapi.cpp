@@ -106,4 +106,23 @@ bool kclib::GetAbsolutePath(IN const char *filename, OUT char *outFullpath, OPTI
     return true;
 }
 
+
+///WINAPI: GetFullPathNameW
+bool kclib::GetAbsolutePath(IN const wchar_t *filename, OUT wchar_t *outFullpath, OPTIONAL OUT wchar_t **outBasename)
+
+{
+    // wrapper call for WINAPI GetFullPathNameW
+    wchar_t *basename; // this will just be a pointer offset from outFullpath,
+                    // so no worries about cleanup
+    
+    if (!GetFullPathNameW(filename, MAX_PATH, outFullpath, &basename))
+        return false;
+    
+    if (outBasename != nullptr)
+    {
+        *outBasename = basename;
+    }
+    return true;
+}
+
 #endif

@@ -205,10 +205,10 @@ void __cdecl ac_WriteAnmFile(char *filename)
 }
 
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00401fe0
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 
 {
-    if (argc < 0)
+    if (argc < 2)
     {
         ///JP: printf("アニメーションスクリプトコンバータ\n");
         printf("Animation script converter\n");

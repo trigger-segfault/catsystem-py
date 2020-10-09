@@ -116,7 +116,6 @@ BOOL __cdecl shiftjis_ChangeExtension(IN OUT char *filename, IN const char *exte
 
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00412200
 bool kclib::IsCharDoubleByte(IN const char *chr)
-
 {
     // This function is EVERYWHERE in Cs2 character parsing!
     // it's used in-place of parsing text per-character,
@@ -136,7 +135,6 @@ bool kclib::IsCharDoubleByte(IN const char *chr)
 //BOOL __cdecl FUN_00412520(char *param_1, char *param_2)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00412520
 bool kclib::GetParentDirectory(IN const char *fullpath, OUT char *outParentdir)
-
 {
     // This expects a full path... I think...
 
@@ -168,7 +166,6 @@ bool kclib::GetParentDirectory(IN const char *fullpath, OUT char *outParentdir)
 //undefined4 __cdecl FUN_004120e0(char *param_1,undefined4 *param_2)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_004120e0
 bool kclib::ChangeExtension(IN OUT char *filename, IN const char *extension)
-
 {
     // extension does NOT include '.'
     // NULL treats as remove extension
@@ -204,22 +201,92 @@ bool kclib::ChangeExtension(IN OUT char *filename, IN const char *extension)
     return true;
 }
 
-// see: <https://stackoverflow.com/a/150616>
-void _kclib_LogError(const char *format, std::va_list argp)
-{
-//     __va_list_tag args;
-//     va_start
-//     va_start(args, format);
-    std::vfprintf(stderr, format, argp);
-//     va_end(args);
-}
-
-void kclib::LogError(char *format, ...)
+void kclib::LogError(const char *format, ...)
 {
     std::va_list args;
     va_start(args, format);
-    _kclib_LogError(format, args);
+    // std::vprintf(format, args);
+    std::vfprintf((FILE *)stderr, format, args);
+    // _kclib_LogError(format, args);
     va_end(args);
+    std::fprintf((FILE *)stderr, "\n");
+}
+
+
+bool kclib::GetParentDirectory(IN const wchar_t *fullpath, OUT wchar_t *outParentdir)
+{
+    // This expects a full path... I think...
+
+    int seppos = 0;
+    // get index of last path separator
+    for (int i = 0; fullpath[i] != '\0'; i++)
+    {
+        // if (kclib::IsCharDoubleByte(&fullpath[i]))
+        // {
+        //     i++;
+        // }
+        // else 
+        if (fullpath[i] == L'\\' || fullpath[i] == L'/')
+        {
+            seppos = i;
+        }
+    }
+    // copy basepath
+    std::memcpy(outParentdir, fullpath, seppos * sizeof(wchar_t));
+    // for (int i = 0; i < seppos; i++)
+    // {
+    //     outParentdir[i] = fullpath[i];
+    // }
+    outParentdir[seppos] = L'\0';
+
+    return seppos != 0;
+}
+
+bool kclib::ChangeExtension(IN OUT wchar_t *filename, IN const wchar_t *extension)
+{
+    // extension does NOT include '.'
+    // NULL treats as remove extension
+    // empty string results with just a '.'
+
+    if (filename == nullptr)
+        return false;
+    
+    int extpos = -1;
+    int namelen = std::wcslen(filename);
+    for (int i = namelen - 1; i >= 0; i--)
+    {
+        if (filename[i] == L'\\' || filename[i] == L'/')
+        {
+            extpos = namelen;
+            break;
+        }
+        if (filename[i] == L'.')
+        {
+            extpos = i;
+            break;
+        }
+    }
+    if (extension != nullptr)
+    {
+        filename[extpos++] = L'.';
+        for (int i = 0; extension[i] != L'\0'; i++)
+        {
+            filename[extpos++] = extension[i];
+        }
+    }
+    filename[extpos] = L'\0';
+    return true;
+}
+
+void kclib::LogError(const wchar_t *format, ...)
+{
+    std::va_list args;
+    va_start(args, format);
+    // std::vprintf(format, args);
+    std::vfwprintf((FILE *)stderr, format, args);
+    // _kclib_LogError(format, args);
+    va_end(args);
+    std::fwprintf((FILE *)stderr, L"\n");
 }
 
 #endif

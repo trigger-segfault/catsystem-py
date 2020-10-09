@@ -1,0 +1,102 @@
+#label_id
+	// [ID] [min] (max)
+	1 2
+	3 4 5
+	// [@ID] [min] (max) - separate case in ac.exe
+	@63 62 61
+	@60 59 58
+#label_set
+	// set [var] [min] (max)
+	set 6 7
+	set 8 9 10
+
+	// Purposefully invalid commands
+	/* yes */ set cool
+	life with loop 0x3f 3
+	jump jump around
+
+	// Ignore token boundaries (no whitespace necessary)
+	0x111 0x222label_set
+	@0x3f @0x789 1000
+
+	jump@0x3
+
+	// Commands as label names, char parsing
+#for
+	set me 'free'
+#me
+	wait for me
+#"wendy's"
+	@0 "wendy's"
+
+
+	// string label
+
+#"stringy and good."
+	set @1 "stringy and good." 100
+
+#label_loop
+	// loop [var] [label]
+	loop 11 label_id
+#label_jump
+	// jump [label]
+	jump label_set
+#label_if
+	// if [var] [label]
+	if 12 label_loop
+#label_ife
+	// if [var] [label]
+	ife 13 14 label_jump
+#label_ifn
+	// if [var] [label]
+	ifn 15 16 label_if
+#label_ifg
+	// if [var] [label]
+	ifg 17 18 label_ife
+#label_ifs
+	// if [var] [label]
+	ifs 19 20 label_ifn
+#label_ifge
+	// if [var] [label]
+	ifge 21 22 label_ifg
+#label_ifse
+	// if [var] [label]
+	ifse 23 24 label_ifs
+#label_max
+	// max [var]
+	max 25
+#label_blend
+	// blend [value]
+	blend 26
+#label_disp
+	// disp [bool]
+	disp 27
+	disp 1
+	disp 0
+#label_pos
+	// pos [x] [y]
+	pos 28 29
+#label_wait
+	// wait [min] (max)
+	wait 30
+	wait 31 32
+#label_add
+	// add [var] [value]
+	add 33 34
+	//add 35 36 37
+#label_sub
+	// sub [var] [value]
+	sub 38 39
+	//sub 40 41 42
+
+	set 10 8
+	set @10 4
+#label_other
+	// various odd behaviors
+	// string for command/label names
+	"set" 1 label_disp "label_blend"
+	"set" 2 4
+	loop @10 label_other
+#label_other_end
+	"pos" @1 @2
+

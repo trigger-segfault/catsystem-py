@@ -1,0 +1,45 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "g++.exe build active file",
+            "command": "C:/Env/Lib/MSYS2-amd64/mingw64/bin/g++.exe",
+            "args": [
+                "-O3", "-s", "-DNDEBUG", // release mode
+                //"-DDEBUG", "-g", // debug mode
+                // "-g",
+                "${workspaceFolder}/src/ac_exe/kclib_common.cpp",
+                "${workspaceFolder}/src/ac_exe/kclib_common_winapi.cpp",
+                "${workspaceFolder}/src/ac_exe/ScriptReader.cpp",
+                "${workspaceFolder}/src/ac_exe/TokenParser.cpp",
+                "${workspaceFolder}/src/ac_exe/TokenParser_ParseToken.cpp",
+                "${workspaceFolder}/src/ac_exe/TokenParser_TableKeywords.cpp",
+                "${workspaceFolder}/src/ac_exe/kcAnmScript.cpp",
+                "${workspaceFolder}/src/ac_exe/kcAnmScript_ParseScript.cpp",
+                "${workspaceFolder}/src/ac_exe/kcAnmScript_TableCommands.cpp",
+                "${workspaceFolder}/src/ac_exe/ac_main.cpp",
+                // "-lz", // zlib
+                "-o",
+                "${workspaceFolder}/src/ac_exe/ac_tool.exe",
+                "-Wall",
+                "-Wextra",
+                "-Wpedantic",
+                // "-O3", // Release mode
+                // No unicode main right now, that would require extra changes
+                "-municode",
+                "-std=c++17"
+            ],
+            "options": {
+                "cwd": "C:/Env/Lib/MSYS2-amd64/mingw64/bin"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        }
+    ]
+}

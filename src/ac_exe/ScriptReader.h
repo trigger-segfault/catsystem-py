@@ -52,6 +52,7 @@ namespace kclib
         ~ScriptReader();
 
         bool OpenFile(IN const char *filename);
+        bool OpenFile(IN const wchar_t *filename);
         void Close();
         bool IsOpen() const;
 

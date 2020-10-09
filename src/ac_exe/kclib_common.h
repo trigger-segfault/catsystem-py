@@ -64,9 +64,6 @@ BOOL __cdecl shiftjis_ChangeExtension(IN OUT char *filename, IN const char *exte
 
 namespace kclib
 {
-    
-    ///FID:cs2_full_v401/tool/ac.exe: FUN_00407bc0
-    void LogError(const char *msg, ...);
 
     ///FID:cs2_full_v401/tool/ac.exe: FUN_00412200
     bool IsCharDoubleByte(IN const char *chr);
@@ -77,11 +74,29 @@ namespace kclib
 
     ///WINAPI: GetFullPathNameA
     ///FID:cs2_full_v401/tool/ac.exe: FUN_00411ff0
-    bool GetAbsolutePath(IN const char *filename, OUT char *outFullpath, OPTIONAL OUT char **outBasename);
+    bool GetAbsolutePath(IN const char *filename, OUT char *outFullpath, OPTIONAL OUT char **outBasename = nullptr);
 
     //undefined4 __cdecl FUN_004120e0(char *param_1,undefined4 *param_2)
     ///FID:cs2_full_v401/tool/ac.exe: FUN_004120e0
     bool ChangeExtension(IN OUT char *filename, IN const char *extension);
+    
+    // Normally uses WINAPI: SendMessageA with vsprintf, but we don't need that
+    ///FID:cs2_full_v401/tool/ac.exe: FUN_00407bc0
+    void LogError(const char *format, ...);
+
+
+    ///TODO: This is a Shift JIS function for wchar_t (checks based on what ansi characters would be encoded as)
+    // bool IsCharDoubleByte(IN const wchar_t *chr);
+
+    bool GetParentDirectory(IN const wchar_t *fullpath, OUT wchar_t *outParentdir);
+
+    ///WINAPI: GetFullPathNameW
+    bool GetAbsolutePath(IN const wchar_t *filename, OUT wchar_t *outFullpath, OPTIONAL OUT wchar_t **outBasename = nullptr);
+    
+    bool ChangeExtension(IN OUT wchar_t *filename, IN const wchar_t *extension);
+
+    void LogError(const wchar_t *format, ...);
+
 }
 
 #endif

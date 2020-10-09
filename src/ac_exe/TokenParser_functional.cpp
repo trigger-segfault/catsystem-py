@@ -352,7 +352,7 @@ BOOL __cdecl token_Next(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
 {
     while (token_Parse(this, token))
     {
-        if (token->TokenType == TOKEN_WHITESPACE)
+        if (token->TokenType != TOKEN_WHITESPACE)
             return TRUE;
     }
     return FALSE;
@@ -400,7 +400,7 @@ const char * __stdcall token_SkipComments(IN const char *str, OUT int *outLines)
             {
                 if (str[0] == '\r' && str[1] == '\n')
                 {
-                    *outLines++; // lines-consumed in block comment? very strange
+                    ++*outLines; // lines-consumed in block comment? very strange
                     str += 2;
                 }
                 else
@@ -448,7 +448,7 @@ BOOL __stdcall token_ParseInteger(IN const char *str, OUT int *outLength, OUT in
             else
                 break; // not a hex digit
             *outValue = *outValue * 0x10 + (int)c; // c is set to value of digit
-            *outLength++;
+            ++*outLength;
         }
     }
     else
@@ -462,19 +462,19 @@ BOOL __stdcall token_ParseInteger(IN const char *str, OUT int *outLength, OUT in
             else
                 break; // not a dec digit
             *outValue = *outValue * 10 + (int)c; // c is set to value of digit
-            *outLength++;
+            ++*outLength;
         }
         while (str[*outLength] >= '0' && str[*outLength] <= '9')
         {
             *outValue = *outValue * 10 + str[*outLength] - '0';
-            *outLength++;
+            ++*outLength;
             char c = str[*outLength];
             if (c >= '0' && c <= '9')
                 c -= '0'; //('0' - 0x0);
             else
                 break; // not a dec digit
             *outValue = *outValue * 10 + (int)c; // c is set to value of digit
-            *outLength++;
+            ++*outLength;
         }
         if (str[*outLength] == '.')
             return FALSE; // no floating points, strangely no checks for 'f'
@@ -503,19 +503,19 @@ BOOL __stdcall token_ParseFloat(IN const char *str, OUT int *outLength, OUT floa
         if (c < '0' || c > '9')
             break; // not a dec digit
         atof_buffer[*outLength] = c; // is a dec digit
-        *outLength++;
+        ++*outLength;
     }
     if (str[*outLength] == '.')
     {
         atof_buffer[*outLength] = '.'; // is a decimal point
-        *outLength++;
+        ++*outLength;
         while (true)
         {
             char c = str[*outLength];
             if (c < '0' || c > '9')
                 break; // not a dec digit
             atof_buffer[*outLength] = c; // is a dec digit
-            *outLength++;
+            ++*outLength;
         }
     }
     else if (str[*outLength] != 'f' && str[*outLength] != 'F')
@@ -527,7 +527,7 @@ BOOL __stdcall token_ParseFloat(IN const char *str, OUT int *outLength, OUT floa
     *outValue = (float) atof(atof_buffer); // floating precision only
 
     if (str[*outLength] == 'f' || str[*outLength] == 'F')
-        *outLength++; // include 'f' specifier in token length
+        ++*outLength; // include 'f' specifier in token length
 
     return TRUE;
 }
@@ -554,17 +554,17 @@ BOOL __stdcall token_ParseChar(IN const char *str, OUT int *outLength, OUT unsig
         char c = str[*outLength];
         if (c == '\'')
         {
-            *outLength++;
+            ++*outLength;
             break;
         }
         // limited escape character support
         if (c == '\\' && (str[*outLength + 1] == '\'' || str[*outLength + 1] == '\\'))
         {
-            *outLength++;
+            ++*outLength;
             c = str[*outLength];
         }
         *outValue = *outValue | (short)c;
-        *outLength++;
+        ++*outLength;
     }
     return TRUE;
 }
@@ -581,31 +581,31 @@ BOOL __stdcall token_ParseString(IN const char *str, OUT int *outLength, OUT cha
     }
 
     *outLength = 1;
-    unsigned int bufpos = 0;
+    unsigned int i = 0;
     
-    for (int i = 0; i < bufferSize; i++, *outLength++)
+    for (; i < bufferSize; i++, ++*outLength)
     {
         char c = str[*outLength];
         if (c == '\0')
             break;
         if (c == '\"')
         {
-            *outLength++;
+            ++*outLength;
             break;
         }
         if (c == '\\' && str[*outLength + 1] == '\"')
         {
-            *outLength++;
+            ++*outLength;
         }
         else if (shiftjis_IsCharDoubleByte(&str[*outLength]))
         {
-            outBuffer[bufpos] = str[*outLength];
-            bufpos++, *outLength++;
+            outBuffer[i] = str[*outLength];
+            i++, ++*outLength;
         }
-        outBuffer[bufpos] = str[*outLength];
+        outBuffer[i] = str[*outLength];
     }
 
-    outBuffer[bufpos] = '\0'; // potential access violation, nice
+    outBuffer[i] = '\0'; // potential access violation, nice
     return TRUE;
 }
 
@@ -636,9 +636,9 @@ BOOL token_ParseIdentifier(IN const char *str, OUT int *outLength, OUT char *out
     if (c == '@')
     {
         outBuffer[0] = '@';
-        *outLength++;
+        ++*outLength;
     }
-    else if ((c >= 'a' || c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_')
+    else if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_')
     {
         while (true)
         {
@@ -649,7 +649,7 @@ BOOL token_ParseIdentifier(IN const char *str, OUT int *outLength, OUT char *out
                 break;
             }
             outBuffer[*outLength] = c;
-            *outLength++;
+            ++*outLength;
         }
     }
     else

@@ -33,6 +33,11 @@ wip/*.pdn
 #/tool/trigger
 
 
+#### SOURCE BUILDS ####
+
+/src/**/*.exe
+
+
 ############################################################
 #### DEFAULT PYTHON GIT-IGNORE ####
 

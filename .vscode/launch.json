@@ -3,7 +3,7 @@
 // Hover to view descriptions of existing attributes.
 // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 {
-	"version": "0.2.0",
+    "version": "0.2.0",
     "configurations": [
         {
             "name": "Extension",
@@ -13,6 +13,31 @@
             "args": [
                 "--extensionDevelopmentPath=${workspaceFolder}/plugin/vscode-catsystem2"
             ]
+        },
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/ac_exe/ac_tool.exe",
+            "args": [
+                // "${workspaceFolder}\\data\\anm\\test_1.txt"
+                "/d",
+                "${workspaceFolder}\\data\\anm\\test_1.out-anm"
+                // "${workspaceFolder}\\data\\anm\\test_1.out-txt"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "C:/Env/Lib/MSYS2-amd64/mingw64/bin/gdb.exe",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
         }
     ]
 }

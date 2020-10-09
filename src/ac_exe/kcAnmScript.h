@@ -36,7 +36,9 @@ namespace kclib
         ANM_CMD_POS   = 14, // pos [x] [y]
         ANM_CMD_WAIT  = 15, // wait [min] (max)
         ANM_CMD_ADD   = 16, // add [var] [value]
-        ANM_CMD_SUB   = 17  // sub [var] [value]
+        ANM_CMD_SUB   = 17,  // sub [var] [value]
+
+        ANM_CMD_END  // identifies end of TABLE_ANM_COMMANDS (not part of ac.exe or Cs2)
     };
 
     enum ANM_VAR_TYPE
@@ -151,48 +153,103 @@ namespace kclib
         /*$138,4*/  int PosY; // used in CMD_POS
 
         
-        std::vector<kclib::ANM_LABEL> ac_LabelNames; // sizeof() == 0x1c
-        std::vector<kclib::ANM_TIMELINE> ac_AnmLines; // sizeof() == 0x1c
-
-        bool ac_ParseAnmArg(TokenParser *decoder, ANM_ARG *arg, unsigned int lineNumber);
 
     public:
         //kcAnmScript_new [005986f0]
         kcAnmScript();
-
         //kcAnmScript_dtor_sub [00598540]
         ~kcAnmScript();
 
         bool OpenFile(IN const char *filename);
+        bool OpenFile(IN const wchar_t *filename);
+
+        // naming conventions are pretty bad here...
+        //  ReadFile and WriteFile are not equivalents
 
         //kcAnmScript_readFile [005985e0]
-        bool ReadFile(ANM_FILEINFO *fileData, unsigned int fileSize);
+        bool ReadFile(IN const unsigned char *fileData, unsigned int fileSize);
 
         bool OpenScript(IN const char *filename, OPTIONAL OUT unsigned int *outErrorCount = nullptr);
+        bool OpenScript(IN const wchar_t *filename, OPTIONAL OUT unsigned int *outErrorCount = nullptr);
 
-        bool ParseScript(const char *str, OPTIONAL OUT unsigned int *outErrorCount = nullptr);
+        bool ReadScript(IN const char *str, OPTIONAL OUT unsigned int *outErrorCount = nullptr);
+        
+        bool ReadScript(ScriptReader *reader, OPTIONAL OUT unsigned int *outErrorCount = nullptr);
 
-        bool ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned int *outErrorCount = nullptr);
+        bool WriteFile(IN const char *filename);
+        bool WriteFile(IN const wchar_t *filename);
+        bool WriteScript(IN const char *filename);
+        bool WriteScript(IN const wchar_t *filename);
 
         void Close();
 
         bool IsOpen() const;
 
-
         //kcAnmScript_reset [00598500]
         bool ResetScript();
+
+        void PrintTimeline(IN const ANM_TIMELINE *anmline) const;
+        void PrintTimeline(FILE *file, IN const ANM_TIMELINE *anmline) const;
+
+        // custom method to print the currently read script to the console
+        // including all commands
+        void PrintScript() const;
+        // custom method to print the currently read script to the console
+        // including all commands
+        void PrintScript(FILE *file) const;
 
         // Evaluate the value of an argument.
         int EvaluateArg(ANM_ARG arg);
 
-
         //kcAnmScript_execute [00597cf0]
         unsigned int RunScript();
+        
+private:
+        std::vector<kclib::ANM_LABEL> ac_LabelNames; // sizeof() == 0x1c
+        std::vector<kclib::ANM_TIMELINE> ac_AnmLines; // sizeof() == 0x1c
+
+
+        bool ac_ParseAnmArg(TokenParser *decoder, OUT ANM_ARG *arg, unsigned int lineNumber);
+
+        bool ac_ParseScript(ScriptReader *reader, OPTIONAL OUT unsigned int *outErrorCount = nullptr);
     };
 
     #endif
-    
+
+    // custom enum for ANM_COMMAND_ENTRY
+    //  not part of ac.exe or Cs2
+    enum ANM_CMD_FLAGS
+    {
+        ANM_FLAG_NONE = 0, // normal command, fixed argument count
+
+        ANM_FLAG_RANGE = 0x1, // last argument is optional range [min] (max)
+        ANM_FLAG_LABEL = 0x2, // last argument is label [label]
+    };
+
+    // custom table entry in custom TABLE_ANM_COMMANDS
+    //  not part of ac.exe or Cs2
+    struct ANM_COMMAND_ENTRY
+    {
+        /*$0,4*/    ANM_CMD ID;
+        /*$4,10*/   char Name[0x10];
+        /*$14,4*/   unsigned int ArgCount;
+        /*$18,4*/   ANM_CMD_FLAGS Flags; // flags about the command
+        /*$20,80*/  char Usage[0x80];
+        /*$a0*/
+    };
+
     #pragma pack(pop)
+
+    
+    // custom table of anm command entries,
+    //  used for visual representation of binary timelines
+    //  not part of ac.exe or Cs2
+    extern ANM_COMMAND_ENTRY TABLE_ANM_COMMANDS[19];
+
+    // custom table for visual representation of binary commands.
+    //  not part of ac.exe or Cs2
+    // extern const char *TABLE_ANM_COMMAND_NAMES[19];
+    
 
 #ifdef KCLIB_OOP
 }
