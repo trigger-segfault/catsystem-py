@@ -1,16 +1,18 @@
-#include "common.h"
-#include "kclib_common.h"
-#include <windows.h>
 
-
+// OOP + function definitions for kclib "common" functions using WINAPI
+// 
 // a separate cpp file for all functions requiring WINAPI,
 //  to reduce windows.h bloat I guess
 
+#include "kclib_common.h"
+#include <windows.h>
+
+#ifndef KCLIB_OOP
 
 ////// WINAPI USED //////
 
 // HeapAlloc, HeapFree
-
+// 
 // DWORD GetFullPathNameA(
 //   LPCSTR lpFileName,
 //   DWORD  nBufferLength,
@@ -82,3 +84,26 @@ BOOL __cdecl shiftjis_GetAbsolutePath(IN const char *filename, OUT char *outFull
     }
     return TRUE;
 }
+
+#else
+
+///WINAPI: GetFullPathNameA
+///FID:cs2_full_v401/tool/ac.exe: FUN_00411ff0
+bool kclib::GetAbsolutePath(IN const char *filename, OUT char *outFullpath, OPTIONAL OUT char **outBasename)
+
+{
+    // wrapper call for WINAPI GetFullPathNameA
+    char *basename; // this will just be a pointer offset from outFullpath,
+                    // so no worries about cleanup
+    
+    if (!GetFullPathNameA(filename, MAX_PATH, outFullpath, &basename))
+        return false;
+    
+    if (outBasename != nullptr)
+    {
+        *outBasename = basename;
+    }
+    return true;
+}
+
+#endif

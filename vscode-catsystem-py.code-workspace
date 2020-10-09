@@ -178,107 +178,57 @@
     ////////////////////////////////////////////////////////
 
     "files.associations": {
-      //////////////////////////////////////////////////////
-      // CATSYSTEM 1+2 TEXT FILE ASSOCIATIONS
-
-			/* CatSystem 2: CatScene script */
-			"**/cst/**.txt": "catsystem2-cst",
-			"**/scene/**.txt": "catsystem2-cst",
-			"*.cst.txt": "catsystem2-cst",
-			"*.cst-script": "catsystem2-cst",
-      // "**/fes/*.h": "catsystem2-fes",
-      // "**/fes/&macro.txt": "catsystem2-fes",
-			
-			/* CatSystem 2: Front End script */
-			"**/fes/*.txt": "catsystem2-fes",
-			"**/fes/**/*.txt": "catsystem2-fes",
-			"*.fes.txt": "catsystem2-fes",
+      "**/cst/**.txt": "catsystem2-cst",
+      "**/scene/**.txt": "catsystem2-cst",
+      "*.cst.txt": "catsystem2-cst",
+      "*.cst-script": "catsystem2-cst",
+      "**/fes/*.txt": "catsystem2-fes",
+      "**/fes/**/*.txt": "catsystem2-fes",
+      "*.fes.txt": "catsystem2-fes",
       "*.fes-script": "catsystem2-fes",
-      // "**/fes/*.h": "catsystem2-fes",
-      // "**/fes/&macro.txt": "catsystem2-fes",
-
-			/* CatSystem 2: Animation script */
-			"**/animation/**.txt": "anm",
-			"**/anm/**.txt": "anm",
-			"**/image*/**.txt": "anm",
-			"*.anm.txt": "anm",
-			"*.anm-script": "anm",
-			
-			/* CatSystem 2: Windmill Shader source */
+      "**/animation/**.txt": "anm",
+      "**/anm/**.txt": "anm",
+      "**/image*/**.txt": "anm",
+      "*.anm.txt": "anm",
+      "*.anm-script": "anm",
       "*.wss": "cpp",
       "**/ptcl/*.h": "cpp",
       "**/ptcl/*.def": "cpp",
-
-			/* CatSystem 2: Definition file */
-			"*.dfn": "catsystem2-dfn",
-			/* CatSystem 1: Definition file (ini|properties) */
-			// "cs.def": "properties",
-			/* CatSystem 1: Integration archive List file (newline-speparated relative paths) */
-			"*.lst": "plaintext",
-      
-      /* CatSystem 1+2: Game CD identifier text */
+      "*.dfn": "catsystem2-dfn",
+      "*.lst": "plaintext",
       "*.id": "plaintext",
-
-      /* CatSystem 2: Save games and persistent save binary data */
       "save[0-9][0-9][0-9][0-9].dat": "binary",
       "savegen.dat": "binary",
-
       "**/tag/*.tag": "binary",
       "**/sound/*.tag": "binary",
       "**/sound/**/*.tag": "binary",
-
-			/* CatSystem 2: E-Mote! engine m2config files (no related formats?) */
-			"**/m2config/*.def": "plaintext",
-			"**/m2config/*.dif": "plaintext",
-			"**/m2config/*.inc": "plaintext",
-			"**/m2config/*.cnf": "plaintext",
-			"**/m2config/*.pfl": "plaintext",
+      "**/m2config/*.def": "plaintext",
+      "**/m2config/*.dif": "plaintext",
+      "**/m2config/*.inc": "plaintext",
+      "**/m2config/*.cnf": "plaintext",
+      "**/m2config/*.pfl": "plaintext",
       "**/m2config/*.inf": "plaintext",
-      "**/m2config/action.def": "plaintext", // single instance
-      "**/m2config/spline.inf": "plaintext", // single instance
-      "**/m2config/m2view.cnf": "plaintext", // single instance
-      
-      /* CatSystem 2: Background tones Table file (no related formats?) */
+      "**/m2config/action.def": "plaintext",
+      "**/m2config/spline.inf": "plaintext",
+      "**/m2config/m2view.cnf": "plaintext",
       "*.tbl": "plaintext",
-      
-      /* CatSystem 2: Assembly-like binary scripts */
       "*.kcs": "bin",
-      /* CatSystem 1: Assembly-like binary scripts */
       "*.csx": "bin",
-      
-      /* CatSystem 2: PE file Susie plugins */
       "*.spi": "exe",
-      /* CatSystem 2: PE file binary shaders? */
       "*.ppi": "exe",
-
-      //////////////////////////////////////////////////////
-      // STANDARD FILE TYPES/EXTENSIONS
-      
-			/* Comma Separated Values: Used for nametables, etc. */
-			"*.csv": "csv",
-
-			/* CatSystem 2: Early definition file */
+      "*.csv": "csv",
       "startup.ini": "properties",
       "setup.ini": "properties",
       "cs.def": "properties",
-      // "*.ini": "ini",
-      
-      /* CatSystem 2: Language translation file (format with $0000-0000$) */
       "language.txt": "catsystem2-language",
       "language_*.txt": "catsystem2-language",
       "gamelangtbl.txt": "catsystem2-language",
       "gamelangtbl_*.txt": "catsystem2-language",
-
-
-			/* CatSystem 2: Binary key file formats */
-			/* 64-byte key variations using V_CODE and key/seed modifiers */
-			"direct.dat": "key",
-			"cs2_debug_key.dat": "key",
-			"key.dat": "key",
-			"key_com.dat": "key",
-			/* 32-byte filenames followed by 16-byte unknown hashes (multiple entries per file) */
-			"cs2_gk.dat": "key",
-
+      "direct.dat": "key",
+      "cs2_debug_key.dat": "key",
+      "key.dat": "key",
+      "key_com.dat": "key",
+      "cs2_gk.dat": "key",
       "adv.xml": "xml",
       "bgmlist.xml": "xml",
       "cursor.xml": "xml",
@@ -289,17 +239,12 @@
       "setup.xml": "xml",
       "sndanm.xml": "xml",
       "soundconf.xml": "xml",
-			"startup.xml": "xml",
+      "startup.xml": "xml",
       "startup_master.xml": "xml",
       "thumbblur.xml": "xml",
       "vram.xml": "xml",
-
       "nametable.csv": "csv",
-      
-      //////////////////////////////////////////////////////
-      // OTHER
-
-			"*.cs": "csharp",
+      "*.cs": "csharp",
       "*.h": "cpp",
       "*.h2": "cpp",
       "*.tcc": "c",
@@ -351,7 +296,10 @@
       "iterator": "cpp",
       "numeric": "cpp",
       "random": "cpp",
-      "cinttypes": "cpp"
+      "cinttypes": "cpp",
+      "list": "cpp",
+      "map": "cpp",
+      "set": "cpp"
     },
 		"vsicons.associations.files": [
 			{

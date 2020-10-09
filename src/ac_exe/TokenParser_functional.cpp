@@ -1,31 +1,203 @@
+
+// functional-specific function definitions for SCRIPT_DECODER and SCRIPT_READER
+//  (OOP equivalent: TokenParser, ScriptReader)
+
 #include "common.h"
+#ifndef KCLIB_OOP
+
+#include "TokenParser_functional.h"
 #include "kclib_common.h"
-#include "token_parse_types.h"
 #include "ghidra_types_min.h"
 
+//undefined4 * __fastcall FUN_00410780(undefined4 *param_1)
+///FID: FUN_00410780
+SCRIPT_DECODER * __fastcall ScriptDecoder_ctor(SCRIPT_DECODER *this)
+
+{
+    ///TEMP: defines to stop errors
+    #define FUN_00407810(num, file, num2) ((void *)0)
+    #define FUN_004119b0(ptr) ((void *)ptr)
+
+    // passed local_600 (sizeof == 0x128)
+    void *newIdentifiers; // undefined4 *puVar1; // shared with current in-use puVar1
+    
+    this->Buffer = NULL;
+    // *param_1 = 0; //0x0 (Buffer?)
+    this->LastTokenType = assert_enum(0, TOKEN_NONE);
+    // param_1[0x46] = 0; // 0x118 (LastTokenType?)
+    void *puVar1 = newIdentifiers = (void *)FUN_00407810(8, "e:\\prg\\vs2008\\kclib-dx9\\include\\..\\kcClassBase\\kcClassBase.h", 0x27);
+    if (puVar1 == NULL)
+    {
+        newIdentifiers = NULL;
+    }
+    else
+    {
+        newIdentifiers = FUN_004119b0(puVar1); // Some STL container class
+    }
+
+    ///TEMP: cleanup defines to stop errors
+    #undef FUN_00407810
+    #undef FUN_004119b0
+
+    // *(undefined4 **)(param_1 + 0x47) = puVar1; // 0x11c (Identifiers?)
+    this->Identifiers = (void *)newIdentifiers;
+    this->Position = 0;
+    this->Length = 0;
+    this->EnableKeywords = 1;
+    return this;
+    // param_1[2] = 0; // 0x8 (Position?)
+    // param_1[1] = 0; // 0x4 (Length?)
+    // param_1[0x48] = 1; // 0x120 (EnableKeywords?)
+    // return param_1;
+}
+
+// void __fastcall FUN_004112a0(int *param_1)
+///FID: FUN_004112a0
+void __fastcall ScriptDecoder_dtor(SCRIPT_DECODER *this)
+
+{
+    // We can tell this is the destructor because
+    // this->Identifiers isn't set to NULL afterwards
+    //  (could also be a clear/reset function)
+    // Wait, but then there's this->Buffer being set to NULL...
+    //  maybe it's just how STL is..
+    
+    ///TEMP: defines to stop errors (dummy statements)
+    #define FUN_00411a40(ptr) do {} while ((ptr) && false)
+    #define FUN_00407760(ptr) do {} while ((ptr) && false)
+    
+    if (this->Buffer != NULL)
+    {
+        kclib_HeapFree(this->Buffer);
+        this->Buffer = NULL;
+    }
+    if (this->Identifiers != NULL)
+    {
+        FUN_00411a40(this->Identifiers); // Messy function with __invalid_parameter, STL?
+        // Has 0xcc, likely VS debug default mem"zero" method
+        FUN_00407760((int *)this->Identifiers); // Messy function with __invalid_parameter, STL?
+    }
+
+    ///TEMP: cleanup defines to stop errors
+    #define FUN_00411a40
+    #define FUN_00407760
+
+    // int **ppiVar1;
+    // if (*param_1 != 0) {
+    //   kclib_HeapFree(*(void **)param_1);
+    //   *param_1 = 0;
+    // }
+    // ppiVar1 = (int **)param_1[0x47];
+    // if (ppiVar1 != (int **)0x0) {
+    //   FUN_00411a40(ppiVar1); // Messy function with __invalid_parameter, STL?
+    //   // Has 0xcc, likely VS debug default mem"zero" method
+    //   FUN_00407760((int *)ppiVar1); // Messy function with __invalid_parameter, STL?
+    // }
+    // return;
+}
+
+
+//undefined4 __thiscall FUN_004107e0(void *this,undefined8 *param_1)
+///FID: FUN_004107e0
+BOOL __thiscall ScriptDecoder_SetBuffer(SCRIPT_DECODER *this, IN const char *inBuffer)
+
+{
+    unsigned int str_len = strlen(inBuffer);
+    if (str_len != 0)
+    {
+        str_len += 9;
+        if (str_len > this->Capacity)
+        {
+            if (this->Buffer != NULL)
+            {
+                kclib_HeapFree(*(void **)this);
+                this->Buffer = NULL;
+                this->Capacity = 0;
+                this->Length = 0;
+                *(undefined4 *)this = 0;
+                *(undefined4 *)((int)this + 8) = 0;
+                *(undefined4 *)((int)this + 4) = 0;
+            }
+            //0x2a == TOKEN_CHAR_KEYWORD, woah...!
+            this->Buffer = (char *)kclib_HeapAlloc(0x2a, str_len);
+            this->Capacity = str_len;
+        }
+        memset(this->Buffer, 0, str_len); //kclib_MemZero(*(undefined8 **)this,uVar2);
+        memcpy(this->Buffer, inBuffer, str_len);
+        this->Length = str_len;
+        this->Position = 0;
+        this->LineNumber = 1;
+        this->Filename[0] = '\0';
+        return TRUE;
+    }
+    return FALSE;
+
+    // void *pvVar1;
+    // uint uVar2;
+    
+    // uVar2 = 0;
+    // if (*(char *)inBuffer != '\0') {
+    //     do {
+    //         uVar2 = uVar2;
+    //         uVar2 = uVar2 + 1;
+    //     } while (*(char *)(uVar2 + (int)inBuffer) != '\0');
+    //     if (uVar2 != 0) {
+    //         uVar2 += 9;
+    //         if (*(uint *)((int)this + 8) < uVar2) {
+    //             if (*(int *)this != 0) {
+    //                 kclib_HeapFree(*(void **)this);
+    //                 *(undefined4 *)this = 0;
+    //                 *(undefined4 *)((int)this + 8) = 0;
+    //                 *(undefined4 *)((int)this + 4) = 0;
+    //             }
+    //             pvVar1 = kclib_HeapAlloc(0x2a, uVar2);
+    //             *(void **)this = pvVar1;
+    //             *(uint *)((int)this + 8) = uVar2;
+    //         }
+    //         memset(*(undefined8 **)this, 0, uVar2); //kclib_MemZero(*(undefined8 **)this,uVar2);
+    //         memcpy(*(undefined8 **)this, inBuffer, uVar2);
+    //         *(uint *)((int)this + 4) = uVar2;
+    //         *(undefined4 *)((int)this + 0xc) = 0;
+    //         *(undefined4 *)((int)this + 0x10) = 1;
+    //         *(undefined *)((int)this + 0x14) = 0;
+    //         return TRUE;
+    //     }
+    // }
+    // return FALSE;
+}
+
+//void __thiscall ScriptDecoder_Set_ScrUnk72(void *this, undefined4 newScrUnk72)
+///FID: FUN_00410870
+unsigned int __thiscall ScriptDecoder_SetScrUnk72(SCRIPT_DECODER *this, unsigned int newScrUnk72)
+
+{
+    this->EnableKeywords = newScrUnk72;
+    return newScrUnk72;
+}
+
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411c40
-void __fastcall ScriptDecoder_ctor(SCRIPT_DECODER *this)
+void __fastcall ScriptReader_ctor(SCRIPT_READER *this)
 
 {
     this->Buffer = NULL;
-    this->LinePosition = 0;
-    this->TokenPosition = 0;
+    this->Position = 0;
+    this->RdrUnk3 = 0; // never seen elsewhere
 }
 
 //uint __fastcall FUN_00411d40(int param_1)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411d40
-BOOL __fastcall ScriptDecoder_IsEOF(SCRIPT_DECODER *this)
+BOOL __fastcall ScriptReader_IsEOF(SCRIPT_READER *this)
 
 {
     //return (uint)(*(uint *)(param_1 + 4) <= *(uint *)(param_1 + 8));
-    return (BOOL)(this->LinePosition >= this->Length);
+    return (BOOL)(this->Position >= this->Length);
 }
 
 
 // Used to strip CRLF from script?
 //void __fastcall FUN_00411d50(char **param_1)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411d50
-void __fastcall ScriptDecoder_ConvertToLF(SCRIPT_DECODER *this)
+void __fastcall ScriptReader_ConvertToLF(SCRIPT_READER *this)
 
 {
     if (this->Buffer == NULL)
@@ -64,19 +236,19 @@ void __fastcall ScriptDecoder_ConvertToLF(SCRIPT_DECODER *this)
 
 //void __thiscall FUN_00411cd0(void *this,uint param_1)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411cd0
-void __thiscall ScriptDecoder_SetPosition(SCRIPT_DECODER *this, unsigned int newPosition)
+void __thiscall ScriptReader_SetPosition(SCRIPT_READER *this, unsigned int newPosition)
 
 {
     if (newPosition >= this->Length)
     {
         newPosition = this->Length;
     }
-    this->LinePosition = newPosition;
+    this->Position = newPosition;
 }
 
 //void __fastcall FUN_00411c50(int *param_1)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411c50
-void __fastcall ScriptDecoder_Close(SCRIPT_DECODER *this)
+void __fastcall ScriptReader_Close(SCRIPT_READER *this)
 
 {
     if (this->Buffer != NULL)
@@ -89,37 +261,37 @@ void __fastcall ScriptDecoder_Close(SCRIPT_DECODER *this)
 
 //uint __fastcall FUN_00411c60(int *param_1)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411c60
-unsigned int __fastcall ScriptDecoder_FUN_00411c60(SCRIPT_DECODER *this)
+unsigned int __fastcall ScriptReader_FUN_00411c60(SCRIPT_READER *this)
 
 {
-    if (this->LinePosition >= this->Length)
+    if (this->Position >= this->Length)
         return 0;
 
-    if (shiftjis_IsCharDoubleByte(this->Buffer + this->LinePosition))
+    if (shiftjis_IsCharDoubleByte(this->Buffer + this->Position))
     {
-        unsigned int c1 = (unsigned int)this->Buffer[this->LinePosition] & 0xff;
-        unsigned int c2 = (unsigned int)this->Buffer[this->LinePosition + 1] & 0xff;
-        this->LinePosition += 2;
-        return this->LinePosition & 0xffff0000 | (c2 << 8 | c1);
+        unsigned int c1 = (unsigned int)this->Buffer[this->Position] & 0xff;
+        unsigned int c2 = (unsigned int)this->Buffer[this->Position + 1] & 0xff;
+        this->Position += 2;
+        return this->Position & 0xffff0000 | (c2 << 8 | c1);
 
         // CONCAT31(x,y) - concatenates two operands together into a larger size object
         // The "3" is the size of x in bytes.
         // The "1" is the size of y in bytes.
         // The result is the 4-byte concatenation of the bits in "x" with the bits in "y". The "x" forms the most signifigant part of the result, "y" the least.
-        //return this->LinePosition & 0xffff0000 | (unsigned int)CONCAT11(c2, c1);
+        //return this->Position & 0xffff0000 | (unsigned int)CONCAT11(c2, c1);
     }
     else
     {
-        char c = this->Buffer[this->LinePosition];
-        this->LinePosition++;
-        return (this->LinePosition & 0xffff0000) | (unsigned int)c;
+        char c = this->Buffer[this->Position];
+        this->Position++;
+        return (this->Position & 0xffff0000) | (unsigned int)c;
     }
 }
 
 
 //undefined4 __thiscall FUN_00411dd0(void *this,char *filename)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411dd0
-BOOL __thiscall ScriptDecoder_Open(SCRIPT_DECODER *this, IN const char *filename)
+BOOL __thiscall ScriptReader_Open(SCRIPT_READER *this, IN const char *filename)
 
 {
     int iVar2 = 1;
@@ -135,9 +307,9 @@ BOOL __thiscall ScriptDecoder_Open(SCRIPT_DECODER *this, IN const char *filename
     
     ///TMP:IGNORE: kcBigFile_unkLookupOpenMessage(DAT_004c3430, filename, *(int *)this, 3);
     
-    this->LinePosition = 0; //*(undefined4 *)((int)this + 8) = 0;
+    this->Position = 0; //*(undefined4 *)((int)this + 8) = 0;
 
-    ScriptDecoder_ConvertToLF(this);
+    ScriptReader_ConvertToLF(this);
     
     this->Length = strlen(this->Buffer);
     return TRUE;
@@ -145,33 +317,31 @@ BOOL __thiscall ScriptDecoder_Open(SCRIPT_DECODER *this, IN const char *filename
 
 //void __thiscall FUN_00411cf0(void *this,int param_1)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00411cf0
-void __thiscall ScriptDecoder_NextLine(SCRIPT_DECODER *this, OPTIONAL OUT char *outLine)
+void __thiscall ScriptReader_NextLine(SCRIPT_READER *this, OPTIONAL OUT char *outLine)
 
 {
     // outLine is optional, if excluded, decoder still advances to next line
 
     int linepos = 0;
-    while (this->LinePosition < this->Length)
+    while (this->Position < this->Length)
     {
-        char c = this->Buffer[this->LinePosition];
+        char c = this->Buffer[this->Position];
         if (c == '\n')
         {
-            this->LinePosition++;
+            this->Position++;
             break;
         }
         if (outLine != NULL)
         {
             outLine[linepos] = c;
         }
-        this->LinePosition++;
+        this->Position++;
         linepos++;
     }
     if (outLine != NULL)
     {
         outLine[linepos] = '\0';
     }
-    return;
-    //return linepos;
 }
 
 
@@ -492,7 +662,7 @@ BOOL token_ParseIdentifier(IN const char *str, OUT int *outLength, OUT char *out
 
 
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00410880
-BOOL __thiscall token_ParseSymbol(void *thiscls, IN const char *str, OUT int *outLength, OUT TOKEN_TYPE *outValue)
+BOOL __thiscall token_ParseSymbol(SCRIPT_DECODER *this, IN const char *str, OUT int *outLength, OUT TOKEN_TYPE *outValue)
 
 {
     *outLength = 0;
@@ -503,7 +673,7 @@ BOOL __thiscall token_ParseSymbol(void *thiscls, IN const char *str, OUT int *ou
     case '\n':
         *outValue = assert_enum(0x5, TOKEN_NEWLINE);
         *outLength = 1;
-        *(int *)((int)thiscls + 0x10) = *(int *)((int)thiscls + 0x10) + 1;
+        this->LineNumber++;
         return TRUE;
     case '\r':
         *outValue = assert_enum(0x5, TOKEN_NEWLINE);
@@ -512,7 +682,7 @@ BOOL __thiscall token_ParseSymbol(void *thiscls, IN const char *str, OUT int *ou
         } else {
             *outLength = 1;
         }
-        *(int *)((int)thiscls + 0x10) = *(int *)((int)thiscls + 0x10) + 1;
+        this->LineNumber++;
         return TRUE;
     case '!':
         if (str[1] == '=') { // "!="
@@ -722,8 +892,8 @@ BOOL __thiscall token_ParseSymbol(void *thiscls, IN const char *str, OUT int *ou
     }
     return FALSE;
     // *outLength = 1;
-    // *(int *)((int)thiscls + 0x10) = *(int *)((int)thiscls + 0x10) + 1;
+    // *(int *)((int)this + 0x10) = *(int *)((int)this + 0x10) + 1;
     // return TRUE;
 }
 
-
+#endif

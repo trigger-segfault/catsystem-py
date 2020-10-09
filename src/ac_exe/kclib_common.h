@@ -3,9 +3,6 @@
 #ifndef KCLIB_KCLIB_COMMON_H
 #define KCLIB_KCLIB_COMMON_H
 
-#include "common.h"
-
-
 // Generic or uncategorized kclib functions, or functions needed
 // for decompiling.
 // 
@@ -13,9 +10,12 @@
 // And IO/path functions, only SOME of which detect Shift JIS.
 //   (even with shiftjis_ prefix) fix eventually...
 
+#include "common.h"
+
+#ifndef KCLIB_OOP
 
 // DAT_004c3430 is likely kcFileServer,
-// or whatever id used to manage integration files
+// or whatever is used to manage integration files
 #define DAT_004c3430 ((void *)0)
 
 // Used for kclib_HeapAlloc management, is this a WINAPI/MSVC thing?
@@ -60,5 +60,30 @@ BOOL __cdecl shiftjis_GetAbsolutePath(IN const char *filename, OUT char *outFull
 ///FID:cs2_full_v401/tool/ac.exe: FUN_004120e0
 BOOL __cdecl shiftjis_ChangeExtension(IN OUT char *filename, IN const char *extension);
 
+#else
+
+namespace kclib
+{
+    
+    ///FID:cs2_full_v401/tool/ac.exe: FUN_00407bc0
+    void LogError(const char *msg, ...);
+
+    ///FID:cs2_full_v401/tool/ac.exe: FUN_00412200
+    bool IsCharDoubleByte(IN const char *chr);
+
+    //BOOL __cdecl FUN_00412520(char *param_1, char *param_2)
+    ///FID:cs2_full_v401/tool/ac.exe: FUN_00412520
+    bool GetParentDirectory(IN const char *fullpath, OUT char *outParentdir);
+
+    ///WINAPI: GetFullPathNameA
+    ///FID:cs2_full_v401/tool/ac.exe: FUN_00411ff0
+    bool GetAbsolutePath(IN const char *filename, OUT char *outFullpath, OPTIONAL OUT char **outBasename);
+
+    //undefined4 __cdecl FUN_004120e0(char *param_1,undefined4 *param_2)
+    ///FID:cs2_full_v401/tool/ac.exe: FUN_004120e0
+    bool ChangeExtension(IN OUT char *filename, IN const char *extension);
+}
+
+#endif
 
 #endif /* end include guard */

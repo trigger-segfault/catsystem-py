@@ -3,15 +3,33 @@
 #ifndef KCLIB_COMMON_HEADER_H
 #define KCLIB_COMMON_HEADER_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-
 // Includes basic types and constants used like:
 // * BOOL (32-bit boolean),
 // * TRUE FALSE numeric constants (for returning BOOL)
 //   So we don't have to drag windows.h around everywhere
+
+///OPTION: comment/uncomment until cpp_properties.json file is setup
+#define KCLIB_OOP
+
+// This constant specifies if decompiling is still in-progress
+// and classes are still using C-behavior (when not defined)
+#ifndef KCLIB_OOP
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
+#else
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cstdarg>
+#include <string>
+#include <vector>
+
+#endif
 
 
 //// WINAPI DEFINES ////
@@ -63,10 +81,25 @@ typedef int BOOL; // 32-bit boolean (0 or 1, often checked for as such)
 
 // Confirm we have the right enum/name and value,
 // there was a lot of room for copy&paste errors
-#define assert_enum(value, TOKEN) TOKEN; static_assert(value == TOKEN)
+
+// question src: <https://stackoverflow.com/q/31311748>
+// src: <//https://stackoverflow.com/a/31313420>
+// template<bool T> void _my_static_assert()
+// {
+//     static_assert(T);
+// }
+// #define assert_enum(value, enumval) (_my_static_assert<(value == enumval)>, enumval)
+
+// src: <https://stackoverflow.com/a/31311923>
+#define assert_enum(value, enumval) ([]{static_assert(value == enumval, "");}, enumval)
+
+// #define assert_enum(value, enumval) enumval; static_assert(value == enumval)
+
+#ifndef KCLIB_OOP
 
 // Lazy solution for C++ this keyword without implementing classes
 #define this thisscr
 
+#endif
 
 #endif /* end include guard */
