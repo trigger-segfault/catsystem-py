@@ -48,8 +48,8 @@ extern "C" int wmain(int argc, wchar_t *argv[]) //, wchar_t *envp[])
 
         // std::wprintf(L"Animation script converter\n");
         std::wprintf(L"CatSystem 2 Animation Script compiler\n");
-        std::wprintf(L"compile:   ac [txtfile] [txtfile] ...\n");
-        std::wprintf(L"decompile: ac /d [anmfile] [anmfile] ...\n");
+        std::wprintf(L"compile:   ac_tool [txtfile] [txtfile] ...\n");
+        std::wprintf(L"decompile: ac_tool /d [anmfile] [anmfile] ...\n");
         std::wprintf(L"\n");
         std::wprintf(L"arguments:\n");
         std::wprintf(L"  txtfile   text file names to compile (with extension)\n");
@@ -194,8 +194,8 @@ extern "C" int main(int argc, char* argv[])
 
         // std::printf("Animation script converter\n");
         std::printf("CatSystem 2 Animation Script compiler\n");
-        std::printf("compile:   ac [txtfile] [txtfile] ...\n");
-        std::printf("decompile: ac /d [anmfile] [anmfile] ...\n");
+        std::printf("compile:   ac_tool [txtfile] [txtfile] ...\n");
+        std::printf("decompile: ac_tool /d [anmfile] [anmfile] ...\n");
         std::printf("\n");
         std::printf("arguments:\n");
         std::printf("  txtfile   text file names to compile (with extension)\n");
