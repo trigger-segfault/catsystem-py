@@ -1,6 +1,6 @@
-# ANM Script to Brainfuck syntax chart
+# Brainfuck to ANM script syntax
 
-*Because why not... :)*
+*Because why not? ... :)*
 
 
 ### Rules
