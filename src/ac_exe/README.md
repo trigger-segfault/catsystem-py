@@ -7,7 +7,7 @@ This tool aims to keep all odd/wonkey behavior related to token parsing **intact
 
 ## Building
 
-Refer to the compiler settings in `/.vscode/tasks.json` and `/vscode/c_cpp_properties.json`
+Refer to the compiler settings in `/.vscode/tasks.json` and `/.vscode/c_cpp_properties.json`
 
 You **will** need to change the filepath and other settings to match your compiler. The current C++ standard is probably higher than necessary.
 
