@@ -14,7 +14,7 @@ __all__ = ['MersenneTwister', 'mt_genrand', 'Blowfish', 'read_cs2codes', 'vcode_
 
 #######################################################################################
 
-import collections, os #, pefile
+import collections, hashlib, os, struct
 from typing import List, NoReturn, Optional, Tuple, Type, Union  # for hinting in declarations
 
 # local imports
@@ -42,7 +42,12 @@ KEY_KIFDUMMY:str = '__key__'   # Dummy entry for encryption in KIF (.int) archiv
 
 ## NAMED TUPLES ##
 
+# decrypted Cs2 KEY_CODE, V_CODE, and V_CODE2
+#NOTE: (V_CODE2 does not exist in earier games)
 cs2codes = collections.namedtuple('cs2codes', ('keycode', 'vcode1', 'vcode2'))
+# single decrypted cs2_gk.dat entry
+globalentry = collections.namedtuple('globalentry', ('name', 'md5hash'))
+
 
 ## PREDECLARE TYPES ##
 
@@ -374,7 +379,7 @@ def keyfile_generate(keyseed:int, keytype:str=...) -> bytes:
         keyseed = keyfile_seed(vcode1, keytype)
     elif not isinstance(keyseed, int):
         raise TypeError('keyfile_generate() first argument must be an int, str, or bytes-like object, not {0.__class__.__name__}'.format(keyseed))
-    import struct
+    
     # generate PRNG key then data
     mt = MersenneTwister(keyseed)
     filekey  = struct.pack('<16I', *[mt.genrand() for _ in range(16)])
@@ -383,10 +388,83 @@ def keyfile_generate(keyseed:int, keytype:str=...) -> bytes:
     bf = Blowfish(filekey)
     return bf.encrypt(filedata)
 
+# from catsys.crypt import globalkey_generate, globalkey_read, vcode_seed, read_cs2codes
+# vseed = vcode_seed(b'FW_MAKAI-TENSHI_DJIBRIL4')
+# vcode = b'FW_MAKAI-TENSHI_DJIBRIL4'
+# gkpath = r"C:\Env\Games\djibril4_trial\djibril4_trial\Djibril4_Trial\cs2_gk.dat"
+# gkey = globalkey_read(vcode, gkpath)
+
+def globalkey_generate(vcode1seed:int, *filenames:Tuple[str]) -> bytes:
+    """globalkey_generate(vcode1seed, *filenames) -> bytes
+    globalkey_generate(vcode1, *filenames) -> bytes
+
+    vcode1 (V_CODE) is used for global key (cs2_gk.dat) generation, not vcode2 (V_CODE2)
+    vcode2 (V_CODE2) likely didn't exist back when "cs2_gk.dat" was used
+        (this is a very old key type)
+    """
+    import hashlib
+
+    if isinstance(vcode1seed, (str,bytes,bytearray)):
+        vcode1 = vcode1seed
+        vcode1seed = vcode_seed(vcode1)
+    elif not isinstance(vcode1seed, int):
+        raise TypeError('globalkey_generate() first argument must be an int, str, or bytes-like object, not {0.__class__.__name__}'.format(vcode1seed))
+    
+    # color me shocked... absolutely ZERO Mersenne Twister being used!
+    bf = Blowfish(struct.pack('<I', vcode1seed))
+
+    gkey = bytearray() # key file with a variable number of file entries
+    for filename in filenames:
+        # Entry is 32-byte Shift JIS filename and 16-byte encrypted MD5 hash
+        # MD5 hash of file, encrypted with Blowfish, using V_CODE1 seed as key
+        with open(filename, 'rb') as f:
+            md5hash = hashlib.md5(f.read()).digest() # read file and generate MD5 hash
+        key = bf.encrypt(md5hash) # encrypt MD5 hash
+        #TODO: file names can be paths, relative or full, but they won't fit
+        #      in the 32-byte name field, relative paths SHOULD be supported!
+        name = os.path.basename(filename).encode('cp932') # just the filename, no path(?)
+        gkey.extend(struct.pack('<32s 16s', name, key))
+    
+    return gkey
+
+def globalkey_read(vcode1seed:int, file) -> List[globalentry]:
+    """globalkey_read(vcode1seed, "cs2_gk.dat") -> [globalentry, ...]
+    globalkey_read(vcode1, "cs2_gk.dat") -> [globalentry, ...]
+
+    Retutns filenames and decrypted MD5 hashes stored in a global key file (cs2_gk.dat)
+    """
+    import hashlib
+    
+    if isinstance(file, str):
+        with open(file, 'rb') as f:
+            return globalkey_read(vcode1seed, f)
+    
+    if isinstance(vcode1seed, (str,bytes,bytearray)):
+        vcode1 = vcode1seed
+        vcode1seed = vcode_seed(vcode1)
+    elif not isinstance(vcode1seed, int):
+        raise TypeError('globalkey_read() first argument must be an int, str, or bytes-like object, not {0.__class__.__name__}'.format(vcode1seed))
+    
+    # color me shocked... absolutely ZERO Mersenne Twister being used!
+    bf = Blowfish(struct.pack('<I', vcode1seed))
+
+    file.seek(0, 2)
+    length = file.tell()
+    file.seek(0, 0)
+    
+    globalkeys = []
+    for i in range(length // 0x30):
+        name, key = struct.unpack('<32s 16s', file.read(0x30))
+        name = name.rstrip(b'\x00').decode('cp932')
+        md5hash = bf.decrypt(key)
+        globalkeys.append(globalentry(name, md5hash))
+    
+    return globalkeys
+
+
 # def keyfile_generate(keyseed:int) -> bytes:
 #     """keyfile_generate(keyseed) -> bytes
 #     """
-#     import struct
 #     # generate PRNG key then data
 #     mt = MersenneTwister(keyseed)
 #     filekey  = struct.pack('<16I', *[mt.genrand() for _ in range(16)])
