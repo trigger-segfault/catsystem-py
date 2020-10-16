@@ -295,8 +295,8 @@ namespace kclib
         /*$10,4*/   unsigned int LineNumber; // position of text buffer? End of line? Start of line?
         /*$14,104*/ char Filename[0x104]; // size is MAX_PATH, very significant, assume filename?
         /*$118,4*/  TOKEN_TYPE LastTokenType;
-        /*$11c,4*/  void *Identifiers; // possible STL class, used in token_LookupIdentifier
-        /*$120,4*/  BOOL EnableKeywords;
+        /*$11c,4*/  void *Identifiers; // possible STL class, used in LookupIdentifier
+        /*$120,4*/  BOOL EnableKeywords; // has to be BOOL or non-flag mode number, value is checked with "== 1"
         // Its possible this class is actually $128 in size, but if so,
         // its final field hasn't been observed yet
         /*$124*/
@@ -305,6 +305,10 @@ namespace kclib
         TokenParser();
         ~TokenParser();
 
+        // Next non-whitespace token (wrapper around NextToken)
+        bool NextTokenSkipWS(OUT TOKEN_RESULT *token);
+
+        // Next token of any type (this is the actual parse function)
         bool NextToken(OUT TOKEN_RESULT *token);
 
         const char * GetBuffer() const;
@@ -322,16 +326,14 @@ namespace kclib
         bool SetEnableKeywords(bool newEnableKeywords);
 
     private:
-        
-        bool ParseToken(OUT TOKEN_RESULT *token);
-
+        // Includes line-continuation backslashes (some line \ continued on next line)
         const char * SkipComments(IN const char *str, OUT int *outLines);
 
         // Identifier lookup function probably
         // strange returned structure is likely identifier
         bool LookupIdentifier(IN const char *str, OUT IDENTIFIER_INFO *outInfo);
 
-        bool ParseInteger(IN const char *str, OUT int *outLength, OUT int *outValue);
+        bool ParseUnsignedInteger(IN const char *str, OUT int *outLength, OUT int *outValue);
 
         bool ParseFloat(IN const char *str, OUT int *outLength, OUT float *outValue);
 
@@ -351,8 +353,8 @@ namespace kclib
     // table entry in TABLE_KEYWORDS
     struct KEYWORD_ENTRY
     {
-        /*$0,4*/   TOKEN_TYPE ID; // real type: TOKEN_TYPE
-        /*$4,10*/  char Name[16];
+        /*$0,4*/   TOKEN_TYPE ID; // identifier and token type
+        /*$4,10*/  char Name[16]; // keyword name to match
         /*$14*/
     };
 

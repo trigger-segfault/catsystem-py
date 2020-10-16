@@ -387,13 +387,13 @@ BOOL __cdecl ac_ParseAnmArg(void *this, ANM_ARG *arg, unsigned int lineNumber)
   // char local_40c [1028];
   
   FUN_00403cf0(&local_434); //String_const_iterator<>(&local_434);
-  if (token_Next((SCRIPT_DECODER *)this, &token)) {
+  if (token_NextSkipWS((SCRIPT_DECODER *)this, &token)) {
     if (token.TokenType == assert_enum(0xd, TOKEN_INTEGER_LITERAL)) {
       arg->VarType = assert_enum(0, ANM_TYPE_CONST);
       arg->Value = token.TokenValue.UInt32; //local_424;
     }
     else if (token.TokenType == assert_enum(0x27, TOKEN_ATSIGN_KEYWORD)) {
-      if (token_Next((SCRIPT_DECODER *)this, &token) &&
+      if (token_NextSkipWS((SCRIPT_DECODER *)this, &token) &&
         token.TokenType == assert_enum(0xd, TOKEN_INTEGER_LITERAL)) {
         arg->VarType = assert_enum(1, ANM_TYPE_VARIABLE);
         arg->Value = token.TokenValue.UInt32; //local_424;
@@ -403,7 +403,7 @@ BOOL __cdecl ac_ParseAnmArg(void *this, ANM_ARG *arg, unsigned int lineNumber)
         printf("error (%d) : Invalid variable number.\n", lineNumber);
         return FALSE;
       }
-      // if (!token_Next((SCRIPT_DECODER *)this, &token)) {
+      // if (!token_NextSkipWS((SCRIPT_DECODER *)this, &token)) {
       //   ///JP: printf("error (%d) : 変数番号が不正です。\n", lineNumber);
       //   printf("error (%d) : Invalid variable number.\n", lineNumber);
       // }
@@ -573,10 +573,10 @@ unsigned int __cdecl ac_parseLines(char *filename)
   while (!ScriptReader_IsEOF(&reader)) {
     ScriptReader_NextLine(&reader, lineBuffer);
     ScriptDecoder_SetBuffer(&decoder, lineBuffer);
-    if (token_Next(&decoder, &token) &&
+    if (token_NextSkipWS(&decoder, &token) &&
         (token.TokenType == assert_enum(1, TOKEN_POUND)))
     {
-      if (!token_Next(&decoder, &token)) {
+      if (!token_NextSkipWS(&decoder, &token)) {
         ///JP: printf("error (%d) : 不正なラベル名です。\n", lineNumber);
         printf("error (%d) : Illegal label name.\n", lineNumber);
         errorCount++;
@@ -639,9 +639,9 @@ unsigned int __cdecl ac_parseLines(char *filename)
     // zero-out the ANM_TIMELINE structure
     memset(&anmline, 0, 0x44); //kclib_MemZero(&local_4a0,0x44);
     ScriptDecoder_SetBuffer(&decoder, lineBuffer);
-    if (token_Next(&decoder, &token)) {
+    if (token_NextSkipWS(&decoder, &token)) {
       if (token.TokenType == assert_enum(1, TOKEN_POUND)) { // #label definition
-        if (token_Next(&decoder, &token)) {
+        if (token_NextSkipWS(&decoder, &token)) {
           for (int k = 0; k < (int)VECTOR_LABEL_NAMES.size(); k++)
           {
             if (strncmp(VECTOR_LABEL_NAMES[k].LabelName, &token.TokenText[0], 0x20) == 0)
@@ -685,7 +685,7 @@ unsigned int __cdecl ac_parseLines(char *filename)
         anmline.CmdType = assert_enum(0, ANM_CMD_ID);
         anmline.Args[0].VarType = assert_enum(1, ANM_TYPE_VARIABLE);
         // read next token for [@ID] variable number
-        if (!token_Next(&decoder, &token)) {
+        if (!token_NextSkipWS(&decoder, &token)) {
           ///JP: printf("error (%d) : 変数番号が不正です。\n", lineNumber);
           printf("error (%d) : Invalid variable number.\n", lineNumber);
           errorCount++;

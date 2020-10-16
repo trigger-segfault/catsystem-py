@@ -207,9 +207,9 @@ bool kclib::TokenParser::SetEnableKeywords(bool newEnableKeywords)
 
 //undefined4 __cdecl FUN_004036b0(void *param_1,undefined8 *param_2)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_004036b0
-bool kclib::TokenParser::NextToken(OUT kclib::TOKEN_RESULT *token)
+bool kclib::TokenParser::NextTokenSkipWS(OUT kclib::TOKEN_RESULT *token)
 {
-    while (this->ParseToken(token))
+    while (this->NextToken(token))
     {
         if (token->TokenType != TOKEN_WHITESPACE)
         {
@@ -284,10 +284,10 @@ const char * kclib::TokenParser::SkipComments(IN const char *str, OUT int *outLi
 
 //undefined4 __stdcall FUN_00410f10(char *param_1,int *param_2,int *param_3)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00410f10
-bool kclib::TokenParser::ParseInteger(IN const char *str, OUT int *outLength, OUT int *outValue)
+bool kclib::TokenParser::ParseUnsignedInteger(IN const char *str, OUT int *outLength, OUT int *outValue)
 {
     if (str[0] < '0' || str[0] > '9')
-        return false; // not an numeric literal
+        return false; // not a numeric literal
 
     *outLength = 0;
     *outValue  = 0;
@@ -324,18 +324,18 @@ bool kclib::TokenParser::ParseInteger(IN const char *str, OUT int *outLength, OU
             *outValue = *outValue * 10 + (int)c; // c is set to value of digit
             ++*outLength;
         }
-        while (str[*outLength] >= '0' && str[*outLength] <= '9')
-        {
-            *outValue = *outValue * 10 + str[*outLength] - '0';
-            ++*outLength;
-            char c = str[*outLength];
-            if (c >= '0' && c <= '9')
-                c -= '0'; //('0' - 0x0);
-            else
-                break; // not a dec digit
-            *outValue = *outValue * 10 + (int)c; // c is set to value of digit
-            ++*outLength;
-        }
+        // while (str[*outLength] >= '0' && str[*outLength] <= '9')
+        // {
+        //     *outValue = *outValue * 10 + str[*outLength] - '0';
+        //     ++*outLength;
+        //     char c = str[*outLength];
+        //     if (c >= '0' && c <= '9')
+        //         c -= '0'; //('0' - 0x0);
+        //     else
+        //         break; // not a dec digit
+        //     *outValue = *outValue * 10 + (int)c; // c is set to value of digit
+        //     ++*outLength;
+        // }
         if (str[*outLength] == '.')
             return false; // no floating points, strangely no checks for 'f'
     }

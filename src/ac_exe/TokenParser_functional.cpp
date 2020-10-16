@@ -347,10 +347,10 @@ void __thiscall ScriptReader_NextLine(SCRIPT_READER *this, OPTIONAL OUT char *ou
 
 //undefined4 __cdecl FUN_004036b0(void *param_1,undefined8 *param_2)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_004036b0
-BOOL __cdecl token_Next(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
+BOOL __cdecl token_NextSkipWS(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token)
 
 {
-    while (token_Parse(this, token))
+    while (token_Next(this, token))
     {
         if (token->TokenType != TOKEN_WHITESPACE)
             return TRUE;
@@ -423,7 +423,7 @@ const char * __stdcall token_SkipComments(IN const char *str, OUT int *outLines)
 
 //undefined4 __stdcall FUN_00410f10(char *param_1,int *param_2,int *param_3)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_00410f10
-BOOL __stdcall token_ParseInteger(IN const char *str, OUT int *outLength, OUT int *outValue)
+BOOL __stdcall token_ParseUnsignedInteger(IN const char *str, OUT int *outLength, OUT int *outValue)
 
 {
     if (str[0] < '0' || str[0] > '9')

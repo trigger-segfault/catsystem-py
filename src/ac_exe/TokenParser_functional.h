@@ -75,12 +75,12 @@ void __thiscall ScriptReader_NextLine(SCRIPT_READER *this, OPTIONAL OUT char *ou
 
 //undefined4 __cdecl FUN_004036b0(void *param_1,undefined8 *param_2)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_004036b0
-BOOL __cdecl token_Next(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token);
+BOOL __cdecl token_NextSkipWS(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token);
 
 //void __thiscall FUN_004112e0(void *this,undefined8 *param_1)
 ///FID:cs2_full_v401/tool/ac.exe: FUN_004112e0
-BOOL __thiscall token_Parse(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token);
-// BOOL __thiscall foo_token_Parse(SCRIPT_DECODER *this, IN const char *str, OUT TOKEN_RESULT *token, OUT void *param_1);
+BOOL __thiscall token_Next(SCRIPT_DECODER *this, OUT TOKEN_RESULT *token);
+// BOOL __thiscall foo_token_Next(SCRIPT_DECODER *this, IN const char *str, OUT TOKEN_RESULT *token, OUT void *param_1);
 
 const char * __stdcall token_SkipComments(IN const char *str, OUT int *outLines);
 
@@ -88,7 +88,7 @@ const char * __stdcall token_SkipComments(IN const char *str, OUT int *outLines)
 // strange returned structure is likely identifier
 BOOL __thiscall token_LookupIdentifier(void *this, IN const char *str, OUT unsigned char *outBuffer);
 
-BOOL __stdcall token_ParseInteger(IN const char *str, OUT int *outLength, OUT int *outValue);
+BOOL __stdcall token_ParseUnsignedInteger(IN const char *str, OUT int *outLength, OUT int *outValue);
 
 BOOL __stdcall token_ParseFloat(IN const char *str, OUT int *outLength, OUT float *outValue);
 

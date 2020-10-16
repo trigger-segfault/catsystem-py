@@ -1,5 +1,5 @@
 
-// OOP-specific class definition for TokenParser::ParseToken method
+// OOP-specific class definition for TokenParser::NextToken method
 //  (functional equivalent: SCRIPT_DECODER)
 
 #include "common.h"
@@ -110,8 +110,8 @@ bool kclib::TokenParser::LookupIdentifier(IN const char *str, OUT kclib::IDENTIF
 
 
 ///FID:cs2_full_v401/tool/ac.exe: FUN_004112e0
-//BOOL __thiscall foo_token_Parse(SCRIPT_DECODER *this, IN const char *str, OUT TOKEN_RESULT *token, OUT undefined8 *param_1)
-bool kclib::TokenParser::ParseToken(OUT kclib::TOKEN_RESULT *token)
+//BOOL __thiscall foo_token_Next(SCRIPT_DECODER *this, IN const char *str, OUT TOKEN_RESULT *token, OUT undefined8 *param_1)
+bool kclib::TokenParser::NextToken(OUT kclib::TOKEN_RESULT *token)
 {
     ///TODO: needs return values identified
 
@@ -168,7 +168,7 @@ bool kclib::TokenParser::ParseToken(OUT kclib::TOKEN_RESULT *token)
         // *(undefined *)((int)param_1 + 0x21) = 0;
         // *(int *)((int)this + 0xc) = *(int *)((int)this + 0xc) + 1;
     }
-	else if (this->ParseInteger(str, &tokenLength, &tokenValue.Int32))
+	else if (this->ParseUnsignedInteger(str, &tokenLength, &tokenValue.Int32))
     {
         token->TokenGroup   = assert_enum(5, GROUP_LITERAL);
         token->TokenType    = assert_enum(0xd, TOKEN_INTEGER_LITERAL);

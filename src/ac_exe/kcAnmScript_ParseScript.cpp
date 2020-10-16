@@ -33,14 +33,14 @@ bool kclib::kcAnmScript::ac_ParseAnmArg(TokenParser *decoder, OUT ANM_ARG *arg, 
   // char local_40c [1028];
   
   // FUN_00403cf0(&local_434); //String_const_iterator<>(&local_434);
-  if (decoder->NextToken(&token)) {
+  if (decoder->NextTokenSkipWS(&token)) {
     if (token.TokenType == assert_enum(0xd, TOKEN_INTEGER_LITERAL)) {
       arg->VarType = assert_enum(0, ANM_TYPE_CONST);
       arg->Value = token.TokenValue.UInt32; //local_424;
       return true;
     }
     else if (token.TokenType == assert_enum(0x27, TOKEN_ATSIGN_KEYWORD)) {
-      if (decoder->NextToken(&token) &&
+      if (decoder->NextTokenSkipWS(&token) &&
         token.TokenType == assert_enum(0xd, TOKEN_INTEGER_LITERAL)) {
         arg->VarType = assert_enum(1, ANM_TYPE_VARIABLE);
         arg->Value = token.TokenValue.UInt32; //local_424;
@@ -51,7 +51,7 @@ bool kclib::kcAnmScript::ac_ParseAnmArg(TokenParser *decoder, OUT ANM_ARG *arg, 
         std::printf("error (%d) : Invalid variable number.\n", lineNumber);
         return false;
       }
-      // if (!decoder->NextToken(&token)) {
+      // if (!decoder->NextTokenSkipWS(&token)) {
       //   ///JP: std::printf("error (%d) : 変数番号が不正です。\n", lineNumber);
       //   std::printf("error (%d) : Invalid variable number.\n", lineNumber);
       // }
@@ -204,10 +204,10 @@ bool kclib::kcAnmScript::ac_ParseScript(ScriptReader *reader, OPTIONAL OUT unsig
   while (!reader->IsEOF()) {
     reader->NextLine(lineBuffer);
     decoder.SetBuffer(lineBuffer);
-    if (decoder.NextToken(&token) &&
+    if (decoder.NextTokenSkipWS(&token) &&
         (token.TokenType == assert_enum(1, TOKEN_POUND)))
     {
-      if (!decoder.NextToken(&token)) {
+      if (!decoder.NextTokenSkipWS(&token)) {
         ///JP: std::printf("error (%d) : 不正なラベル名です。\n", lineNumber);
         std::printf("error (%d) : Illegal label name.\n", lineNumber);
         errorCount++;
@@ -272,9 +272,9 @@ bool kclib::kcAnmScript::ac_ParseScript(ScriptReader *reader, OPTIONAL OUT unsig
     // zero-out the ANM_TIMELINE structure
     std::memset(&anmline, 0, 0x44); //kclib_MemZero(&local_4a0,0x44);
     decoder.SetBuffer(lineBuffer);
-    if (decoder.NextToken(&token)) {
+    if (decoder.NextTokenSkipWS(&token)) {
       if (token.TokenType == assert_enum(1, TOKEN_POUND)) { // #label definition
-        if (decoder.NextToken(&token)) {
+        if (decoder.NextTokenSkipWS(&token)) {
           for (int k = 0; k < (int)this->ac_LabelNames.size(); k++)
           {
             if (std::strncmp(this->ac_LabelNames[k].LabelName, &token.TokenText[0], 0x20) == 0)
@@ -318,7 +318,7 @@ bool kclib::kcAnmScript::ac_ParseScript(ScriptReader *reader, OPTIONAL OUT unsig
         anmline.CmdType = assert_enum(0, ANM_CMD_ID);
         anmline.Args[0].VarType = assert_enum(1, ANM_TYPE_VARIABLE);
         // read next token for [@ID] variable number
-        if (!decoder.NextToken(&token)) {
+        if (!decoder.NextTokenSkipWS(&token)) {
           ///JP: std::printf("error (%d) : 変数番号が不正です。\n", lineNumber);
           std::printf("error (%d) : Invalid variable number.\n", lineNumber);
           errorCount++;
