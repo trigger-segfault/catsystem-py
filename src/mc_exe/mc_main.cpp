@@ -1,8 +1,7 @@
-#include "../ac_exe/common.h"
-// #include "../ac_exe/TokenParser.h"
+#include "common_mc.h"
 #include "../ac_exe/ghidra_types_min.h"
-#include <windows.h>
-#include <stdlib.h>
+// #include <windows.h>
+// #include <stdlib.h>
 
 // Decompilation process for the cs2_full_v401/system/scene/mc.exe program
 //  (AKA. CatSystem2 Message Compiler)
@@ -137,12 +136,15 @@ struct kcCatScene
     /*$14,400*/ char Filename[0x400]; // param_1
     /*$414,4*/  HGLOBAL MemoryLines; // 0 (HGLOBAL GlobalAlloc)
     /*$418,4*/  HGLOBAL MemoryOffsets; // 0 (HGLOBAL GlobalAlloc)
-    /*$41c,4*/  unsigned int FileSize; // 0
+    /*$41c,4*/  unsigned int FileSize; // 0 (or lines buffer size, which is +0x10 more)
     /*$420*/
 };
 
 // a class for file management, that supports BOTH
 // normal CreateFile operations and FindFile operations. neat!
+// 
+// This is actually just a C#-like FileInfo class, that looks up file information,
+//  either through a normal file handle, or find handle
 struct FILE_READER
 {
     /*$0,4*/    HANDLE Handle; // 0
@@ -154,11 +156,12 @@ struct FILE_READER
     /*$18,4*/   unsigned int RdrUnk6; // 0
     /*$1c,4*/   unsigned int RdrUnk7; // 0
     /*$20,4*/   unsigned int RdrUnk8; // 0
-    /*$24,400*/ char Filename[0x400]; // MAX_PATH
+    /*$24,400*/ char Filename[0x400];
     /*$424,4*/  unsigned int RdrUnk265; // 0
-    /*$428,?*/  WIN32_FIND_DATAA FindData;
+    /*$428,?*/  WIN32_FIND_DATAA FindData; // struct size varies by build (this is exactly $140)
     /*$568,10*/ SYSTEMTIME ModifiedSystemTime; // stored as Local time
     /*$578,8*/  FILETIME ModifiedFileTime; // stored as Local time
+    // ... /*$580,18*/
     /*$598*/
 };
 
@@ -1544,7 +1547,7 @@ void __thiscall kcSmallStruct_FUN_00412310(UNK_SMALL_STRUCT *this, char *strA, c
 
     ///WARNING: POINTER MATH, ughhhh....
 
-    // iVar2 = std::strcmp(strA, &this->BufferA[this->SmlUnk6])
+    // iVar2 = std::strcmp(strA, &this->BufferA[this->BufferB]) // ...oh no
     iVar2 = std::strcmp(strA, (char *)(*(int *)((int)this + 0x10) +
                                     *(int *)(*(int *)((int)this + 0x14) + local_8 * 4)));
     if (iVar2 == 0)
