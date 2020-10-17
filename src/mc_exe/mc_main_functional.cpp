@@ -1,7 +1,12 @@
 #include "common_mc.h"
 #include "../ac_exe/ghidra_types_min.h"
+#include "kcFileInfo_functional.h"
+#include "kcCatScene_functional.h"
+#include "kcDoubleBuffer_functional.h"
+#include "kcLargeBuffer_functional.h"
 // #include <windows.h>
 // #include <stdlib.h>
+#include <zlib.h>
 
 // Decompilation process for the cs2_full_v401/system/scene/mc.exe program
 //  (AKA. CatSystem2 Message Compiler)
@@ -69,15 +74,29 @@
 // Command     0x3001   Perform any other command
 // InputFlag   0x0200   Any type with this flag is treated as input
 //------------------------------------------------------------------
-enum KCLINE_TYPE
+// enum KCLINE_TYPE
+// {
+//     LINE_INPUT = 0x02,
+//     LINE_PAGE = 0x03,
+//     LINE_MESSAGE = 0x20,
+//     LINE_NAME = 0x21,
+//     LINE_COMMAND = 0x30,
+//     LINE_DEBUG_FILENAME = 0xf0, // LINE_TYPE_0xf0 // used with /L option
+//     LINE_TYPE_0xf1 = 0xf1, // used with /L option
+// };
+
+#pragma pack(push, 1)
+
+// This may just be the standard <zlib.h> z_stream struct,
+//  but for now we'll call it this. It's constructed, has Compress called, then destructed.
+//  quick and simple
+// 
+// may be related to global address DAT_0041ffac (which has a "size" of $38 too)
+struct kcZlibStream
 {
-    LINE_INPUT = 0x02,
-    LINE_PAGE = 0x03,
-    LINE_MESSAGE = 0x20,
-    LINE_NAME = 0x21,
-    LINE_COMMAND = 0x30,
-    LINE_DEBUG_FILENAME = 0xf0, // LINE_TYPE_0xf0 // used with /L option
-    LINE_TYPE_0xf1 = 0xf1, // used with /L option
+    /*$0,38*/  z_stream ZStream;
+    // /*$0,38*/  unsigned char _dummy[0x38]; // dummy padding (we don't need to really understand this struct)
+    /*$38*/
 };
 
 // for kcMessageCompiler fields $1c0cc4 and $1c0cc8, this is only a guess.
@@ -89,39 +108,6 @@ enum THREE_STATE
     STATE_2 = 2,
 };
 
-
-// memory management of twin (double buffered?) Global allocations
-struct UNK_SMALL_STRUCT
-{
-    /*$0,4*/    unsigned int SizeA; // 0x1000 initial value
-    /*$4,4*/    unsigned int SizeB; //  0x100 initial value
-    /*$8,4*/    HGLOBAL MemoryA;
-    /*$c,4*/    HGLOBAL MemoryB;
-    /*$10,4*/   void *BufferA;
-    /*$14,4*/   void *BufferB;
-    /*$18,4*/   unsigned int SmlUnk6;
-    /*$1c,4*/   unsigned int SmlUnk7;
-    /*$20*/
-};
-
-// not understood yet. big boy buffer
-//  very likely that 0xc0000 gap is one large buffer, as is tradition with this program)
-struct UNK_LARGE_STRUCT
-{
-    /*$0,4*/       unsigned int LrgUnk_0x0;
-    /*$4,4*/       HGLOBAL Memory; //LrgUnk_0x4;
-    /*$8,4*/       unsigned int LrgUnk_0x8;
-    /*$c,4*/       unsigned int LrgUnk_0xc;
-    //...
-    /*$10,4*/      unsigned int LrgUnk_0x10;
-    //...
-    // /*$14,c0000*/  unsigned char LrgUnk_0x14[0xc0000];
-    //...
-    /*$c0014,4*/   int *LrgUnk_0xc0014;
-    //...
-    /*$c11b0*/
-};
-
 // input range in a CatScene, holds the ranges of when each input is triggered
 //  (based on line indexes which -> offset table -> string table)
 //  This is used by CatSystem 2 for skipping, saving, and loading, etc... probably
@@ -129,47 +115,7 @@ struct INPUT_RANGE
 {
     /*$0,4*/    unsigned int Length; // number of lines this input range lasts for
     /*$4,4*/    unsigned int Index; // absolute index of this input range in scene lines
-};
-
-// either the actual kcCatScene data, or more specifically,
-//   a simple collection of read lines from a file
-struct kcCatScene
-{
-    /*$0,4*/    unsigned int MacUnk0; // 0
-    /*$4,4*/    unsigned int LineCount; // 0
-    /*$8,4*/    char *BufferLines; // 0
-    /*$c,4*/    unsigned int *BufferOffsets; // 0
-    /*$10,4*/   unsigned int MacUnk4; // 0
-    /*$14,400*/ char Filename[0x400]; // param_1
-    /*$414,4*/  HGLOBAL MemoryLines; // 0 (HGLOBAL GlobalAlloc)
-    /*$418,4*/  HGLOBAL MemoryOffsets; // 0 (HGLOBAL GlobalAlloc)
-    /*$41c,4*/  unsigned int FileSize; // 0 (or lines buffer size, which is +0x10 more)
-    /*$420*/
-};
-
-// a class for file management, that supports BOTH
-// normal CreateFile operations and FindFile operations. neat!
-// 
-// This is actually just a C#-like FileInfo class, that looks up file information,
-//  either through a normal file handle, or find handle
-struct FILE_READER
-{
-    /*$0,4*/    HANDLE Handle; // 0
-    /*$4,4*/    HANDLE FindHandle; // 0
-    /*$8,4*/    unsigned int DesiredAccess; // 0
-    /*$c,4*/    unsigned int ShareMode; // 0x1 = FILE_SHARE_READ
-    /*$10,4*/   unsigned int CreationDisposition; // 0
-    /*$14,4*/   unsigned int FlagsAndAttributes; // 0
-    /*$18,4*/   HANDLE TemplateHandle; // 0
-    /*$1c,4*/   unsigned int RdrUnk7; // 0
-    /*$20,4*/   unsigned int LastBytesWritten; // 0
-    /*$24,400*/ char Filename[0x400];
-    /*$424,4*/  unsigned int RdrUnk265; // 0
-    /*$428,?*/  WIN32_FIND_DATAA FindData; // struct size varies by build (this is exactly $140)
-    /*$568,10*/ SYSTEMTIME ModifiedSystemTime; // stored as Local time
-    /*$578,8*/  FILETIME ModifiedFileTime; // stored as Local time
-    // ... /*$580,18*/
-    /*$598*/
+    /*$8*/
 };
 
 // The draugr deathlord of all these structures, it holds nearly EVERYTHING
@@ -259,6 +205,24 @@ struct kcMessageCompiler
     #define MsgUnk_0x1c0cdc MsgUnk_0x1c0cdc
 };
 
+struct CATSCENEHDR
+{
+    /*$0,8*/   char Signature[8]; // "CatScene"
+    /*$8,4*/   unsigned int PackSize;
+    /*$c,4*/   unsigned int UnpackSize;
+    /*$10*/
+};
+struct SCRIPTHDR
+{
+    /*$0,4*/   unsigned int ScriptLength;
+    /*$4,4*/   unsigned int InputCount;
+    /*$8,4*/   unsigned int OffsetTable;
+    /*$c,4*/   unsigned int StringTable;
+    /*$10*/
+};
+
+#pragma pack(pop)
+
 /////////////////////////////////////////////////////
 //// GLOBALS
 
@@ -278,10 +242,12 @@ static UNK_SMALL_STRUCT * g_UNK_SMALL_STRUCT = nullptr;
 // size of structure: 0xc11b0, allocated in mc_main()
 ///FID:cs2_full_v401/system/scene/mc.exe: DAT_0041ff98
 static UNK_LARGE_STRUCT * g_UNK_LARGE_STRUCT = nullptr;
+
 // reference counter for FILE_READER struct,
 // signed since most reference counters are signed to check for underflow
 ///FID:cs2_full_v401/system/scene/mc.exe: DAT_0041ff9c
-static int g_FILE_NUM_0041ff9c = 0;
+// static int g_FILE_NUM_0041ff9c = 0;
+
 // The only visible commandline option in the Usage section, only update modified files,
 //  modified comparison is based on MSDOS-style timestamp,
 //  so it'll break in 2043 or 2044 :)
@@ -313,7 +279,158 @@ static unsigned char DAT_0041c0ef = 0;
 
 
 /////////////////////////////////////////////////////
-//// ALL THE FUNCTIONS (all of them)
+//// SOME OF THE FUNCTIONS (some of them)
+
+///GITHUB: <https://github.com/madler/zlib/blob/master/zconf.h>
+//         <https://github.com/madler/zlib/blob/master/zlib.h>
+
+// typedef struct z_stream_s {
+//     /*$0,4*/   const unsigned char *next_in;     /* next input byte */
+//     /*$4,4*/   unsigned int     avail_in;  /* number of bytes available at next_in */
+//     /*$8,4*/   unsigned int    total_in;  /* total number of input bytes read so far */
+
+//     /*$c,4*/   unsigned char    *next_out; /* next output byte will go here */
+//     /*$10,4*/  unsigned int     avail_out; /* remaining free space at next_out */
+//     /*$14,4*/  unsigned int    total_out; /* total number of bytes output so far */
+
+//     /*$18,4*/  const char *msg;  /* last error message, NULL if no error */
+//     /*$1c,4*/  struct internal_state FAR *state; /* not visible by applications */
+
+//     /*$20,4*/  void     *zalloc;  /* used to allocate the internal state */
+//     /*$24,4*/  void     *zfree;   /* used to free the internal state */
+//     /*$28,4*/  void     *opaque;  /* private data object passed to zalloc and zfree */
+
+//     /*$2c,4*/  int     data_type;  /* best guess about the data type: binary or text
+//                            for deflate, or the decoding state for inflate */
+//     /*$30,4*/  unsigned int   adler;      /* Adler-32 or CRC-32 value of the uncompressed data */
+//     /*$34,4*/  unsigned int   reserved;   /* reserved for future use */
+//     /*$38*/
+// } z_stream;
+
+///FID:cs2_full_v401/system/scene/mc.exe: FUN_004111e0
+kcZlibStream * __fastcall kcZlibStream_ctor(kcZlibStream *this)
+{
+    return this; // nothing here :)
+}
+
+///FID:cs2_full_v401/system/scene/mc.exe: FUN_004111d0
+void kcZlibStream_dtor(kcZlibStream *this)
+{
+    return; // nothing here :)
+}
+
+///FID:cs2_full_v401/system/scene/mc.exe: FUN_00401030
+void * __thiscall kcZlibStream_scalar_dtor(kcZlibStream *this, int flags)
+
+{
+    kcZlibStream_dtor(this);
+    if ((flags & 1) != 0)
+    {
+        free(this);
+    }
+    return this;
+}
+
+// typedef struct z_stream_s {
+//     /*$0,4*/   const unsigned char *next_in;     /* next input byte */
+//     /*$4,4*/   unsigned int     avail_in;  /* number of bytes available at next_in */
+//     /*$8,4*/   unsigned int    total_in;  /* total number of input bytes read so far */
+
+//     /*$c,4*/   unsigned char    *next_out; /* next output byte will go here */
+//     /*$10,4*/  unsigned int     avail_out; /* remaining free space at next_out */
+//     /*$14,4*/  unsigned int    total_out; /* total number of bytes output so far */
+
+//     /*$18,4*/  const char *msg;  /* last error message, NULL if no error */
+//     /*$1c,4*/  struct internal_state FAR *state; /* not visible by applications */
+
+//     /*$20,4*/  void     *zalloc;  /* used to allocate the internal state */
+//     /*$24,4*/  void     *zfree;   /* used to free the internal state */
+//     /*$28,4*/  void     *opaque;  /* private data object passed to zalloc and zfree */
+
+//     /*$2c,4*/  int     data_type;  /* best guess about the data type: binary or text
+//                            for deflate, or the decoding state for inflate */
+//     /*$30,4*/  unsigned int   adler;      /* Adler-32 or CRC-32 value of the uncompressed data */
+//     /*$34,4*/  unsigned int   reserved;   /* reserved for future use */
+//     /*$38*/
+// } z_stream;
+
+// int __thiscall kcZlibStream_Compress(kcZlibStream *this, OUT unsigned char *dest, int destLen, IN const unsigned char *source, int sourceLen)
+int __thiscall kcZlibStream_Compress(kcZlibStream *this, OUT unsigned char *dest, int destLen, IN const unsigned char *source, int sourceLen)
+{
+    // int iVar1;
+    // int outputLen;
+    unsigned char tmpBuffer[0x1000]; // local_1014 [4100];
+    // uint local_10;
+    // size_t local_c;
+    // int zresult;
+    
+    this->ZStream.zalloc = nullptr;
+    this->ZStream.zfree = nullptr;
+    this->ZStream.opaque = nullptr;
+    // *(undefined4 *)((int)this + 0x20) = 0;
+    // *(undefined4 *)((int)this + 0x24) = 0;
+    // *(undefined4 *)((int)this + 0x28) = 0;
+    int outputLen = 0;
+    int zresult = deflateInit((z_streamp)&this->ZStream, Z_BEST_COMPRESSION); // 9
+    // zresult = deflateInit_((z_streamp)&this->ZStream, Z_BEST_COMPRESSION, "1.1.3", 0x38);
+    // iVar1 = kcZlibStream_DeflateInit(this,9,"1.1.3",0x38);
+    if (zresult == Z_OK) // == 0
+    {
+        this->ZStream.next_in = (Bytef *)source;
+        this->ZStream.avail_in = sourceLen;
+        // *(int *)this = source;
+        // *(int *)((int)this + 4) = sourceLen;
+        // while(*(int *)((int)this + 4) != 0)
+        while (this->ZStream.avail_in != 0U)
+        {
+            this->ZStream.next_out = tmpBuffer;
+            this->ZStream.avail_out = (unsigned int)sizeof(tmpBuffer); // 0x1000
+            zresult = deflate((z_streamp)&this->ZStream, Z_NO_FLUSH); // 0
+            // *(undefined **)((int)this + 0xc) = local_1014;
+            // *(undefined4 *)((int)this + 0x10) = 0x1000;
+            // zresult = kcZlibStream_Deflate((int *)this,0);
+            if (zresult != Z_OK) // != 0
+                break;
+            unsigned int bytesWritten = (unsigned int)sizeof(tmpBuffer) - this->ZStream.avail_out; // 0x1000
+            // local_c = 0x1000 - *(int *)((int)this + 0x10);
+            // if ((int)(local_1018 + local_c) <= destLen)
+            if ((int)(outputLen + bytesWritten) <= destLen)
+            {
+                std::memcpy(dest + outputLen, tmpBuffer, bytesWritten);
+                // std::memcpy((void *)(dest + local_1018), local_1014, local_c);
+            }
+            outputLen += bytesWritten;
+            // local_1018 += local_c;
+        }
+        do
+        {
+            if (false)
+                break;
+
+            this->ZStream.next_out = tmpBuffer;
+            this->ZStream.avail_out = (unsigned int)sizeof(tmpBuffer); // 0x1000
+            zresult = deflate((z_streamp)&this->ZStream, Z_FINISH); // 4
+            // *(undefined **)((int)this + 0xc) = local_1014;
+            // *(undefined4 *)((int)this + 0x10) = 0x1000;
+            // zresult = kcZlibStream_Deflate((int *)this,4);
+            unsigned int bytesWritten = (unsigned int)sizeof(tmpBuffer) - this->ZStream.avail_out; // 0x1000
+            // local_c = 0x1000 - *(int *)((int)this + 0x10);
+            // if ((int)(local_1018 + local_c) <= destLen)
+            if ((int)(outputLen + bytesWritten) <= destLen)
+            {
+                std::memcpy(dest + outputLen, tmpBuffer, bytesWritten);
+                // std::memcpy((void *)(dest + local_1018), local_1014, local_c);
+            }
+            outputLen += bytesWritten;
+            // local_1018 += local_c;
+        } while (zresult != Z_STREAM_END); // != 1
+
+        deflateEnd((z_streamp)&this->ZStream);
+        // kcZlibStream_DeflateEnd((int)this);
+    }
+    return outputLen;
+    // return local_1018;
+}
 
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413f10
@@ -443,87 +560,6 @@ BOOL __thiscall kcMessageCompiler_Compile(kcMessageCompiler *this, IN const char
     // return BVar1;
 }
 
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413520
-BOOL __fastcall kcUnkFile_UpdateModifiedTime(FILE_READER *this)
-{
-    HANDLE hFile;
-    if (this->Handle == nullptr)
-    {
-        hFile = ::CreateFileA(&this->Filename[0], GENERIC_READ, this->ShareMode & FILE_SHARE_READ,
-                            NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (hFile == INVALID_HANDLE_VALUE)
-        {
-            return FALSE;
-        }
-    }
-    else
-    {
-        hFile = this->Handle;
-    }
-    FILETIME creationTime, accessTime, modifiedTime;
-    BOOL result = ::GetFileTime(hFile, &creationTime, &accessTime, &modifiedTime);
-    if (this->Handle == nullptr)
-    {
-        ::CloseHandle(hFile);
-    }
-    if (result == TRUE) // == 1
-    {
-        ::FileTimeToLocalFileTime(&modifiedTime, &this->ModifiedFileTime); // 0x15e (0x578)
-        ::FileTimeToSystemTime(&this->ModifiedFileTime, &this->ModifiedSystemTime); // 0x15e, 0x15a (0x578, 0x568)
-    }
-    return result;
-}
-
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413a50
-unsigned int __fastcall kcUnkFile_GetMSDOSTimestamp(FILE_READER *this)
-{
-    //https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime
-    //https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
-    // BOOL BVar1;
-    // unsigned int uVar2;
-    
-    if (kcUnkFile_UpdateModifiedTime(this)) // != FALSE) // 0
-    {
-        // This will stop working in 2043 (or 2044?) ... yay~
-        return ((((unsigned int)this->ModifiedSystemTime.wYear - 1980U) & 0x3f) << 26) | // (4 + 5 + 5 + 6 + 6)
-                (((unsigned int)this->ModifiedSystemTime.wMonth  &  0xf) << 5) | // (5 + 5 + 6 + 6)
-                (((unsigned int)this->ModifiedSystemTime.wDay    & 0x1f) << 5) | // (5 + 6 + 6)
-                (((unsigned int)this->ModifiedSystemTime.wHour   & 0x1f) << 6) | // (6 + 6)
-                (((unsigned int)this->ModifiedSystemTime.wMinute & 0x3f) << 6) | // (6)
-                 ((unsigned int)this->ModifiedSystemTime.wSecond & 0x3f);        // (0)
-        // return (((((
-        //         (uint)*(ushort *)((int)param_1 + 0x568) - 0x7bc & 0x3f) << 4 | // 0x15a
-        //         (uint)*(ushort *)((int)param_1 + 0x56a) & 0xf) << 22 |
-        //         (uint)*(ushort *)((int)param_1 + 0x56e) & 0x1f) << 17 |
-        //         (uint)*(ushort *)((int)param_1 + 0x570) & 0x1f) << 12 | // 0x15c
-        //         (uint)*(ushort *)((int)param_1 + 0x572) & 0x3f) << 6 |
-        //         (uint)*(ushort *)((int)param_1 + 0x574) & 0x3f; // 0x15d
-        // return (((((
-        //         (uint)*(ushort *)((int)param_1 + 0x568) - 0x7bc & 0x3f) << 4 | // 0x15a
-        //         (uint)*(ushort *)((int)param_1 + 0x56a) & 0xf) << 5 |
-        //         (uint)*(ushort *)((int)param_1 + 0x56e) & 0x1f) << 5 |
-        //         (uint)*(ushort *)((int)param_1 + 0x570) & 0x1f) << 6 | // 0x15c
-        //         (uint)*(ushort *)((int)param_1 + 0x572) & 0x3f) << 6 |
-        //         (uint)*(ushort *)((int)param_1 + 0x574) & 0x3f; // 0x15d
-    }
-    return 0U;
-    // if (BVar1 == 0)
-    // {
-    //     uVar2 = 0;
-    // }
-    // else
-    // {
-    //     uVar2 = ((((((uint)*(ushort *)(param_1 + 0x15a) - 0x7bc & 0x3f) << 4 |
-    //             (uint)*(ushort *)((int)param_1 + 0x56a) & 0xf) << 5 |
-    //             (uint)*(ushort *)((int)param_1 + 0x56e) & 0x1f) << 5 |
-    //             (uint)*(ushort *)(param_1 + 0x15c) & 0x1f) << 6 |
-    //             (uint)*(ushort *)((int)param_1 + 0x572) & 0x3f) << 6 |
-    //             (uint)*(ushort *)(param_1 + 0x15d) & 0x3f;
-    // }
-    // return uVar2;
-}
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00412620
 void __cdecl kcScriptCompiler_compileStart(IN const char *othername, IN const char *filename, IN OUT unsigned char *unused_bool, unsigned int modifiedTimestamp, bool verbose)
@@ -680,49 +716,6 @@ unsigned short * __thiscall kcCatScene_FUN_00411a30(kcCatScene *this, unsigned s
     return (unsigned short *)((int)local_28 - (int)shortTable);
 }
 
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004114a0
-BOOL __fastcall kcCatScene_IsLocked(kcCatScene *this)
-
-{
-    undefined4 uVar1;
-    
-    if (this->BufferLines == nullptr || this->BufferOffsets == nullptr)
-    {
-        uVar1 = 0;
-    }
-    else
-    {
-        uVar1 = 1;
-    }
-    return uVar1;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411920
-const char * __thiscall kcCatScene_GetLineAt(kcCatScene *this, int index)
-{
-    int iVar1;
-    
-    // iVar1 = ;
-    if (!kcCatScene_IsLocked(this))
-        return nullptr;
-
-    // if ((index < 0) || (*(int *)(this + 4) <= index))
-    if (index < 0 || index >= this->LineCount)
-        return nullptr;
-    
-    return &this->BufferLines[this->BufferOffsets[index]];
-    // iVar1 = *(int *)(this + 8) + *(int *)(*(int *)(this + 0xc) + index * 4);
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411970
-BOOL __thiscall kcCatScene_HasLineAt(kcCatScene *this, int index)
-{
-    // int iVar1;
-    // iVar1 = kcCatScene_GetLineAt(this, index);
-    // return (BOOL)(iVar1 != 0);
-    return (BOOL)(kcCatScene_GetLineAt(this, index) != nullptr);
-}
-
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00414eb0
 unsigned int __fastcall kcMessageCompiler_FUN_00414eb0(kcMessageCompiler *this)
@@ -841,240 +834,6 @@ unsigned int __fastcall kcMessageCompiler_FUN_00413de0(kcMessageCompiler *this)
         return FALSE;
     }
     // return (uint)bVar1;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004113b0
-void __fastcall kcCatScene_UnlockBuffers(kcCatScene *this)
-{
-    if (this->BufferLines != nullptr) // 0x8
-    {
-        ::GlobalUnlock(this->MemoryLines); // 0x414
-        this->BufferLines = nullptr; // 0x8
-    }
-    if (this->BufferOffsets != nullptr) // 0xc
-    {
-        ::GlobalUnlock(this->MemoryOffsets); // 0x418
-        this->BufferOffsets = nullptr; // 0xc
-    }
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411410
-BOOL __fastcall kcCatScene_LockBuffers(kcCatScene *this)
-{
-    LPVOID pvVar1;
-    undefined4 uVar2;
-    
-    if (this->BufferLines == nullptr || this->BufferOffsets == nullptr) // 0x8, 0xc
-    {
-        if (this->MemoryLines != nullptr) // 0x414
-        {
-            this->BufferLines = (char *)::GlobalLock(this->MemoryLines); // 0x8, 0x414
-        }
-        if (this->MemoryOffsets != nullptr) // 0x418
-        {
-            this->BufferOffsets = (unsigned int *)::GlobalLock(this->MemoryOffsets); // 0xc, 0x418
-        }
-    }
-    
-    if (this->BufferLines == nullptr || this->BufferOffsets == nullptr) // 0x8, 0xc
-    {
-        kcCatScene_UnlockBuffers(this);
-        return FALSE;
-    }
-    return TRUE;
-}
-
-
-//unsigned int * __thiscall kcMacroReader_initRun(void *this, char *param_1)
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004119a0
-kcCatScene * __thiscall kcCatScene_ctor(kcCatScene *this, IN const char *filename)
-{
-    this->BufferLines = nullptr;
-    this->MemoryLines = nullptr; // HGLOBAL GlobalAlloc
-    this->BufferOffsets = nullptr;
-    this->MemoryOffsets = nullptr;
-    this->FileSize = 0;
-    this->LineCount = 0;
-    this->MacUnk0 = 0;
-    this->MacUnk4 = 0;
-    std::strcpy(&this->Filename[0], filename);
-    kcCatScene_Read(this, filename);
-    return this;
-    // *(undefined4 *)((int)this + 8) = 0;
-    // *(undefined4 *)((int)this + 0x414) = 0;
-    // *(undefined4 *)((int)this + 0xc) = 0;
-    // *(undefined4 *)((int)this + 0x418) = 0;
-    // *(undefined4 *)((int)this + 0x41c) = 0;
-    // *(undefined4 *)((int)this + 4) = 0;
-    // *(undefined4 *)this = 0;
-    // *(undefined4 *)((int)this + 0x10) = 0;
-    // _strcpy((char *)((int)this + 0x14),filename);
-    // kcCatScene_Read((int)this,param_1);
-    // return (undefined4 *)this;
-}
-
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004134f0
-void __fastcall kcUnkFile_FindClose(FILE_READER *this)
-{
-    if (this->FindHandle != nullptr)
-    {
-        ::FindClose(this->FindHandle);
-        this->FindHandle = nullptr;
-    }
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004138c0
-unsigned int __fastcall kcUnkFile_FindNext(FILE_READER *this)
-{
-    if (this->FindHandle == nullptr)
-    {
-        this->FindHandle = ::FindFirstFileA(&this->Filename[0], &this->FindData);
-        if (this->FindHandle == INVALID_HANDLE_VALUE)
-        {
-            kcUnkFile_FindClose(this);
-            return INVALID_FILE_ATTRIBUTES; // 0xffffffff
-        }
-    }
-    else
-    {
-        if (::FindNextFileA(this->FindHandle, &this->FindData) == FALSE)
-        {
-            kcUnkFile_FindClose(this);
-            return INVALID_FILE_ATTRIBUTES; // 0xffffffff
-        }
-    }
-    std::strcpy(&this->Filename[0], this->FindData.cFileName);
-    return this->FindData.dwFileAttributes; //???
-    // return *(undefined4 *)(param_1 + 0x428);
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b40
-unsigned int __fastcall kcUnkFile_FindLoop(FILE_READER *this)
-{
-    unsigned int result;
-    do
-    {
-        result = kcUnkFile_FindNext(this);
-        if ((int)result < 0) // I have NO IDEA what this comparison is trying to achieve
-        {
-            return result; // maybe... break on no more files?
-        }
-    } while ((result & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_TEMPORARY)) != 0); // this is the real comparison I guess
-    return result;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004137f0
-FILE_READER * __thiscall kcUnkFile_ctor(FILE_READER *this, IN const char *filename)
-{
-    // unsigned int name_len;
-    // unsigned int tmp_len = ::strlen(filename);
-    // if (tmp_len < 0x3ff)
-    // {
-    //     name_len = ::strlen(filename); // maximum over-redundancy! wooo~
-    // }
-    // else
-    // {
-    //     name_len = 0x3ff;
-    // }
-    unsigned int name_len = std::max(0x3ffU, (unsigned int)std::strlen(filename));
-    std::memcpy(&this->Filename[0], filename, name_len);
-    this->Filename[name_len] = '\0';
-    this->Handle = nullptr; // 0
-    this->FindHandle = nullptr; // 0
-    this->DesiredAccess = GENERIC_READ | GENERIC_WRITE; // 0xc0000000
-    this->ShareMode = (FILE_SHARE_READ | FILE_SHARE_WRITE); // 3
-    this->CreationDisposition = OPEN_EXISTING; // 3
-    this->FlagsAndAttributes = FILE_ATTRIBUTE_NORMAL; // 0x80
-    this->TemplateHandle = nullptr; // CreateFileA HANDLE hTemplateFile / Overlapped?
-    this->RdrUnk265 = 0; // ???
-    g_FILE_NUM_0041ff9c += 1;
-    return this;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004136b0
-BOOL __fastcall kcUnkFile_Close(FILE_READER *this)
-{
-    BOOL result = TRUE;
-    if (this->FindHandle != nullptr)
-    {
-        ::FindClose(this->FindHandle);
-        this->FindHandle = nullptr;
-    }
-    if (this->Handle != nullptr)
-    {
-        result = ::CloseHandle(this->Handle);
-        this->Handle = nullptr;
-    }
-    return result;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004137d0
-void __fastcall kcUnkFile_dtor(FILE_READER *this)
-{
-    kcUnkFile_Close(this);
-    g_FILE_NUM_0041ff9c -= 1;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00401000
-void * __thiscall kcUnkFile_scalar_dtor(FILE_READER *this, int flags)
-{
-    kcUnkFile_dtor(this);
-    if ((flags & 1) != 0)
-    {
-        std::free(this);
-    }
-    return this;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413770
-void __fastcall kcUnkFile_SetWriteMode(FILE_READER *this)
-{
-    this->DesiredAccess = GENERIC_WRITE; // = 0x40000000;
-    this->ShareMode &= FILE_SHARE_WRITE;// &= 2
-    this->CreationDisposition = CREATE_ALWAYS; // = 2
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b20
-void __fastcall kcUnkFile_SetWriteMode_thunk(FILE_READER *this)
-{
-    kcUnkFile_SetWriteMode(this);
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004137a0
-void __fastcall kcUnkFile_SetReadMode(FILE_READER *this)
-{
-    this->DesiredAccess = GENERIC_READ; // = 0x80000000
-    this->ShareMode &= FILE_SHARE_READ; // &= 1
-    this->CreationDisposition = OPEN_EXISTING; // = 3
-}
-
-// DWORD __fastcall kcUnkFile_GetFileSize(HANDLE *param_1)
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004135e0
-unsigned int __fastcall kcUnkFile_GetFileSize(FILE_READER *this)
-{
-    HANDLE hFile;
-    if (this->Handle == nullptr)
-    {
-        hFile = ::CreateFileA(&this->Filename[0], GENERIC_READ, this->ShareMode & FILE_SHARE_READ,
-                            NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (hFile == INVALID_HANDLE_VALUE) // 0xffffffff
-        {
-            return INVALID_FILE_SIZE; // 0xffffffff
-        }
-    }
-    else
-    {
-        hFile = this->Handle;
-    }
-
-    DWORD fileSize;
-    fileSize = ::GetFileSize(hFile, &fileSize);
-    if (this->Handle == nullptr)
-    {
-        ::CloseHandle(hFile);
-    }
-    return (unsigned int)fileSize;
 }
 
 
@@ -1308,150 +1067,366 @@ void __thiscall kcMessageCompiler_ParseName(kcMessageCompiler *this, IN const ch
     // return;
 }
 
-// undefined4 __thiscall kcCatScene_Read(int this,char *filename)
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004114d0
-BOOL __thiscall kcCatScene_Read(kcCatScene *this, IN const char *filename)
+
+
+// void __fastcall kcScriptCompiler_writeCSTfile(char *param_1)
+///FID:cs2_full_v401/system/scene/mc.exe: FUN_00414360
+void __fastcall kcScriptCompiler_writeCSTfile(kcMessageCompiler *this)
 {
-    // unsigned char bVar1;
-    // // FILE_READER *this_00;
-    // unsigned char *bufferLines;
-    // //FILE *file;
+    // int iVar1;
+    // size_t _Size;
+    // unsigned int uVar2;
+    // size_t _Size_00;
     // int iVar3;
-    // char *pcVar4;
-    // undefined4 uVar5;
-    // size_t sVar7;
-    // FILE_READER *unkFile;
-    // DWORD fileSize;
-    // size_t local_1c;
-    // int local_10;
-    // int lineCount;
+    unsigned char *scriptBuffer; // int *hMem;
+    unsigned char *packBuffer; // unsigned char *inBuffer;
+    // int iVar4;
+    // size_t _Size_01;
+    // void *local_47c;
+    FILE_READER *unkfile;
+    // unsigned int packLen; // unsigned int local_428;
+    unsigned char local_40c [8];
+    // unsigned int local_404;
+    // int iStack1024;
+    // unsigned int local_c;
+    // int *local_8;
     
-    // all this just to read fileSize... nice
-    FILE_READER *unkFile = (FILE_READER *)std::malloc(0x598);//_newalloc(0x598);
-    if (unkFile != nullptr)
+    // local_c = DAT_0041e044 ^ (unsigned int)&stack0xfffffffc;
+    if (this->LargeStruct != nullptr) // 0x1c0cd8
     {
-        unkFile = (FILE_READER *)kcUnkFile_ctor(unkFile, filename);
+        kcCompiler_0x1c0cd8_ParseFunc_B_00412d40(this->LargeStruct); // 0x1c0cd8
+        this->MsgUnk_0x1c0cdc = 0;
+        // *(undefined4 *)(param_1 + 0x1c0cdc) = 0;
     }
-    kcUnkFile_SetReadMode(unkFile);
-    unsigned int fileSize = kcUnkFile_GetFileSize(unkFile);
-    if (unkFile != nullptr)
+    // if (*param_1 != '\0')
+    if (this->MsgUnk_0x0[0] != '\0')
     {
-        kcUnkFile_scalar_dtor(unkFile, 1);
-    }
-
-    HGLOBAL hMemLines = nullptr;
-    HGLOBAL hMemOffsets = nullptr;
-    unsigned char *bufferLines = nullptr;
-    unsigned int *bufferOffsets;
-    unsigned int lineCount = 0;
-
-    // allocate MemoryLines and copy lines into buffer,
-    //  nullterminated with newlines and control chars removed
-    if ((int)fileSize > 0)
-    {
-        // the original source was likely a goto-failure control flow,
-        //  decompiled it's just layers upon layers of if statements, so it has been cleaned up
-        
-        fileSize += 0x10; // extra space, for unknown reasons. Could be useful?
-        FILE *file = nullptr;
-
-        //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
-        hMemLines = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, fileSize);
-
-        if (hMemLines != nullptr)
+        kcMessageCompiler_FUN_00413c30(this);
+        std::sprintf((char *)local_40c, "%s.cst", &this->MsgUnk_0x0[0]); // this (aka buffer at &this[0])
+        unkfile = (FILE_READER *)std::malloc(0x598); //_newalloc(0x598);
+        if (unkfile != nullptr)
         {
-            bufferLines = (unsigned char *)::GlobalLock(hMemLines);
+            unkfile = kcUnkFile_ctor(unkfile, (char *)local_40c);
         }
-
-        if (bufferLines != nullptr)
+        // if ((*(int *)(param_1 + 0x1c0424) == 0) ||
+        //     (uVar2 = kcUnkFile_GetMSDOSTimestamp(unkfile), uVar2 < *(unsigned int *)(param_1 + 0x1c0424)))
+        if (this->ModifiedTimestamp == 0 || // *0x1c0424
+            (kcUnkFile_GetMSDOSTimestamp(unkfile) < this->ModifiedTimestamp)) // < *(unsigned int *)0x1c0424
         {
-            file = std::fopen(filename, "rt");
-        }
-
-        // reading file (final 'if' in setup)
-        if (file != nullptr)
-        {
-            for (int pos = 0; !std::feof(file) && std::fgets((char *)&bufferLines[pos], fileSize - pos, file); pos++)
+            // if (*(int *)(param_1 + 0x408) == 0)
+            if (this->OutputLineIndex == 0) // *0x408 == 0
             {
-                // char *line = std::fgets(&bufferLines[i], fileSize - pos, file);
-                // if (pcVar4 == nullptr)
-                //     break;
-                unsigned int len;// = std::strlen(&bufferLines[pos]); //&bufferLines[len + pos - 1]
-                for (len = std::strlen((char *)&bufferLines[pos]); len > 0; len--)
+                kcUnkFile_Delete(unkfile); // FUN_00413b00(unkfile);
+                if (unkfile != nullptr)
                 {
-                    if (bufferLines[pos + len - 1] >= 0x20 || bufferLines[pos + len - 1] == '\t')
-                        break;
+                    kcUnkFile_scalar_dtor(unkfile, 1);
                 }
-                bufferLines[pos + len] = '\0';
-                pos += len;
-                lineCount++;
-                //*(char *)((int)bufferLines + pos + len) = '\0';
-                // pos = pos + 1 + len
-                //lineCount += 1;
             }
-            std::fclose(file);
-        }
-
-        // cleanup
-        if (bufferLines != nullptr)
-        {
-            ::GlobalUnlock(hMemLines);
-        }
-        // done
-    }
-
-    // No lines in the file? That's a paddlin' (return FALSE)
-    if (lineCount < 1)
-    {
-        if (hMemLines != nullptr)
-        {
-            ::GlobalFree(hMemLines);
-        }
-        return FALSE;
-    }
-    // allocate MemoryOffsets and add byte offsets of each line in MemoryLines (return TRUE)
-    else //if (lineCount >= 1)
-    {
-        // the original source was likely a goto-failure control flow,
-        //  decompiled it's just layers upon layers of if statements, so it has been cleaned up
-        this->LineCount = lineCount;
-        this->FileSize = fileSize;
-        this->MemoryLines = hMemLines;
-        bufferLines = nullptr;
-        bufferOffsets = nullptr;
-        //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
-        hMemOffsets = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, lineCount * sizeof(unsigned int));
-        if (hMemOffsets != nullptr)
-        {
-            bufferLines = (unsigned char *)::GlobalLock(hMemLines);
-        }
-        if (bufferLines != nullptr)
-        {
-            bufferOffsets = (unsigned int *)::GlobalLock(hMemOffsets);
-        }
-        
-        // reading file (final 'if' in setup)
-        if (bufferOffsets != nullptr)
-        {
-            // unsigned int offset = 0;
-            for (unsigned int line = 0, offset = 0; line < this->LineCount; line++, offset++)
+            else
             {
-                bufferOffsets[line] = offset;
-                offset += (unsigned int)std::strlen((char *)&bufferLines[offset]);
+                // iVar4 = this->InputIndex; // *0x40c
+                // _Size_01 = iVar4 * 8;
+                // iVar1 = this->OutputLineIndex; // *0x408
+                // _Size_00 = iVar1 * 4;
+                // _Size = this->Position; // *0x1c0410
+                // unsigned int scriptLen = _Size_01 + _Size_00 + _Size;
+                unsigned int inputsLen = this->InputIndex * sizeof(INPUT_RANGE); // *0x40c
+                unsigned int offsetsLen = this->OutputLineIndex * sizeof(unsigned int); // *0x408
+                unsigned int stringsLen = this->Position; // *0x1c0410
+                unsigned int scriptLen = inputsLen + offsetsLen + stringsLen;
+
+                // iVar4 = *(int *)(param_1 + 0x40c);
+                // _Size_01 = iVar4 * 8;
+                // iVar1 = *(int *)(param_1 + 0x408);
+                // _Size_00 = iVar1 * 4;
+                // _Size = *(size_t *)(param_1 + 0x1c0410);
+                // iVar3 = _Size_01 + _Size_00 + _Size;
+                
+                // Is writing directly to these HGLOBAL's even legal!??
+                // scriptBuffer = (int *)::GlobalAlloc(0x40, scriptLen + sizeof(SCRIPTHDR));
+                scriptBuffer = (unsigned char *)::GlobalAlloc(0x40, scriptLen + sizeof(SCRIPTHDR));
+                packBuffer = (unsigned char *)::GlobalAlloc(0x40, scriptLen + sizeof(SCRIPTHDR));
+                if (scriptBuffer == nullptr || packBuffer == nullptr)
+                {
+                    if (scriptBuffer != nullptr)
+                    {
+                        ///FIXME: Either ghidra decompiler error, or mc.exe bug
+                        ::GlobalFree(packBuffer);
+                        ///CORRECT: ::GlobalFree(scriptBuffer);
+                    }
+                    if (packBuffer != nullptr)
+                    {
+                        ::GlobalFree(packBuffer);
+                    }
+                }
+                else
+                {
+                    ((SCRIPTHDR *)scriptBuffer)->ScriptLength = scriptLen; // (without 0x10 sizeof(SCRIPTHDR))
+                    ((SCRIPTHDR *)scriptBuffer)->InputCount = this->InputIndex; // *0x40c
+                    ((SCRIPTHDR *)scriptBuffer)->OffsetTable = offsetsLen;
+                    ((SCRIPTHDR *)scriptBuffer)->StringTable = offsetsLen + stringsLen;
+                    unsigned char *local_8 = scriptBuffer + sizeof(SCRIPTHDR); // 0x10
+                    std::memcpy(local_8, &this->InputsTable[0], inputsLen);
+                    local_8 += inputsLen;
+                    std::memcpy(local_8, &this->OffsetsTable[0], offsetsLen);
+                    local_8 += offsetsLen;
+                    std::memcpy(local_8, &this->StringTable[0], stringsLen);
+                    unsigned int packLen = 0U;
+
+
+                    // *scriptBuffer = scriptLen;
+                    // scriptBuffer[1] = this->InputIndex; // *0x40c
+                    // scriptBuffer[2] = _Size_01;
+                    // scriptBuffer[3] = _Size_01 + _Size_00;
+                    // local_8 = scriptBuffer + 4;
+                    // std::memcpy(local_8, &this->InputsTable[0], _Size_01);
+                    // local_8 = local_8 + iVar4 * 2;
+                    // std::memcpy(local_8, &this->OffsetsTable[0], _Size_00);
+                    // local_8 = local_8 + iVar1;
+                    // std::memcpy(local_8, &this->StringTable[0], _Size);
+                    // local_428 = 0;
+
+                    // *scriptBuffer = iVar3;
+                    // scriptBuffer[1] = *(int *)(param_1 + 0x40c);
+                    // scriptBuffer[2] = _Size_01;
+                    // scriptBuffer[3] = _Size_01 + _Size_00;
+                    // local_8 = scriptBuffer + 4;
+                    // std::memcpy(local_8, param_1 + 0x40410, _Size_01);
+                    // local_8 = local_8 + iVar4 * 2;
+                    // std::memcpy(local_8, param_1 + 0x410, _Size_00);
+                    // local_8 = local_8 + iVar1;
+                    // std::memcpy(local_8, param_1 + 0xc0410, _Size);
+                    // local_428 = 0;
+                    // if (*(int *)(param_1 + 0x1c0420) != 0)
+                    if (this->EnableCompression) // *0x1c0420
+                    {
+                        kcZlibStream *zstrm = (kcZlibStream *)std::malloc(0x38);//_newalloc(0x38);
+                        if (zstrm != nullptr)
+                        {
+                            zstrm = kcZlibStream_ctor(zstrm);
+                        }
+                        ///FIXME: These parameters look a little incorrect, confirm in assembly with ghidra
+                        packLen = (unsigned int)kcZlibStream_Compress(zstrm, packBuffer, scriptLen + sizeof(SCRIPTHDR), scriptBuffer, scriptLen + sizeof(SCRIPTHDR));
+                        if (zstrm != nullptr)
+                        {
+                            kcZlibStream_scalar_dtor(zstrm, 1);
+                        }
+                        if ((int)packLen >= scriptLen + sizeof(SCRIPTHDR))
+                        {
+                            packLen = 0;
+                        }
+                    }
+                    kcUnkFile_SetWriteMode_thunk(unkfile);
+                    kcUnkFile_Open(unkfile);
+                    CATSCENEHDR scenehdr;
+                    std::sprintf(&scenehdr.Signature[0], "CatScene");
+                    scenehdr.PackSize = packLen;
+                    scenehdr.UnpackSize = scriptLen + sizeof(SCRIPTHDR);
+                    kcUnkFile_Write(unkfile, local_40c, sizeof(CATSCENEHDR)); // 0x10
+                    // std::sprintf((char *)local_40c, "CatScene");
+                    // local_404 = packLen;
+                    // iStack1024 = scriptLen + sizeof(SCRIPTHDR);
+                    // kcUnkFile_Write(unkfile, local_40c, sizeof(CATSCENEHDR)); // 0x10
+
+                    // zero compression means we write the data uncompressed
+                    //  I guess this means failure *is* an option (for zlib compression)
+                    if (packLen == 0U)
+                    {
+                        kcUnkFile_Write(unkfile, scriptBuffer, scriptLen + sizeof(SCRIPTHDR));
+                    }
+                    else
+                    {
+                        kcUnkFile_Write(unkfile, packBuffer, packLen);
+                    }
+
+                    kcUnkFile_Close(unkfile);
+                    if (unkfile != nullptr)
+                    {
+                        kcUnkFile_scalar_dtor(unkfile, 1);
+                    }
+                    ::GlobalFree(packBuffer);
+                    ::GlobalFree(scriptBuffer);
+
+                    // I'm starting to think this is a bool, of all the things...
+                    this->MsgUnk_0x0[0] = '\0'; // *(char *)this
+                    this->UpdateCount++; // *0x1c0428 = *0x1c0428 + 1
+                    // *param_1 = '\0';
+                    // *(int *)(param_1 + 0x1c0428) = *(int *)(param_1 + 0x1c0428) + 1;
+                }
             }
-            ::GlobalUnlock(hMemOffsets);
         }
-
-        // cleanup
-        if (bufferLines != nullptr)
+        else
         {
-            ::GlobalUnlock(hMemLines);
+            if (unkfile != nullptr)
+            {
+                kcUnkFile_scalar_dtor(unkfile, 1);
+            }
         }
-
-        // done
-        this->MemoryOffsets = hMemOffsets;
-        return TRUE;
     }
+    // __end_security_critical();
+    // return;
+}
+
+
+
+// ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413960
+// char * __fastcall kcUnkFile_FUN_00413960(FILE_READER *this)
+// {
+//     char *pcVar1;
+//     char *pcVar2;
+//     char *pcVar3;
+//     char *local_14;
+//     char *local_8;
+
+//     ///NOTE:
+//     /// strchr = find FIRST (and return char pointer from)
+//     /// strrchr = find LAST (and return char pointer from), aka "reverse", or "right"
+    
+//     pcVar1 = std::strchr(&this->Filename[0], ' ');//0x20);
+//     if (pcVar1 != nullptr)
+//     {
+//         *pcVar1 = '\0';
+//     }
+//     if (this->Filename[0] == '\0')
+//     {
+//         local_8 = &this->Filename[0];
+//     }
+//     else
+//     {
+//         pcVar2 = std::strrchr(&this->Filename[0], '/'); //0x2f);
+//         pcVar3 = std::strrchr(&this->Filename[0], '\\'); //0x5c);
+//         if (pcVar3 < pcVar2)
+//         {
+//             local_14 = std::strrchr(&this->Filename[0], '/'); //0x2f);
+//         }
+//         else
+//         {
+//             local_14 = std::strrchr(&this->Filename[0], '\\'); //0x5c);
+//         }
+//         local_8 = local_14;
+//         if ((local_14 == nullptr) &&
+//             (local_8 = std::strchr(&this->Filename[0], ':' /*0x3a*/), local_8 == nullptr)) // 0x3a
+//         {
+//             if (pcVar1 != nullptr)
+//             {
+//                 *pcVar1 = ' ';
+//             }
+//             return &this->Filename[0];
+//         }
+//         if (pcVar1 != nullptr
+//         {
+//             *pcVar1 = ' ';
+//         }
+//         local_8 = local_8 + 1;
+//     }
+//     return local_8;
+// }
+
+
+
+// ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b70
+// char * __fastcall kcUnkFile_GetExtension(FILE_READER *this)
+// {
+//     char *_Str;
+//     _Str = kcUnkFile_FUN_00413960(this);
+//     _Str = std::strrchr(_Str, '.'); //0x2e);
+//     if (_Str == nullptr)
+//         return nullptr;
+//     return _Str + 1;
+//     // if (_Str == (char *)0x0)
+//     // {
+//     //     _Str = (char *)0x0;
+//     // }
+//     // else
+//     // {
+//     //     _Str = _Str + 1;
+//     // }
+//     // return _Str;
+// }
+
+// ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413bb0
+// void __thiscall kcUnkFile_ChangeExtension(FILE_READER *this, IN const char *ext)
+// {
+//     char *puVar1;
+//     size_t sVar2;
+//     char *local_8;
+    
+//     local_8 = kcUnkFile_GetExtension(this);
+//     if (local_8 == (char *)0x0)
+//     {
+//         sVar2 = std::strlen(&this->Filename[0]); //(char *)(this + 0x24));
+//         puVar1 = &this->Filename[sVar2]; //(char *)(this + 0x24 + sVar2);
+//         *puVar1 = '.'; //0x2e;
+//         local_8 = puVar1 + 1;
+//     }
+//     if (ext == nullptr || ext[0] == '\0')
+//     {
+//         local_8[-1] = '\0';
+//     }
+//     else
+//     {
+//         ///FIXME: Does this properly null-terminate?, if not it should be fixed for mc_tool release
+//         std::strcpy(local_8, ext);
+//     }
+//     return;
+// }
+
+
+///FID:cs2_full_v401/system/scene/mc.exe: FUN_00412730
+void __cdecl kcScriptCompiler_doFile(IN const char *filename, unsigned char *unused_bool)
+{
+    // void *this;
+    // unsigned int uVar1;
+    FILE_READER *local_230;
+    FILE_READER *local_22c;
+    char local_214 [256];
+    unsigned int local_114;
+    FILE_READER *local_110;
+    char local_10c [260]; // MAX_PATH?
+    // unsigned int local_8;
+    
+    // local_8 = DAT_0041e044 ^ (uint)&stack0xfffffffc;
+    FILE_READER *unkfile = (FILE_READER *)std::malloc(0x598); //_newalloc(0x598);
+    if (unkfile != nullptr)
+    {
+        unkfile = kcUnkFile_ctor(unkfile, filename);
+    }
+    local_110 = local_22c;
+    // This is where .txt input extensions are enforced
+    kcUnkFile_ChangeExtension(local_22c, "txt"); // change extension?
+    while (kcUnkFile_FindLoop(local_110) > -1)
+    {
+        // This excludes &macro.txt and %macro.txt files
+        if (local_110->Filename[0] != '%' && local_110->Filename[0] != '&')
+        {
+            local_114 = kcUnkFile_GetMSDOSTimestamp(local_110);
+            std::strcpy(local_10c, &local_110->Filename[0]);
+            // And this is where .cst output extensions are enforced
+            kcUnkFile_ChangeExtension(local_110, "cst");
+            // the returned timestamp for the ".cst" file here is never used,
+            //  but kcUnkFile_GetMSDOSTimestamp is called *again* in kcScriptCompiler_compileStart
+            kcUnkFile_GetMSDOSTimestamp(local_110); 
+            std::strcpy(local_214, &local_110->Filename[0]);
+            if (g_CMD_FLAG_U == FALSE) // == 0
+            {
+                kcScriptCompiler_compileStart(local_214, local_10c, unused_bool, 0, true);
+            }
+            else
+            {
+                kcScriptCompiler_compileStart(local_214, local_10c, unused_bool, local_114, true);
+            }
+        }
+    }
+    if (local_110 == nullptr)
+    {
+        local_230 = nullptr;
+    }
+    else
+    {
+        /*local_230 =*/ kcUnkFile_scalar_dtor(local_110, 1);
+    }
+    // __end_security_critical(local_230);
+    // return;
 }
 
 
@@ -1463,272 +1438,6 @@ const char * __cdecl mc_ParseCmdFlag(IN const char *str)
         return str + 1;
     }
     return nullptr;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004131f0
-UNK_LARGE_STRUCT * __fastcall kcLargeStruct_ctor(UNK_LARGE_STRUCT *this)
-{
-    this->LrgUnk_0x10 = 0;
-    this->LrgUnk_0x0 = 0;
-    this->LrgUnk_0xc0014 = nullptr;
-    this->Memory = nullptr;
-    this->LrgUnk_0x8 = 0;
-    this->LrgUnk_0xc = 0;
-    return this;
-    // param_1[4] = 0;
-    // *param_1 = 0;
-    // param_1[0x30005] = 0;
-    // param_1[1] = 0;
-    // param_1[2] = 0;
-    // param_1[3] = 0;
-    // return param_1;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411fc0
-UNK_SMALL_STRUCT * __fastcall kcSmallStruct_ctor(UNK_SMALL_STRUCT *this)
-{
-    this->SizeA = 0U;
-    this->SizeB = 0U;
-    this->MemoryA = nullptr;
-    this->MemoryB = nullptr;
-    this->BufferA = nullptr;
-    this->BufferB = nullptr;
-    this->SmlUnk6 = 0;
-    this->SmlUnk7 = 0;
-    // *param_1 = 0;
-    // param_1[1] = 0;
-    // param_1[2] = 0;
-    // param_1[3] = 0;
-    // param_1[4] = 0;
-    // param_1[5] = 0;
-    // param_1[6] = 0;
-    // param_1[7] = 0;
-    kcSmallStruct_AllocBuffers(this, 0x1000, 0x100);
-    return this;
-}
-
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411de0
-BOOL __fastcall kcSmallStruct_LockBuffers(UNK_SMALL_STRUCT *this)
-{
-    if (this->MemoryA != nullptr && this->BufferA == nullptr)
-    {
-        this->BufferA = ::GlobalLock(this->MemoryA);
-    }
-    if (this->MemoryB != nullptr && this->BufferB == nullptr)
-    {
-        this->BufferB = ::GlobalLock(this->MemoryB);
-    }
-    // if ((*(int *)(param_1 + 8) != 0) && (*(int *)(param_1 + 0x10) == 0)) {
-    //     pvVar1 = GlobalLock(*(HGLOBAL *)(param_1 + 8));
-    //     *(LPVOID *)(param_1 + 0x10) = pvVar1;
-    // }
-    // if ((*(int *)(param_1 + 0xc) != 0) && (*(int *)(param_1 + 0x14) == 0)) {
-    //     pvVar1 = GlobalLock(*(HGLOBAL *)(param_1 + 0xc));
-    //     *(LPVOID *)(param_1 + 0x14) = pvVar1;
-    // }
-    // if ((*(int *)(param_1 + 0x14) == 0) || (*(int *)(param_1 + 0x10) == 0))
-    if (this->BufferA == nullptr || this->BufferB == nullptr)
-    {
-        return FALSE;
-    }
-    return TRUE;
-}
-
-
-/* WARNING: Function: __alloca_probe replaced with injection: alloca_probe */
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00412310
-void __thiscall kcSmallStruct_FUN_00412310(UNK_SMALL_STRUCT *this, char *strA, char *strB)
-{
-    size_t sVar1;
-    size_t _Size;
-    int iVar2;
-    // char local_100c;
-    char tmpBuffer [4096];
-    int local_8;
-    
-    local_8 = 0x41231d; // might be part of removed stack guard
-                        // (aka, the extra FS_IN_OFFSET, 0xffffffff starting a function, etc)
-                        // ignore for now...
-    std::strcpy(&tmpBuffer[0], strA);
-    sVar1 = std::strlen(strA);
-    std::strcpy(&tmpBuffer[sVar1 + 1], strB);
-    _Size = std::strlen(strB);
-    _Size = sVar1 + 2 + _Size;
-    local_8 = FUN_00411c70(this, strA);
-
-    ///WARNING: POINTER MATH, ughhhh....
-
-    // iVar2 = std::strcmp(strA, &this->BufferA[this->BufferB]) // ...oh no
-    iVar2 = std::strcmp(strA, (char *)(*(int *)((int)this + 0x10) +
-                                    *(int *)(*(int *)((int)this + 0x14) + local_8 * 4)));
-    if (iVar2 == 0)
-    {
-        iVar2 = FUN_00411c30((char *)(*(int *)((int)this + 0x10) +
-                                    *(int *)(*(int *)((int)this + 0x14) + local_8 * 4)));
-        FUN_00412030(this, local_8, _Size - iVar2);
-        std::memcpy((void *)(*(int *)((int)this + 0x10) + *(int *)(*(int *)((int)this + 0x14) + local_8 * 4)
-                        ), &tmpBuffer[0], _Size);
-    }
-    else
-    {
-        if (*(int *)((int)this + 4) <= *(int *)((int)this + 0x18))
-        {
-            kcSmallStruct_UnlockBuffers(this);
-            kcSmallStruct_AllocBuffers(this, 0, 0x100);
-            kcSmallStruct_LockBuffers(this);
-        }
-        if (local_8 < *(int *)((int)this + 0x18))
-        {
-            std::memmove((void *)(*(int *)((int)this + 0x14) + 4 + local_8 * 4), 
-                    (void *)(*(int *)((int)this + 0x14) + local_8 * 4), 
-                    (*(int *)((int)this + 0x18) - local_8) * 4);
-            *(int *)((int)this + 0x18) = *(int *)((int)this + 0x18) + 1;
-            FUN_00412030(this, local_8, _Size);
-            *(int *)(*(int *)((int)this + 0x14) + local_8 * 4) =
-                *(int *)(*(int *)((int)this + 0x14) + 4 + local_8 * 4) - _Size;
-        }
-        else
-        {
-            while (*(int *)this < (int)(*(int *)((int)this + 0x1c) + _Size))
-            {
-                kcSmallStruct_UnlockBuffers(this);
-                kcSmallStruct_AllocBuffers(this, 0x1000, 0);
-                kcSmallStruct_LockBuffers(this);
-            }
-            *(undefined4 *)(*(int *)((int)this + 0x14) + local_8 * 4) = *(undefined4 *)((int)this + 0x1c);
-            *(int *)((int)this + 0x1c) = *(int *)((int)this + 0x1c) + _Size;
-            *(int *)((int)this + 0x18) = *(int *)((int)this + 0x18) + 1;
-        }
-        std::memcpy((void *)(*(int *)((int)this + 0x10) + *(int *)(*(int *)((int)this + 0x14) + local_8 * 4)
-                        ), &tmpBuffer[0], _Size);
-    }
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411ed0
-void __thiscall kcSmallStruct_AllocBuffers(UNK_SMALL_STRUCT *this, unsigned int sizeA, unsigned int sizeB)
-{
-    kcSmallStruct_UnlockBuffers(this);
-    if (sizeA != 0U)
-    {
-        this->SizeA = sizeA;
-        //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
-        if (this->MemoryA == nullptr)
-        {
-            this->MemoryA = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, this->SizeA);
-            // *(SIZE_T *)this = sizeA;
-            // pvVar1 = GlobalAlloc(0x42,*(SIZE_T *)this);
-            // *(HGLOBAL *)((int)this + 8) = pvVar1;
-        }
-        else
-        {
-            this->MemoryA = ::GlobalReAlloc(this->MemoryA, this->SizeA, GMEM_MOVEABLE | GMEM_ZEROINIT);
-            // *(SIZE_T *)this = *(int *)this + sizeA;
-            // pvVar1 = GlobalReAlloc(*(HGLOBAL *)((int)this + 8),*(SIZE_T *)this,0x42);
-            // *(HGLOBAL *)((int)this + 8) = pvVar1;
-        }
-    }
-    if (sizeB != 0U) 
-    {
-        this->SizeB = sizeB;
-        //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
-        if (this->MemoryB != nullptr)
-        {
-            this->MemoryB = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, this->SizeB);
-            // *(SIZE_T *)((int)this + 4) = sizeB;
-            // pvVar1 = GlobalAlloc(0x42,*(int *)((int)this + 4) << 2);
-            // *(HGLOBAL *)((int)this + 0xc) = pvVar1;
-        }
-        else
-        {
-            this->MemoryB = ::GlobalReAlloc(this->MemoryB, this->SizeB, GMEM_MOVEABLE | GMEM_ZEROINIT);
-            // *(int *)((int)this + 4) = *(int *)((int)this + 4) + sizeB;
-            // pvVar1 = GlobalReAlloc(*(HGLOBAL *)((int)this + 0xc),*(int *)((int)this + 4) << 2,0x42);
-            // *(HGLOBAL *)((int)this + 0xc) = pvVar1;
-        }
-    }
-}
-
-
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411d80
-void __fastcall kcSmallStruct_UnlockBuffers(UNK_SMALL_STRUCT *this)
-{
-    if (this->MemoryA != nullptr && this->BufferA != nullptr)
-    {
-        ::GlobalUnlock(this->MemoryA);
-        this->BufferA = nullptr;
-    }
-    if (this->MemoryB != nullptr && this->BufferB != nullptr)
-    {
-        ::GlobalUnlock(this->MemoryB);
-        this->BufferB = nullptr;
-    }
-}
-
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411e50
-void __fastcall kcSmallStruct_FreeBuffers(UNK_SMALL_STRUCT *this)
-{
-    kcSmallStruct_UnlockBuffers(this);
-    if (this->MemoryA != nullptr)
-    {
-        ::GlobalFree(this->MemoryA);
-        this->MemoryA = nullptr;
-        this->SizeA = 0U;
-        // param_1[2] = 0;
-        // *param_1 = 0;
-    }
-    if (this->MemoryB != nullptr)
-    {
-        ::GlobalFree(this->MemoryB);
-        // param_1[3] = 0;
-        // param_1[1] = 0;
-        this->MemoryB = nullptr;
-        this->SizeB = 0U;
-    }
-    // param_1[6] = 0;
-    // param_1[7] = 0;
-    this->SmlUnk6 = 0;
-    this->SmlUnk7 = 0;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411fa0
-void __fastcall kcSmallStruct_dtor(UNK_SMALL_STRUCT *this)
-{
-    kcSmallStruct_FreeBuffers(this);
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004010d0
-void * __thiscall kcSmallStruct_scalar_dtor(UNK_SMALL_STRUCT *this, int flags)
-{
-    kcSmallStruct_dtor(this);
-    if ((flags & 1) != 0)
-    {
-        std::free(this);
-    }
-    return this;
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004131c0
-void __fastcall kcLargeStruct_dtor(UNK_LARGE_STRUCT *this)
-{
-    if (this->Memory != nullptr)
-    {
-        ::GlobalFree(this->Memory);
-    }
-}
-
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00401100
-void * __thiscall kcLargeStruct_scalar_dtor(UNK_LARGE_STRUCT *this, int flags)
-{
-    kcLargeStruct_dtor(this);
-    if ((flags & 1) != 0)
-    {
-        std::free(this);
-    }
-    return this;
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004128e0
@@ -1813,7 +1522,8 @@ void __cdecl mc_main(int argc, char *argv[])
             const char *opt = mc_ParseCmdFlag(argv[i]);
             if (opt == nullptr)
             {
-                kcScriptCompiler_doFile(argv[i], local_114);
+                ///TODO: re-evaluate the unused_bool thing
+                kcScriptCompiler_doFile(argv[i], (unsigned char *)&local_114[0]);
             }
             else
             {

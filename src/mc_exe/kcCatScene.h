@@ -30,7 +30,7 @@ namespace kclib
         LINE_MESSAGE = 0x20,
         LINE_NAME = 0x21,
         LINE_COMMAND = 0x30,
-        LINE_TYPE_0xf0 = 0xf0, // used with /L option
+        LINE_DEBUG_FILENAME = 0xf0, // LINE_TYPE_0xf0 // used with /L option
         LINE_TYPE_0xf1 = 0xf1, // used with /L option
     };
 
@@ -56,6 +56,43 @@ namespace kclib
 
     #else
 
+    class kcCatScene
+    {
+        /*$0,4*/    unsigned int MacUnk0; // 0
+        /*$4,4*/    unsigned int LineCount; // 0
+        /*$8,4*/    char *BufferLines; // 0
+        /*$c,4*/    unsigned int *BufferOffsets; // 0
+        /*$10,4*/   unsigned int MacUnk4; // 0
+        /*$14,400*/ char Filename[0x400]; // param_1
+        /*$414,4*/  HGLOBAL MemoryLines; // 0 (HGLOBAL GlobalAlloc)
+        /*$418,4*/  HGLOBAL MemoryOffsets; // 0 (HGLOBAL GlobalAlloc)
+        /*$41c,4*/  unsigned int FileSize; // 0 (or lines buffer size, which is +0x10 more)
+        /*$420*/
+    public:
+        //unsigned int * __thiscall kcMacroReader_initRun(void *this, char *param_1)
+        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004119a0
+        kcCatScene(IN const char *filename);
+
+        // undefined4 __thiscall Read(int this,char *filename)
+        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004114d0
+        bool Read(IN const char *filename);
+
+        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411410
+        bool LockBuffers();
+        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004113b0
+        void UnlockBuffers();
+        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004114a0
+        bool IsLocked();
+
+        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411920
+        const char * GetLineAt(int index);
+        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411970
+        bool HasLineAt(int index);
+
+
+        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411a30
+        unsigned short * kcCatScene_FUN_00411a30(unsigned short *shortTable, int param_3, IN OUT int *param_4, unsigned int param_5);
+    };
 
     #endif
 
