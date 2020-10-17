@@ -331,29 +331,6 @@ void * __thiscall kcZlibStream_scalar_dtor(kcZlibStream *this, int flags)
     return this;
 }
 
-// typedef struct z_stream_s {
-//     /*$0,4*/   const unsigned char *next_in;     /* next input byte */
-//     /*$4,4*/   unsigned int     avail_in;  /* number of bytes available at next_in */
-//     /*$8,4*/   unsigned int    total_in;  /* total number of input bytes read so far */
-
-//     /*$c,4*/   unsigned char    *next_out; /* next output byte will go here */
-//     /*$10,4*/  unsigned int     avail_out; /* remaining free space at next_out */
-//     /*$14,4*/  unsigned int    total_out; /* total number of bytes output so far */
-
-//     /*$18,4*/  const char *msg;  /* last error message, NULL if no error */
-//     /*$1c,4*/  struct internal_state FAR *state; /* not visible by applications */
-
-//     /*$20,4*/  void     *zalloc;  /* used to allocate the internal state */
-//     /*$24,4*/  void     *zfree;   /* used to free the internal state */
-//     /*$28,4*/  void     *opaque;  /* private data object passed to zalloc and zfree */
-
-//     /*$2c,4*/  int     data_type;  /* best guess about the data type: binary or text
-//                            for deflate, or the decoding state for inflate */
-//     /*$30,4*/  unsigned int   adler;      /* Adler-32 or CRC-32 value of the uncompressed data */
-//     /*$34,4*/  unsigned int   reserved;   /* reserved for future use */
-//     /*$38*/
-// } z_stream;
-
 // int __thiscall kcZlibStream_Compress(kcZlibStream *this, OUT unsigned char *dest, int destLen, IN const unsigned char *source, int sourceLen)
 int __thiscall kcZlibStream_Compress(kcZlibStream *this, OUT unsigned char *dest, int destLen, IN const unsigned char *source, int sourceLen)
 {
@@ -432,6 +409,15 @@ int __thiscall kcZlibStream_Compress(kcZlibStream *this, OUT unsigned char *dest
     // return local_1018;
 }
 
+///WINAPI: HGLOBAL GlobalAlloc (UINT, SIZE_T)
+///MSDOCS: <https://docs.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-globalalloc>
+// GMEM_FIXED     0x0000  Allocates fixed memory. The return value is a pointer.
+// GMEM_MOVEABLE  0x0002  Allocates movable memory. Memory blocks are never moved in physical memory, but they can be moved within the default heap.
+//                        The return value is a handle to the memory object. To translate the handle into a pointer, use the GlobalLock function.
+//                        This value cannot be combined with GMEM_FIXED.
+// GMEM_ZEROINIT  0x0040  Initializes memory contents to zero.
+// GPTR           0x0040  Combines GMEM_FIXED and GMEM_ZEROINIT.
+// GHND           0x0042  Combines GMEM_MOVEABLE and GMEM_ZEROINIT.
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413f10
 kcMessageCompiler * __fastcall kcMessageCompiler_ctor(kcMessageCompiler *this)
@@ -1143,9 +1129,13 @@ void __fastcall kcScriptCompiler_writeCSTfile(kcMessageCompiler *this)
                 // iVar3 = _Size_01 + _Size_00 + _Size;
                 
                 // Is writing directly to these HGLOBAL's even legal!??
-                // scriptBuffer = (int *)::GlobalAlloc(0x40, scriptLen + sizeof(SCRIPTHDR));
-                scriptBuffer = (unsigned char *)::GlobalAlloc(0x40, scriptLen + sizeof(SCRIPTHDR));
-                packBuffer = (unsigned char *)::GlobalAlloc(0x40, scriptLen + sizeof(SCRIPTHDR));
+                //   "The answer might shock you. Next on 60 minutes."
+                // 
+                // The answer is YES.
+                // GMEM_FIXED : Allocates fixed memory. The return value is a pointer.
+                //0x40 (GPTR, GMEM_FIXED | GMEM_ZEROINIT)
+                scriptBuffer = (unsigned char *)::GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, scriptLen + sizeof(SCRIPTHDR));
+                packBuffer = (unsigned char *)::GlobalAlloc(GMEM_FIXED | GMEM_ZEROINIT, scriptLen + sizeof(SCRIPTHDR));
                 if (scriptBuffer == nullptr || packBuffer == nullptr)
                 {
                     if (scriptBuffer != nullptr)
