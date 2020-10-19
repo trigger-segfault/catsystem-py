@@ -264,87 +264,115 @@ BOOL __thiscall kcCatScene_HasLineAt(kcCatScene *this, int index)
     return (BOOL)(kcCatScene_GetLineAt(this, index) != nullptr);
 }
 
-
+// I think this function checks for line continuations while copying?
+//const char * __thiscall kcCatScene_FUN_00411a30(kcCatScene *this, unsigned short *shortTable, int param_3, IN OUT int *param_4, unsigned int param_5)
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411a30
-unsigned short * __thiscall kcCatScene_FUN_00411a30(kcCatScene *this, unsigned short *shortTable, int param_3, IN OUT int *param_4, unsigned int param_5)
+unsigned int __thiscall kcCatScene_FUN_00411a30(kcCatScene *this, IN OUT char *inoutBuffer, int bufferAvail, IN OUT int *inoutIndex, unsigned int flags)
 {
-    undefined uVar1;
-    bool bVar2;
-    unsigned short *puVar3;
-    unsigned short *local_28;
-    int local_1c;
-    size_t local_18;
-    unsigned short *local_14;
-    int local_10;
-    byte *local_c;
-    unsigned short local_8;
+    // char cVar1;
+    //bool notFirstLoop; //bool bVar2;
+    char *lineEnd; //char *pcVar3;
+    // char *lineStart; //char *local_28;
+    // int index; //int local_1c;
+    // unsigned int line_len; size_t local_18;
+    // unsigned short *wchar_ptr; //char *local_14;
+    // int wchar_width; //int local_10;
+    const char *line_str; //char *local_c;
+    // unsigned short tmp_wchar; //unsigned short local_8;
     
-    local_1c = *param_4;
-    local_28 = shortTable;
-    bVar2 = false;
+    int index = *inoutIndex;
+    char *lineStart = inoutBuffer; //local_28 = inoutBuffer;
+    bool notFirstLoop = false; //bVar2 = false;
     while( true )
     {
-        puVar3 = local_28;
-        if ((false) || (local_c = (byte *)kcCatScene_GetLineAt(this, local_1c), local_c == (byte *)0x0))
-            goto LAB_00411c0a;
+        lineEnd = lineStart; // local_28 may be "line start"
+        // false is probably a preprocessor flag
+        // if ((false) || (local_c = kcCatScene_GetLineAt(this, index), local_c == nullptr))
+        //     goto LAB_00411c0a; // end func
+        if ((false))
+            break; //goto LAB_00411c0a; // end func
+        line_str = kcCatScene_GetLineAt(this, index);
+        if (line_str == nullptr)
+            break; //goto LAB_00411c0a; // end func
 
-        if (*(int *)(this + 0x10) != 0)
+        // if (*(int *)(this + 0x10) != 0)
+        if (this->MacUnk4 != 0)
         {
-            *(undefined4 *)(this + 0x10) = 0;
+            this->MacUnk4 = 0;
+            // *(undefined4 *)(this + 0x10) = 0;
         }
-        if (bVar2)
+        if (notFirstLoop)
         {
-            while ((*local_c != 0 && (*local_c < 0x21)))
+            while (line_str[0] != '\0' && (unsigned char)line_str[0] < 0x21) // '\0', 0x21
             {
-                local_c = local_c + 1;
+                line_str++; //line_str = line_str + 1;
             }
         }
-        local_18 = std::strlen((char *)local_c);
-        local_1c += 1;
-        if (param_3 <= (int)local_18)
-            break;
-        std::memcpy(local_28,local_c,local_18);
-        local_14 = local_28;
-        puVar3 = (unsigned short *)((int)local_28 + local_18);
-        param_3 -= local_18;
-        if ((((param_5 & 1) == 0) || ((int)local_18 < 1)) || (*(char *)((int)puVar3 + -1) != '\\'))
-            goto LAB_00411c0a;
-
-        local_8 = *local_28;
-        while (1 < (int)local_18)
+        int line_len = (int)std::strlen(line_str);
+        index++;
+        if ((int)line_len >= bufferAvail)
         {
-            if ((local_8 & 0xff) < 0x80)
+            // these 2 lines removes need for goto statements elsewhere in loop
+            std::memcpy(lineStart, line_str, bufferAvail - 1U);
+            lineEnd = lineStart + (bufferAvail - 1U);
+            break;
+        }
+
+        std::memcpy(lineStart, line_str, line_len);
+        // local_14 = lineStart;
+        lineEnd = lineStart + line_len;
+        bufferAvail -= line_len;
+        
+        // some flags (it's that "allow line comment" flag again!)
+        // if ((flags & 1) == 0 || (int)line_len < 1 || lineStart[line_len - 1] != '\\') // no line continuation?
+        if ((flags & 1) == 0 || (int)line_len < 1 || lineEnd[-1] != '\\') // no line continuation?
+            break; //goto LAB_00411c0a;
+
+        // unsigned short tmp_wchar = *(unsigned short *)lineStart;
+        int wchar_width = 0; // this initial value is never used, but the compiler may not realize that
+        unsigned short *wchar_ptr = (unsigned short *)lineStart;
+        while ((int)line_len > 1)
+        {
+            // if ((tmp_wchar & 0xff) < 0x80)
+            if ((*wchar_ptr & 0xff) < 0x80)
             {
-                local_10 = 1;
+                wchar_width = 1;
             }
             else
             {
-                local_10 = 2;
+                wchar_width = 2;
             }
-            local_18 -= local_10;
-            local_14 = (unsigned short *)((int)local_14 + local_10);
-            if ((int)local_18 < 2)
+            line_len -= wchar_width;
+            // local_14 += wchar_width;
+            if ((int)line_len < 2)
                 break;
-            local_8 = *local_14;
+
+            wchar_ptr = (unsigned short *)((char *)wchar_ptr + wchar_width);
+            // tmp_wchar = *(unsigned short *)wchar_ptr;
         }
-        if (((local_18 == 0) && (local_10 == 2)) && (local_8 >> 8 == 0x5c))
+        // if (line_len == 0 && wchar_width == 2 && (tmp_wchar >> 8) == (unsigned short)'\\') // 0x5c
+        if (line_len == 0 && wchar_width == 2 && (*wchar_ptr >> 8) == (unsigned short)'\\') // 0x5c
         {
-            uVar1 = *(undefined *)puVar3;
-            *(undefined *)puVar3 = 0;
-            *(undefined4 *)(this + 0x10) = 1;
-            *(undefined *)puVar3 = uVar1;
-            goto LAB_00411c0a;
+            char cVar1 = lineEnd[0];
+            lineEnd[0] = '\0';
+            // This may be some inlined function, it could explain the random null-termination behavior before and after
+            this->MacUnk4 = 1; //*(undefined4 *)(this + 0x10) = 1;
+            lineEnd[0] = cVar1;
+            break; //goto LAB_00411c0a;
         }
-        bVar2 = true;
-        local_28 = (unsigned short *)((int)puVar3 + -1);
+        notFirstLoop = true;
+        lineStart = lineEnd - 1; // -1 to skip null-termination
     }
-    std::memcpy(local_28,local_c,param_3 - 1U);
-    puVar3 = (unsigned short *)((int)local_28 + (param_3 - 1U));
-    LAB_00411c0a:
-    local_28 = puVar3;
-    *param_4 = local_1c;
-    *(undefined *)local_28 = 0;
-    return (unsigned short *)((int)local_28 - (int)shortTable);
+
+    /// moved to only break in loop
+    // std::memcpy(lineStart, line_str, param_3 - 1U);
+    // lineEnd = lineStart + (param_3 - 1U);
+LAB_00411c0a:
+    lineStart = lineEnd;
+    *inoutIndex = index;
+    lineStart[0] = '\0'; // null-terminate
+    ///PTRMATH: string distance
+    return (unsigned int)((std::size_t)lineStart - (std::size_t)inoutBuffer); // std::size_t for pointer math
 }
 
 

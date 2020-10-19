@@ -7,7 +7,6 @@
 #ifndef KCLIB_OOP
 
 #include "kcCatScene.h"
-#include "../ac_exe/ghidra_types_min.h"
 
 
 //unsigned int * __thiscall kcMacroReader_initRun(void *this, char *param_1)
@@ -34,8 +33,10 @@ const char * __thiscall kcCatScene_GetLineAt(kcCatScene *this, int index);
 BOOL __thiscall kcCatScene_HasLineAt(kcCatScene *this, int index);
 
 
+// I think this function checks for line continuations while copying?
+//const char * __thiscall kcCatScene_FUN_00411a30(kcCatScene *this, unsigned short *shortTable, int param_3, IN OUT int *param_4, unsigned int param_5)
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411a30
-unsigned short * __thiscall kcCatScene_FUN_00411a30(kcCatScene *this, unsigned short *shortTable, int param_3, IN OUT int *param_4, unsigned int param_5);
+unsigned int __thiscall kcCatScene_FUN_00411a30(kcCatScene *this, IN OUT char *inoutBuffer, int bufferAvail, IN OUT int *inoutIndex, unsigned int flags);
 
 
 #endif

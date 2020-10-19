@@ -8,14 +8,14 @@
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411fc0
 kclib::kcDoubleBuffer::kcDoubleBuffer()
 {
-    this->SizeA = 0U;
-    this->SizeB = 0U;
-    this->MemoryA = nullptr;
-    this->MemoryB = nullptr;
-    this->BufferA = nullptr;
-    this->BufferB = nullptr;
-    this->SmlUnk6 = 0;
-    this->SmlUnk7 = 0;
+    this->StringBufferSize = 0U;
+    this->OffsetsBufferCount = 0U;
+    this->MemoryStringBuffer = nullptr;
+    this->MemoryOffsetsBuffer = nullptr;
+    this->SmlStringBuffer = nullptr;
+    this->SmlOffsetsTable = nullptr;
+    this->OffsetIndex = 0;
+    this->BufferOffset = 0;
     // *param_1 = 0;
     // param_1[1] = 0;
     // param_1[2] = 0;
@@ -39,18 +39,18 @@ void kclib::kcDoubleBuffer::AllocBuffers(unsigned int sizeA, unsigned int sizeB)
     this->UnlockBuffers();
     if (sizeA != 0U)
     {
-        this->SizeA = sizeA;
+        this->StringBufferSize = sizeA;
         //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
-        if (this->MemoryA == nullptr)
+        if (this->MemoryStringBuffer == nullptr)
         {
-            this->MemoryA = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, this->SizeA);
+            this->MemoryStringBuffer = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, this->StringBufferSize);
             // *(SIZE_T *)this = sizeA;
             // pvVar1 = GlobalAlloc(0x42,*(SIZE_T *)this);
             // *(HGLOBAL *)((int)this + 8) = pvVar1;
         }
         else
         {
-            this->MemoryA = ::GlobalReAlloc(this->MemoryA, this->SizeA, GMEM_MOVEABLE | GMEM_ZEROINIT);
+            this->MemoryStringBuffer = ::GlobalReAlloc(this->MemoryStringBuffer, this->StringBufferSize, GMEM_MOVEABLE | GMEM_ZEROINIT);
             // *(SIZE_T *)this = *(int *)this + sizeA;
             // pvVar1 = GlobalReAlloc(*(HGLOBAL *)((int)this + 8),*(SIZE_T *)this,0x42);
             // *(HGLOBAL *)((int)this + 8) = pvVar1;
@@ -58,18 +58,18 @@ void kclib::kcDoubleBuffer::AllocBuffers(unsigned int sizeA, unsigned int sizeB)
     }
     if (sizeB != 0U) 
     {
-        this->SizeB = sizeB;
+        this->OffsetsBufferCount = sizeB;
         //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
-        if (this->MemoryB != nullptr)
+        if (this->MemoryOffsetsBuffer != nullptr)
         {
-            this->MemoryB = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, this->SizeB);
+            this->MemoryOffsetsBuffer = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, this->OffsetsBufferCount);
             // *(SIZE_T *)((int)this + 4) = sizeB;
             // pvVar1 = GlobalAlloc(0x42,*(int *)((int)this + 4) << 2);
             // *(HGLOBAL *)((int)this + 0xc) = pvVar1;
         }
         else
         {
-            this->MemoryB = ::GlobalReAlloc(this->MemoryB, this->SizeB, GMEM_MOVEABLE | GMEM_ZEROINIT);
+            this->MemoryOffsetsBuffer = ::GlobalReAlloc(this->MemoryOffsetsBuffer, this->OffsetsBufferCount, GMEM_MOVEABLE | GMEM_ZEROINIT);
             // *(int *)((int)this + 4) = *(int *)((int)this + 4) + sizeB;
             // pvVar1 = GlobalReAlloc(*(HGLOBAL *)((int)this + 0xc),*(int *)((int)this + 4) << 2,0x42);
             // *(HGLOBAL *)((int)this + 0xc) = pvVar1;
@@ -81,38 +81,38 @@ void kclib::kcDoubleBuffer::AllocBuffers(unsigned int sizeA, unsigned int sizeB)
 void kclib::kcDoubleBuffer::FreeBuffers()
 {
     this->UnlockBuffers();
-    if (this->MemoryA != nullptr)
+    if (this->MemoryStringBuffer != nullptr)
     {
-        ::GlobalFree(this->MemoryA);
-        this->MemoryA = nullptr;
-        this->SizeA = 0U;
+        ::GlobalFree(this->MemoryStringBuffer);
+        this->MemoryStringBuffer = nullptr;
+        this->StringBufferSize = 0U;
         // param_1[2] = 0;
         // *param_1 = 0;
     }
-    if (this->MemoryB != nullptr)
+    if (this->MemoryOffsetsBuffer != nullptr)
     {
-        ::GlobalFree(this->MemoryB);
+        ::GlobalFree(this->MemoryOffsetsBuffer);
         // param_1[3] = 0;
         // param_1[1] = 0;
-        this->MemoryB = nullptr;
-        this->SizeB = 0U;
+        this->MemoryOffsetsBuffer = nullptr;
+        this->OffsetsBufferCount = 0U;
     }
     // param_1[6] = 0;
     // param_1[7] = 0;
-    this->SmlUnk6 = 0;
-    this->SmlUnk7 = 0;
+    this->OffsetIndex = 0;
+    this->BufferOffset = 0;
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411de0
 bool kclib::kcDoubleBuffer::LockBuffers()
 {
-    if (this->MemoryA != nullptr && this->BufferA == nullptr)
+    if (this->MemoryStringBuffer != nullptr && this->SmlStringBuffer == nullptr)
     {
-        this->BufferA = ::GlobalLock(this->MemoryA);
+        this->SmlStringBuffer = ::GlobalLock(this->MemoryStringBuffer);
     }
-    if (this->MemoryB != nullptr && this->BufferB == nullptr)
+    if (this->MemoryOffsetsBuffer != nullptr && this->SmlOffsetsTable == nullptr)
     {
-        this->BufferB = ::GlobalLock(this->MemoryB);
+        this->SmlOffsetsTable = ::GlobalLock(this->MemoryOffsetsBuffer);
     }
     // if ((*(int *)(param_1 + 8) != 0) && (*(int *)(param_1 + 0x10) == 0)) {
     //     pvVar1 = GlobalLock(*(HGLOBAL *)(param_1 + 8));
@@ -123,7 +123,7 @@ bool kclib::kcDoubleBuffer::LockBuffers()
     //     *(LPVOID *)(param_1 + 0x14) = pvVar1;
     // }
     // if ((*(int *)(param_1 + 0x14) == 0) || (*(int *)(param_1 + 0x10) == 0))
-    if (this->BufferA == nullptr || this->BufferB == nullptr)
+    if (this->SmlStringBuffer == nullptr || this->SmlOffsetsTable == nullptr)
     {
         return false;
     }
@@ -133,15 +133,15 @@ bool kclib::kcDoubleBuffer::LockBuffers()
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411d80
 void kclib::kcDoubleBuffer::UnlockBuffers()
 {
-    if (this->MemoryA != nullptr && this->BufferA != nullptr)
+    if (this->MemoryStringBuffer != nullptr && this->SmlStringBuffer != nullptr)
     {
-        ::GlobalUnlock(this->MemoryA);
-        this->BufferA = nullptr;
+        ::GlobalUnlock(this->MemoryStringBuffer);
+        this->SmlStringBuffer = nullptr;
     }
-    if (this->MemoryB != nullptr && this->BufferB != nullptr)
+    if (this->MemoryOffsetsBuffer != nullptr && this->SmlOffsetsTable != nullptr)
     {
-        ::GlobalUnlock(this->MemoryB);
-        this->BufferB = nullptr;
+        ::GlobalUnlock(this->MemoryOffsetsBuffer);
+        this->SmlOffsetsTable = nullptr;
     }
 }
 
@@ -171,12 +171,12 @@ void kclib::kcDoubleBuffer::kcDoubleBuffer_FUN_00412310(char *strA, char *strB)
 
     ///WARNING: POINTER MATH, ughhhh....
 
-    // iVar2 = std::strcmp(strA, &this->BufferA[this->BufferB]) // ...oh no
+    // iVar2 = std::strcmp(strA, &this->SmlStringBuffer[this->SmlOffsetsTable]) // ...oh no
     iVar2 = std::strcmp(strA, (char *)(*(int *)((int)this + 0x10) +
                                     *(int *)(*(int *)((int)this + 0x14) + local_8 * 4)));
     if (iVar2 == 0)
     {
-        iVar2 = FUN_00411c30((char *)(*(int *)((int)this + 0x10) +
+        iVar2 = kcSmallStruct_TwoStringLength((char *)(*(int *)((int)this + 0x10) +
                                     *(int *)(*(int *)((int)this + 0x14) + local_8 * 4)));
         FUN_00412030(this, local_8, _Size - iVar2);
         std::memcpy((void *)(*(int *)((int)this + 0x10) + *(int *)(*(int *)((int)this + 0x14) + local_8 * 4)

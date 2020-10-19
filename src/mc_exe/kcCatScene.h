@@ -25,13 +25,15 @@ namespace kclib
     //------------------------------------------------------------------
     enum KCLINE_TYPE
     {
-        LINE_INPUT = 0x02,
-        LINE_PAGE = 0x03,
-        LINE_MESSAGE = 0x20,
-        LINE_NAME = 0x21,
-        LINE_COMMAND = 0x30,
+        // LINE_NONE = 0, // LINE_TYPE_0x00
+        NO_LINE_TYPE = 0, // LINE_TYPE_0x00
+        LINE_INPUT = 0x02, // LINE_TYPE_0x02
+        LINE_PAGE = 0x03, // LINE_TYPE_0x03
+        LINE_MESSAGE = 0x20, // LINE_TYPE_0x20
+        LINE_NAME = 0x21, // LINE_TYPE_0x21
+        LINE_COMMAND = 0x30, // LINE_TYPE_0x30
         LINE_DEBUG_FILENAME = 0xf0, // LINE_TYPE_0xf0 // used with /L option
-        LINE_TYPE_0xf1 = 0xf1, // used with /L option
+        LINE_TYPE_0xf1 = 0xf1, // LINE_TYPE_0xf1 // used with /L option
     };
 
     #pragma pack(push, 1)
@@ -47,7 +49,7 @@ namespace kclib
         /*$8,4*/    char *BufferLines; // 0
         /*$c,4*/    unsigned int *BufferOffsets; // 0
         /*$10,4*/   unsigned int MacUnk4; // 0
-        /*$14,400*/ char Filename[0x400]; // param_1
+        /*$14,400*/ char Filename[0x400]; // param_1 // MacUnk_0x14
         /*$414,4*/  HGLOBAL MemoryLines; // 0 (HGLOBAL GlobalAlloc)
         /*$418,4*/  HGLOBAL MemoryOffsets; // 0 (HGLOBAL GlobalAlloc)
         /*$41c,4*/  unsigned int FileSize; // 0 (or lines buffer size, which is +0x10 more)

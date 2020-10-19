@@ -7,7 +7,6 @@
 #ifndef KCLIB_OOP
 
 #include "kcFileInfo.h"
-#include "../ac_exe/ghidra_types_min.h"
 
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004137f0
