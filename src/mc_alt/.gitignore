@@ -1,0 +1,5 @@
+.vs
+Debug
+!lib
+lib/zlib/*
+!lib/zlib/place zlib headers and zlib.lib here
