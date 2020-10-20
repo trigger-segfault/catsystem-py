@@ -14,7 +14,7 @@ mc::CstScript::CstScript(const char* dstPath)
 	this->LabelInfo = nullptr;
 	this->IncludeStackSize = 0;
 	this->ErrorCode = EC_None;
-	this->Compress = 1;
+	this->EnableCompression = 1;
 	this->IsInBlockComment = 0;
 	this->CurrentLinePtr = nullptr;
 	this->SourceFile = nullptr;
@@ -23,7 +23,7 @@ mc::CstScript::CstScript(const char* dstPath)
 	this->IsInMacroDefinition = 0;
 	this->OutputScriptName = 0;
 	this->OutputLineNo = 0;
-	this->FlagL = 0;
+	this->IncludeLineNumbers = 0;
 	this->SourceUpdateTime = 0;
 	this->GeneratedFileCount = 0;
 }
@@ -131,13 +131,13 @@ void mc::CstScript::AppendLine(LineType type, const char* content)
 				isMessageContinuation = true;
 			this->LastLineType = type;
 		}
-		if (this->OutputLineNo && this->FlagL)
+		if (this->OutputLineNo && this->IncludeLineNumbers)
 		{
 			this->OutputLineNo = false;
 			sprintf(buffer, "%d", this->LastInputLine + 1);
 			this->AppendLine(LT_LineNo, buffer);
 		}
-		if (this->OutputScriptName && this->FlagL)
+		if (this->OutputScriptName && this->IncludeLineNumbers)
 		{
 			this->OutputScriptName = false;
 			this->AppendLine(LT_ScriptName, this->SourceFile->Path);
@@ -215,7 +215,7 @@ void mc::CstScript::WriteToFile()
 				// Write line data
 				memcpy(scriptBody, this->LineData, lineDataSize);
 				compressedSize = 0;
-				if (this->Compress)
+				if (this->EnableCompression)
 				{
 					// This has been adapted from the original decompiled source.
 					// The original used an object-oriented zlib implementation.

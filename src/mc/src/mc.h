@@ -7,9 +7,9 @@ namespace mc {
 	extern LabelInfo* GlobalLabelStorage;
 	extern MacroInfo* GlobalMacroStorage;
 	extern int GlobalOpenFileCount;
-	extern bool FlagU;
-	extern bool FlagL;
+	extern bool OnlyUpdateIfNewer;
+	extern bool IncludeLineNumbers;
 	extern bool FlagD;
-	extern bool NotFlagX;
+	extern bool EnableCompression;
 	extern const unsigned int CharacterFlags[256];
 }

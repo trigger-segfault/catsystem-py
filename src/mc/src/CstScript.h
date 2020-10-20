@@ -25,10 +25,10 @@ namespace mc {
 		ScriptBlock BlockTable[65536];
 		char LineData[65536 * 16];
 		int LineDataPtr;
-		int FlagL;
+		int IncludeLineNumbers;
 		BOOL OutputScriptName;
 		BOOL OutputLineNo;
-		int Compress;
+		int EnableCompression;
 		unsigned int SourceUpdateTime;
 		int GeneratedFileCount;
 		LabelInfo* LabelInfo;

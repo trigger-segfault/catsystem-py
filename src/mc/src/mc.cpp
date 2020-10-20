@@ -21,13 +21,13 @@ namespace mc {
 	// .data:0041FF9C
 	int GlobalOpenFileCount;
 	// .data:0041FFA0
-	bool FlagU;
+	bool OnlyUpdateIfNewer = false;
 	// .data:0041FFA4
-	bool FlagL;
+	bool IncludeLineNumbers = false;
 	// .data:0041FFA8
-	bool FlagD;
+	bool FlagD = false;
 	// .data:0041F088
-	bool NotFlagX = true;
+	bool EnableCompression = true;
 	// .data:0041F0A0
 	const unsigned int CharacterFlags[256] = {
 		0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -82,8 +82,8 @@ namespace mc {
 		script = new CstScript(dstPath);
 		script->SetMacroInfo(GlobalMacroStorage);
 		script->SetLabelInfo(GlobalLabelStorage);
-		script->FlagL = FlagL;
-		script->Compress = NotFlagX;
+		script->IncludeLineNumbers = IncludeLineNumbers;
+		script->EnableCompression = EnableCompression;
 		script->SourceUpdateTime = srcUpdateTime;
 		if (script->CompileFromSource(srcPath))
 		{
@@ -116,7 +116,7 @@ namespace mc {
 				file->ChangeExtension("cst");
 				file->GetUpdateTime();
 				strcpy(dstPath, file->Path);
-				if (FlagU)
+				if (OnlyUpdateIfNewer)
 					CompileScript(dstPath, srcPath, pathBuffer, updateTime, 1);
 				else
 					CompileScript(dstPath, srcPath, pathBuffer, 0, 1);
@@ -176,19 +176,19 @@ int main(int argc, char* argv[])
 				{
 				case 'D':
 				case 'd':
-					mc::FlagD = 1;
+					mc::FlagD = true;
 					break;
 				case 'L':
 				case 'l':
-					mc::FlagL = 1;
+					mc::IncludeLineNumbers = true;
 					break;
 				case 'U':
 				case 'u':
-					mc::FlagU = 1;
+					mc::OnlyUpdateIfNewer = true;
 					break;
 				case 'X':
 				case 'x':
-					mc::NotFlagX = 0;
+					mc::EnableCompression = false;
 					break;
 				default:
 					continue;
