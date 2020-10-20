@@ -62,57 +62,68 @@ namespace kclib
     // reference counter for kcFileInfo's
     // signed since most reference counters are signed to check for underflow
     ///FID:cs2_full_v401/system/scene/mc.exe: DAT_0041ff9c
-    extern int g_FILE_NUM_0041ff9c;
+    extern int g_FILE_READER_COUNT;
 
     // similar in nature to C#'s FileInfo class,
     //  this is for info on a file, but not reading or writing
     struct FILE_READER
     {
-        /*$0,4*/    HANDLE Handle; // 0
-        /*$4,4*/    HANDLE FindHandle; // 0
-        /*$8,4*/    unsigned int DesiredAccess; // 0
-        /*$c,4*/    unsigned int ShareMode; // 0x1 = FILE_SHARE_READ
-        /*$10,4*/   unsigned int CreationDisposition; // 0
-        /*$14,4*/   unsigned int FlagsAndAttributes; // 0
-        /*$18,4*/   HANDLE TemplateHandle; // 0
-        /*$1c,4*/   unsigned int RdrUnk7; // 0
-        /*$20,4*/   unsigned int LastBytesWritten; // 0
-        /*$24,400*/ char Filename[0x400];
-        /*$424,4*/  unsigned int RdrUnk265; // 0
-        /*$428,?*/  WIN32_FIND_DATAA FindData;
+        // reference counter for kcFileInfo's
+        // signed since most reference counters are signed to check for underflow
+        ///FID:cs2_full_v401/system/scene/mc.exe: DAT_0041ff9c
+        static int g_FILEINFO_COUNT;
+
+        /*$0,4*/    HANDLE Handle; // Handle to open file
+        /*$4,4*/    HANDLE FindHandle; // Handle to open file find operation
+        /*$8,4*/    unsigned int DesiredAccess; // GENERIC_READ | GENERIC_WRITE (0xc0000000)
+        /*$c,4*/    unsigned int ShareMode; // FILE_SHARE_READ | FILE_SHARE_WRITE (0x3)
+        /*$10,4*/   unsigned int CreationDisposition; // OPEN_EXISTING (0x3)
+        /*$14,4*/   unsigned int FlagsAndAttributes; // FILE_ATTRIBUTE_NORMAL (0x80)
+        /*$18,4*/   HANDLE TemplateHandle; // Handle to a template file (optional, for use when opening in create mode)
+        /*$1c,4*/   unsigned int LastBytesRead; // Possibly LastBytesRead (similar to LastBytesWritten) // LastBytesRead
+        /*$20,4*/   unsigned int LastBytesWritten; // Set to bytesWritten count after Write()
+        /*$24,400*/ char Filename[0x400]; // copy of filepath passed in from ctor
+        /*$424,4*/  unsigned int RdrReserved; // Set to zero in ctor, never observed (may be reserved field as failsafe for Filename size limit)
+        /*$428,14c*/ WIN32_FIND_DATAA FindData;
         /*$568,10*/ SYSTEMTIME ModifiedSystemTime; // stored as Local time
         /*$578,8*/  FILETIME ModifiedFileTime; // stored as Local time
         // ... /*$580,18*/
         /*$598*/
     };
 
-    #else
+    ///TEMP: Also run OOP class of kcFileInfo until we're done with the functional stuff
+    #endif
+    namespace kclib
+    {
+    // #else
 
     // similar in nature to C#'s FileInfo class,
     //  combined with read/write capabilities it seems...
+    //  this really does it all!
     class kcFileInfo
     {
         // reference counter for kcFileInfo's
         // signed since most reference counters are signed to check for underflow
         ///FID:cs2_full_v401/system/scene/mc.exe: DAT_0041ff9c
-        static int g_FILE_NUM_0041ff9c;
+        static int g_FILEINFO_COUNT;
 
-        /*$0,4*/    HANDLE Handle; // 0
-        /*$4,4*/    HANDLE FindHandle; // 0
-        /*$8,4*/    unsigned int DesiredAccess; // 0
-        /*$c,4*/    unsigned int ShareMode; // 0x1 = FILE_SHARE_READ
-        /*$10,4*/   unsigned int CreationDisposition; // 0
-        /*$14,4*/   unsigned int FlagsAndAttributes; // 0
-        /*$18,4*/   HANDLE TemplateHandle; // 0
-        /*$1c,4*/   unsigned int RdrUnk7; // 0
-        /*$20,4*/   unsigned int LastBytesWritten; // 0
-        /*$24,400*/ char Filename[0x400];
-        /*$424,4*/  unsigned int RdrUnk265; // 0
-        /*$428,?*/  WIN32_FIND_DATAA FindData;
+        /*$0,4*/    HANDLE Handle; // Handle to open file
+        /*$4,4*/    HANDLE FindHandle; // Handle to open file find operation
+        /*$8,4*/    unsigned int DesiredAccess; // GENERIC_READ | GENERIC_WRITE (0xc0000000)
+        /*$c,4*/    unsigned int ShareMode; // FILE_SHARE_READ | FILE_SHARE_WRITE (0x3)
+        /*$10,4*/   unsigned int CreationDisposition; // OPEN_EXISTING (0x3)
+        /*$14,4*/   unsigned int FlagsAndAttributes; // FILE_ATTRIBUTE_NORMAL (0x80)
+        /*$18,4*/   HANDLE TemplateHandle; // Handle to a template file (optional, for use when opening in create mode)
+        /*$1c,4*/   unsigned int LastBytesRead; // Possibly LastBytesRead (similar to LastBytesWritten) // LastBytesRead
+        /*$20,4*/   unsigned int LastBytesWritten; // Set to bytesWritten count after Write()
+        /*$24,400*/ char Filename[0x400]; // copy of filepath passed in from ctor
+        /*$424,4*/  unsigned int RdrReserved; // Set to zero in ctor, never observed (may be reserved field as failsafe for Filename size limit)
+        /*$428,14c*/ WIN32_FIND_DATAA FindData;
         /*$568,10*/ SYSTEMTIME ModifiedSystemTime; // stored as Local time
         /*$578,8*/  FILETIME ModifiedFileTime; // stored as Local time
         // ... /*$580,18*/
         /*$598*/
+
     public:
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004137f0
         kcFileInfo(IN const char *filename);
@@ -121,79 +132,81 @@ namespace kclib
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00401000
         // scalar_dtor(int flags); // (auto-generated in C++)
 
+        // Open the current file name for reading or writing (based on mode set by SetReadMode/SetWriteMode)
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413710
         bool Open();
+        // Close any open files (including any find handles)
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004136b0
         bool Close();
-
+        // Deletes the current file name being pointed to
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b00
         bool Delete();
 
+        // read data from a file opened with Open()
+        ///CUSTOM: probably exists in co-operation with Write function
+        unsigned int Read(OUT unsigned char *outBuffer, unsigned int numBytes);
+        // write data to a file opened with Open()
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413660
         unsigned int Write(IN const unsigned char *inBuffer, unsigned int numBytes);
 
+        // Set the file info to read only mode (no longer usable to write files)
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004137a0
         void SetReadMode();
+        // Set the file info to write only mode (no longer usable to read files)
+        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b20 (thunk)
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413770
         void SetWriteMode();
-        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b20
-        void SetWriteMode_thunk();
 
+        // Iterate through all files in the pattern (or only file if not a pattern)
+        // Files with attributes (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_TEMPORARY) are skipped
+        //   returns the file attributes,
+        //   or INVALID_FILE_ATTRIBUTES (0xffffffff) if no more files were found
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b40
-        unsigned int FindLoop();
+        unsigned int FindNextValid();
+        // Internal call of FindNextValid
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004138c0
         unsigned int FindNext();
+        // Closes the find handle, if open
+        //  (automatically called when no more files are found by FindNext*() functions)
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004134f0
         void FindClose();
 
-        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413520
-        bool UpdateModifiedTime();
+        // Returns the MSDOS-style timestamp of the file's last modified time
+        //  0 is returned on failure
+        // This will fail after the year 2043 (this is an old timestamp format)
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413a50
         unsigned int GetMSDOSTimestamp();
+        // Gets the size of the file (up to 4 GB)
+        //  returns INVALID_FILE_SIZE (0xffffffff) on failure
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004135e0
-        unsigned int GetFileSize();
+        unsigned int GetSize() const;
 
+        ///CUSTOM: function for potentially inlined access to Filename member
+        const char * GetFilename() const;
 
+        // Always returns a pointer from within this->Filename field.
+        // Any spaces in the filepath (but not filename) will return unexpected results
+        // If the first char in this->Filename is a space, the Filename field will be cleared
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413960
-        char * kcFileInfo_FUN_00413960(FILE_READER *this);
-
+        char * GetBasename();
+        // Returns position after '.' char, or null if no '.' char
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b70
-        char * GetExtension(FILE_READER *this);
-
+        char * GetExtension();
+        // Extension should NOT include "."
+        //  empty string OR null will remove extension (and '.')
+        // does not handle spaces in filepaths well (due to GetBasename func)
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413bb0
-        void ChangeExtension(FILE_READER *this, IN const char *ext);
-        
-        // ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004134f0
-        // void FindClose();
+        void ChangeExtension(IN const char *newExtension);
 
-        // ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413520
-        // bool UpdateModifiedTime();
-        // ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004135e0
-        // unsigned int GetFileSize();
-        // ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004136b0
-        // bool Close();
-
-        
-        // ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413770
-        // void SetWriteMode();
-        // ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004137a0
-        // void SetReadMode();
-
-        // ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004138c0
-        // unsigned int FindNext();
-        
-        // ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413a50
-        // unsigned int GetMSDOSTimestamp();
-
-        // ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b20
-        // void SetWriteMode_thunk();
-        // ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b40
-        // unsigned int FindLoop();
-
-
+    private:
+        // internal?
+        ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413520
+        bool UpdateModifiedTime();
     };
 
-    #endif
+    ///TEMP: Also run OOP class of kcFileInfo until we're done with the functional stuff
+    } /* end namespace kclib */
+    // #endif
 
     #pragma pack(pop)
 

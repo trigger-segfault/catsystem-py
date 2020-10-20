@@ -32,12 +32,9 @@ const char * __thiscall kcCatScene_GetLineAt(kcCatScene *this, int index);
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411970
 BOOL __thiscall kcCatScene_HasLineAt(kcCatScene *this, int index);
 
-
-// I think this function checks for line continuations while copying?
-//const char * __thiscall kcCatScene_FUN_00411a30(kcCatScene *this, unsigned short *shortTable, int param_3, IN OUT int *param_4, unsigned int param_5)
+///FLAG: ALLOW_LINE_CONTINUE  0x1
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411a30
-unsigned int __thiscall kcCatScene_FUN_00411a30(kcCatScene *this, IN OUT char *inoutBuffer, int bufferAvail, IN OUT int *inoutIndex, unsigned int flags);
-
+unsigned int __thiscall kcCatScene_CopyLineAt(kcCatScene *this, OUT char *outBuffer, int bufferSize, IN OUT int *inoutIndex, unsigned int flags);
 
 #endif
 

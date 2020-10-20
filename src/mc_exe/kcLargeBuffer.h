@@ -23,25 +23,25 @@ namespace kclib
     #pragma pack(push, 1)
 
     // sub-structure stored in table (count 0x10000) at UNK_LARGE_STRUCT field offset $14
-    struct STRING_POOL_ENTRY
+    struct CST_MACRO_ENTRY
     {
-        /*$0,4*/   unsigned int StringOffset; // position of string in UNK_LARGE_STRUCT::Memory // SubUnk0
-        /*$4,4*/   int NextStringOffset; // starts as -1 // SubUnk1
-        /*$8,4*/   int StringRefCount; // set to 0 then incremented // SubUnk2
+        /*$0,4*/   unsigned int MacroBufferOffset; // position of string in UNK_LARGE_STRUCT::Memory // SubUnk0
+        /*$4,4*/   int MacroNextLineOffset; // starts as -1 // SubUnk1
+        /*$8,4*/   int MacroLineCount; // set to 0 then incremented // SubUnk2
         /*$c*/
     };
 
-    #define SubUnk0 StringOffset
-    #define SubUnk1 NextStringOffset
-    #define SubUnk2 StringRefCount
+    #define SubUnk0 MacroBufferOffset
+    #define SubUnk1 MacroNextLineOffset
+    #define SubUnk2 MacroLineCount
     
     // for UNK_LARGE_STRUCT field $0, this is only a guess.
     //  Math is never done on the state, and only 0,1,2 is every assigned or compared.
-    enum POOL_THREE_STATE
+    enum MACRO_THREE_STATE
     {
-        POOL_STATE_0 = 0,
-        POOL_STATE_1 = 1,
-        POOL_STATE_2 = 2,
+        MACRO_STATE_0 = 0,
+        MACRO_STATE_1 = 1,
+        MACRO_STATE_2 = 2,
     };
 
     #ifndef KCLIB_OOP
@@ -50,19 +50,18 @@ namespace kclib
     //  very likely that 0xc0000 gap is one large buffer, as is tradition with this program)
     struct UNK_LARGE_STRUCT
     {
-        /*$0,4*/       POOL_THREE_STATE PoolState; // some sort of state? Maybe THREE_STATE? // LrgUnk_0x0
+        /*$0,4*/       MACRO_THREE_STATE MacroState; // some sort of state? Maybe THREE_STATE? // LrgUnk_0x0
         /*$4,4*/       HGLOBAL Memory; // (this is actually LPVOID or unsigned char*) allocated with GMEM_FIXED // LrgUnk_0x4
-        /*$8,4*/       unsigned int MemorySize; // allocates and reallocates in size units of 0x1000000 bytes. WOW // LrgUnk_0x8
-        /*$c,4*/       unsigned int MemoryPosition; // position of next string to add in memory buffer // LrgUnk_0xc
-        /*$10,4*/      int StringPoolIndex; // index of CurrentStringEntry in StringPoolTable // LrgUnk_0x10
-        /*$14,c0000*/  STRING_POOL_ENTRY StringPoolTable[0x10000]; // 0xc0000 total bytes // LrgUnk_0x14
-        /*$c0014,4*/   STRING_POOL_ENTRY *CurrentStringEntry; // This points to somewhere in the StringPoolTable (LrgUnk_0x14) buffer // LrgUnk_0xc0014
+        /*$8,4*/       unsigned int MemoryCapacity; // allocates and reallocates in size units of 0x1000000 bytes. WOW // LrgUnk_0x8 (capacity)
+        /*$c,4*/       unsigned int MemorySize; // position of next string to add in memory buffer // LrgUnk_0xc (size, current)
+        /*$10,4*/      int CurrentMacroIndex; // index of CurrentMacroEntry in MacroTable // LrgUnk_0x10
+        /*$14,c0000*/  CST_MACRO_ENTRY MacroTable[0x10000]; // 0xc0000 total bytes // LrgUnk_0x14
+        /*$c0014,4*/   CST_MACRO_ENTRY *CurrentMacroEntry; // This points to somewhere in the MacroTable (LrgUnk_0x14) buffer // LrgUnk_0xc0014
         /*$c0018,4*/   int LrgUnk_0xc0018; // integer value // LrgUnk_0xc0018
         /*$c001c,4*/   int LrgUnk_0xc001c; // integer value // LrgUnk_0xc001c
-        /*$c0020,40*/   char *StringPointers[0x10]; // buffer string pointers, aka sizeof(int), may be some struct // LrgUnk_0xc0020
+        /*$c0020,40*/   char *ArgumentPointers[0x10]; // buffer string pointers, aka sizeof(int), may be some struct // LrgUnk_0xc0020
         //... (distance is $190, excluding field $c0020 size)
-        /*$c01b0,1000*/ char TempBuffer[0x1000]; // guessed size, Some byte* / char* buffer? // LrgUnk_0xc01b0
-        //... //?
+        /*$c01b0,1000*/ char ArgumentBuffer[0x1000]; // guessed size, Some byte* / char* buffer? // LrgUnk_0xc01b0
         /*$c11b0*/
     };
 
@@ -70,18 +69,18 @@ namespace kclib
 
     class kcLargeBuffer
     {
-        /*$0,4*/       POOL_THREE_STATE PoolState; // some sort of state? Maybe THREE_STATE? // LrgUnk_0x0
+        /*$0,4*/       MACRO_THREE_STATE MacroState; // some sort of state? Maybe THREE_STATE? // LrgUnk_0x0
         /*$4,4*/       HGLOBAL Memory; // (this is actually LPVOID or unsigned char*) allocated with GMEM_FIXED // LrgUnk_0x4
-        /*$8,4*/       unsigned int MemorySize; // allocates and reallocates in size units of 0x1000000 bytes. WOW // LrgUnk_0x8
-        /*$c,4*/       unsigned int MemoryPosition; // position of next string to add in memory buffer // LrgUnk_0xc
-        /*$10,4*/      int StringPoolIndex; // index of CurrentStringEntry in StringPoolTable // LrgUnk_0x10
-        /*$14,c0000*/  STRING_POOL_ENTRY StringPoolTable[0x10000]; // 0xc0000 total bytes // LrgUnk_0x14
-        /*$c0014,4*/   STRING_POOL_ENTRY *CurrentStringEntry; // This points to somewhere in the StringPoolTable (LrgUnk_0x14) buffer // LrgUnk_0xc0014
+        /*$8,4*/       unsigned int MemoryCapacity; // allocates and reallocates in size units of 0x1000000 bytes. WOW // LrgUnk_0x8
+        /*$c,4*/       unsigned int MemorySize; // position of next string to add in memory buffer // LrgUnk_0xc
+        /*$10,4*/      int CurrentMacroIndex; // index of CurrentMacroEntry in MacroTable // LrgUnk_0x10
+        /*$14,c0000*/  CST_MACRO_ENTRY MacroTable[0x10000]; // 0xc0000 total bytes // LrgUnk_0x14
+        /*$c0014,4*/   CST_MACRO_ENTRY *CurrentMacroEntry; // This points to somewhere in the MacroTable (LrgUnk_0x14) buffer // LrgUnk_0xc0014
         /*$c0018,4*/   int LrgUnk_0xc0018; // integer value // LrgUnk_0xc0018
         /*$c001c,4*/   int LrgUnk_0xc001c; // integer value // LrgUnk_0xc001c
-        /*$c0020,40*/   char *StringPointers[0x10]; // buffer string pointers, aka sizeof(int), may be some struct // LrgUnk_0xc0020
+        /*$c0020,40*/   char *ArgumentPointers[0x10]; // buffer string pointers, aka sizeof(int), may be some struct // LrgUnk_0xc0020
         //... (distance is $190, excluding field $c0020 size)
-        /*$c01b0,1000*/ char TempBuffer[0x1000]; // guessed size, Some byte* / char* buffer? // LrgUnk_0xc01b0
+        /*$c01b0,1000*/ char ArgumentBuffer[0x1000]; // guessed size, Some byte* / char* buffer? // LrgUnk_0xc01b0
         //... //?
         /*$c11b0*/
     public:
@@ -96,15 +95,15 @@ namespace kclib
 
     #endif
 
-    #define LrgUnk_0x0 PoolState
+    #define LrgUnk_0x0 MacroState
     #define LrgUnk_0x4 Memory
-    #define LrgUnk_0x8 MemorySize
-    #define LrgUnk_0xc MemoryPosition
-    #define LrgUnk_0x10 StringPoolIndex
-    #define LrgUnk_0x14 StringPoolTable
-    #define LrgUnk_0xc0014 CurrentStringEntry
-    #define LrgUnk_0xc0020 StringPointers
-    #define LrgUnk_0xc01b0 TempBuffer
+    #define LrgUnk_0x8 MemoryCapacity
+    #define LrgUnk_0xc MemorySize
+    #define LrgUnk_0x10 CurrentMacroIndex
+    #define LrgUnk_0x14 MacroTable
+    #define LrgUnk_0xc0014 CurrentMacroEntry
+    #define LrgUnk_0xc0020 ArgumentPointers
+    #define LrgUnk_0xc01b0 ArgumentBuffer
 
     #pragma pack(pop)
 

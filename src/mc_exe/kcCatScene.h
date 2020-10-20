@@ -44,36 +44,43 @@ namespace kclib
     //   a simple collection of read lines from a file
     struct kcCatScene
     {
-        /*$0,4*/    unsigned int MacUnk0; // 0
-        /*$4,4*/    unsigned int LineCount; // 0
-        /*$8,4*/    char *BufferLines; // 0
-        /*$c,4*/    unsigned int *BufferOffsets; // 0
-        /*$10,4*/   unsigned int MacUnk4; // 0
-        /*$14,400*/ char Filename[0x400]; // param_1 // MacUnk_0x14
-        /*$414,4*/  HGLOBAL MemoryLines; // 0 (HGLOBAL GlobalAlloc)
-        /*$418,4*/  HGLOBAL MemoryOffsets; // 0 (HGLOBAL GlobalAlloc)
-        /*$41c,4*/  unsigned int FileSize; // 0 (or lines buffer size, which is +0x10 more)
+        /*$0,4*/    unsigned int MacUnk0; // 0, unknown, never observed outside constructor
+        /*$4,4*/    unsigned int LineCount; // Number of lines in LineBuffer (LineCount * 4 == size of LineOffsets buffer)
+        /*$8,4*/    char *LineBuffer; // Buffer of lines, separated by null-terminators
+        /*$c,4*/    unsigned int *LineOffsets; // Offset table to each line in LineBuffer
+        /*$10,4*/   BOOL LastLineMultibyteContinue; // set to TRUE after CopyLineAt (when a line continuation encountered, and allowed by flags), set to FALSE if no continuation in CopyLineAt
+        /*$14,400*/ char Filename[0x400]; // Filename lines were read from
+        /*$414,4*/  HGLOBAL MemoryLines; // HGLOBAL GlobalAlloc //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
+        /*$418,4*/  HGLOBAL MemoryOffsets; // HGLOBAL GlobalAlloc //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
+        /*$41c,4*/  unsigned int BufferSize; // Size of LineBuffer
         /*$420*/
     };
 
-    #else
-
-    class kcCatScene
+    ///TEMP: Also run OOP class of kcFileInfo until we're done with the functional stuff
+    #endif
+    namespace kclib
     {
-        /*$0,4*/    unsigned int MacUnk0; // 0
-        /*$4,4*/    unsigned int LineCount; // 0
-        /*$8,4*/    char *BufferLines; // 0
-        /*$c,4*/    unsigned int *BufferOffsets; // 0
-        /*$10,4*/   unsigned int MacUnk4; // 0
-        /*$14,400*/ char Filename[0x400]; // param_1
-        /*$414,4*/  HGLOBAL MemoryLines; // 0 (HGLOBAL GlobalAlloc)
-        /*$418,4*/  HGLOBAL MemoryOffsets; // 0 (HGLOBAL GlobalAlloc)
-        /*$41c,4*/  unsigned int FileSize; // 0 (or lines buffer size, which is +0x10 more)
+    // #else
+
+
+    class kcFileLineBuffer
+    {
+        /*$0,4*/    unsigned int MacUnk0; // 0, unknown, never observed outside constructor
+        /*$4,4*/    unsigned int LineCount; // Number of lines in LineBuffer (LineCount * 4 == size of LineOffsets buffer)
+        /*$8,4*/    char *LineBuffer; // Buffer of lines, separated by null-terminators
+        /*$c,4*/    unsigned int *LineOffsets; // Offset table to each line in LineBuffer
+        /*$10,4*/   BOOL LastLineMultibyteContinue; // set to TRUE after CopyLineAt (when a line continuation encountered, and allowed by flags), set to FALSE if no continuation in CopyLineAt
+        /*$14,400*/ char Filename[0x400]; // Filename lines were read from
+        /*$414,4*/  HGLOBAL MemoryLines; // HGLOBAL GlobalAlloc //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
+        /*$418,4*/  HGLOBAL MemoryOffsets; // HGLOBAL GlobalAlloc //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
+        /*$41c,4*/  unsigned int BufferSize; // Size of LineBuffer
         /*$420*/
     public:
         //unsigned int * __thiscall kcMacroReader_initRun(void *this, char *param_1)
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004119a0
-        kcCatScene(IN const char *filename);
+        kcFileLineBuffer(IN const char *filename);
+        ///CUSTOM: destructor not observed, but added anyway
+        ~kcFileLineBuffer();
 
         // undefined4 __thiscall Read(int this,char *filename)
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004114d0
@@ -86,17 +93,28 @@ namespace kclib
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004114a0
         bool IsLocked();
 
+        // Returns null if !this->IsLocked() or index is out of range
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411920
         const char * GetLineAt(int index);
+        // Returns false if !this->IsLocked() or index is out of range
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411970
         bool HasLineAt(int index);
 
-
+        // Copy the next line (or continued lines) from the buffer at index
+        //  writes to outBuffer, and updates inoutIndex (and +1 for each '\\' line continuation)
+        ///FLAG: ALLOW_LINE_CONTINUE  0x1
         ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411a30
-        unsigned short * kcCatScene_FUN_00411a30(unsigned short *shortTable, int param_3, IN OUT int *param_4, unsigned int param_5);
+        unsigned int CopyLineAt(OUT char *outBuffer, int bufferSize, IN OUT int *inoutIndex, unsigned int flags);
+
+        ///CUSTOM: function for potentially inlined access to Filename member
+        unsigned int GetLineCount() const;
+        ///CUSTOM: function for potentially inlined access to Filename member
+        const char * GetFilename() const;
     };
 
-    #endif
+    ///TEMP: Also run OOP class of kcFileInfo until we're done with the functional stuff
+    } /* end namespace kclib */
+    // #endif
 
     #pragma pack(pop)
 

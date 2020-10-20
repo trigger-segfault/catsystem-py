@@ -167,7 +167,7 @@ struct kcMessageCompiler
     /*$1c0cd0,4*/  unsigned int MsgUnk_0x1c0cd0; // 0xffffffff // MsgUnk_0x1c0cd0
     /*$1c0cd4,4*/  BOOL CommentBlock; // inside comment block? // MsgUnk_0x1c0cd4
     /*$1c0cd8,4*/  UNK_LARGE_STRUCT *LargeStruct; // struct size 0xc11b0 - g_UNK_LARGE_STRUCT // MsgUnk_0x1c0cd8
-    /*$1c0cdc,4*/  unsigned int MsgUnk_0x1c0cdc; // MsgUnk_0x1c0cdc
+    /*$1c0cdc,4*/  BOOL MsgUnk_0x1c0cdc; // MsgUnk_0x1c0cdc
     /*$1c0ce0*/
     
     #define MsgUnk_0x0 SceneName
@@ -245,7 +245,7 @@ static UNK_LARGE_STRUCT * g_UNK_LARGE_STRUCT = nullptr;
 // reference counter for FILE_READER struct,
 // signed since most reference counters are signed to check for underflow
 ///FID:cs2_full_v401/system/scene/mc.exe: DAT_0041ff9c
-// static int g_FILE_NUM_0041ff9c = 0;
+// static int g_FILE_READER_COUNT = 0;
 
 // The only visible commandline option in the Usage section, only update modified files,
 //  modified comparison is based on MSDOS-style timestamp,
@@ -381,7 +381,6 @@ void kcZlibStream_dtor(kcZlibStream *this)
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00401030
 void * __thiscall kcZlibStream_scalar_dtor(kcZlibStream *this, int flags)
-
 {
     kcZlibStream_dtor(this);
     if ((flags & 1) != 0)
@@ -707,7 +706,7 @@ kcMessageCompiler * __fastcall kcMessageCompiler_ctor(kcMessageCompiler *this)
     this->CurrentScene = nullptr; // this->MsgUnk_0x1c0cb8 = 0; // 9
     this->CurrentLineIndex = 0; // 10
     this->LargeStruct = nullptr; // 13
-    this->MsgUnk_0x1c0cdc = 0; // 14
+    this->MsgUnk_0x1c0cdc = FALSE; // 14
     this->MsgUnk_0x1c0418 = 0; // 1
     this->Flag_0x1c041c = FALSE; // 2
     this->EnableDebugLines = FALSE; // this->MsgUnk_0x1c0414 = 0; // 0
@@ -774,27 +773,18 @@ BOOL __thiscall kcMessageCompiler_Compile(kcMessageCompiler *this, IN const char
 {
     kcCatScene *scene;
     BOOL BVar1;
-    // int **in_FS_OFFSET;
     kcCatScene *local_20;
     // int *local_10;
-    // undefined *puStack12;
-    // undefined4 local_8;
     
-    // local_8 = 0xffffffff;
-    // puStack12 = &LAB_00416971;
-    // local_10 = *in_FS_OFFSET;
-    // *(int ***)in_FS_OFFSET = &local_10;
     // std::strcpy((char *)((int)this + 0x1c0430), filename);
     std::strcpy(&this->Filename[0], filename); // 0x1c0430
     // *(undefined4 *)((int)this + 0x1c0418) = 1;
     this->MsgUnk_0x1c0418 = TRUE; // *0x1c0418 = 1
     scene = (kcCatScene *)std::malloc(0x420); // (void *)_newalloc(0x420);
-    // local_8 = 0;
     if (scene != nullptr)
     {
         scene = kcCatScene_ctor(scene, filename);
     }
-    // local_8 = 0xffffffff;
     this->CurrentScene = scene; // *0x1c0cb8 = scene
     // *(undefined4 **)((int)this + 0x1c0cb8) = scene;
     // if ((*(int *)((int)this + 0x1c0cb8) == 0) || (*(int *)(*(int *)((int)this + 0x1c0cb8) + 4) == 0))
@@ -818,13 +808,12 @@ BOOL __thiscall kcMessageCompiler_Compile(kcMessageCompiler *this, IN const char
         return TRUE;
         // BVar1 = TRUE;
     }
-    // *in_FS_OFFSET = local_10;
     // return BVar1;
 }
 
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00412620
-void __cdecl kcScriptCompiler_compileStart(IN const char *othername, IN const char *filename, IN OUT unsigned char *unused_bool, unsigned int modifiedTimestamp, bool verbose)
+void __cdecl kcScriptCompiler_compileStart(IN const char *othername, IN const char *filename, IN OUT unsigned char *unused_bool, unsigned int timestamp, bool verbose)
 {
     int iVar1;
     kcMessageCompiler *compiler;
@@ -839,10 +828,10 @@ void __cdecl kcScriptCompiler_compileStart(IN const char *othername, IN const ch
     kcMessageCompiler_set_0x1c042c(compiler, g_UNK_SMALL_STRUCT); // small struct
     compiler->EnableDebugLines = g_CMD_FLAG_L;
     compiler->EnableCompression = g_CMD_FLAG_X;
-    compiler->ModifiedTimestamp = modifiedTimestamp;
+    compiler->ModifiedTimestamp = timestamp;
     // *(BOOL *)((int)compiler + 0x1c0414) = g_CMD_FLAG_L;
     // *(BOOL *)((int)compiler + 0x1c0420) = g_CMD_FLAG_X;
-    // *(undefined4 *)((int)compiler + 0x1c0424) = modifiedTimestamp;
+    // *(undefined4 *)((int)compiler + 0x1c0424) = timestamp;
     BOOL iVar1 = kcMessageCompiler_Compile(compiler, filename);
     if (iVar1 == 0)
     {
@@ -887,7 +876,7 @@ int __fastcall kcMessageCompiler_FUN_00414eb0(kcMessageCompiler *this)
                 break;
             
             // some form of line copy, 1 may be number of lines
-            kcCatScene_FUN_00411a30(this->CurrentScene, &this->StringBuffer[0], 0x400, &this->CurrentLineIndex, 1);
+            kcCatScene_CopyLineAt(this->CurrentScene, &this->StringBuffer[0], 0x400, &this->CurrentLineIndex, 1);
 
             ///FLAGS: 1 == allow line comments (or is it line continuation?)
             kcScriptUnk_FUN_004118f0_thunk_FUN_00411770(&this->StringBuffer[0], &this->StringBuffer[0], 1); // 0x1c08b4, 0x1c08b4, 1
@@ -896,7 +885,7 @@ int __fastcall kcMessageCompiler_FUN_00414eb0(kcMessageCompiler *this)
             // *(undefined4 *)(param_1 + 0x1c0cc0) = *(undefined4 *)(param_1 + 0x1c0cbc);
             // uVar1 = kcCatScene_HasLineAt(*(int *)(param_1 + 0x1c0cb8),*(int *)(param_1 + 0x1c0cbc));
             // if (uVar1 == 0) break;
-            // kcCatScene_FUN_00411a30(*(int *)(param_1 + 0x1c0cb8),(unsigned short *)(param_1 + 0x1c08b4),0x400,
+            // kcCatScene_CopyLineAt(*(int *)(param_1 + 0x1c0cb8),(unsigned short *)(param_1 + 0x1c08b4),0x400,
             //             (int *)(param_1 + 0x1c0cbc),1);
             // kcScriptUnk_FUN_004118f0_thunk_FUN_00411770(param_1 + 0x1c08b4,param_1 + 0x1c08b4,1);
             if (this->StringBuffer[0] != '\0' && this->StringBuffer[0] != ' ')
@@ -954,9 +943,9 @@ unsigned int __fastcall kcMessageCompiler_FUN_00413de0(kcMessageCompiler *this)
     
     if (this->LargeStruct != nullptr)
     {
-        kcLargeStruct_FUN_00412d40(this->LargeStruct);
+        kcLargeStruct_EndMacroExpansion(this->LargeStruct);
         
-        this->MsgUnk_0x1c0cdc = 0;
+        this->MsgUnk_0x1c0cdc = FALSE;
     }
     // bVar1 = (this->SceneCount > 0);
     if (this->SceneCount > 0) // 0x1c08b0 > 0
@@ -1064,8 +1053,7 @@ void __thiscall kcMessageCompiler_AddLine(kcMessageCompiler *this, KCLINE_TYPE l
     bool lineContinue; // prepend newline
     // unsigned int str_len; //size_t
     
-    // local_10 = DAT_0041e044 ^ (uint)&stack0xfffffffc;
-    if (this->SceneName[0] != '\0') // 0x000000
+    if (this->SceneName[0] != '\0') // 0x0
     {
         if (this->ThreeState_A != STATE_0) // 0x1c0cc4 != 0
         {
@@ -1176,8 +1164,6 @@ void __thiscall kcMessageCompiler_AddLine(kcMessageCompiler *this, KCLINE_TYPE l
             // *(undefined4 *)((int)this + 0x1c0cc8) = 1;
         }
     }
-    // __end_security_critical();
-    // return;
 }
 
 
@@ -1273,8 +1259,8 @@ void __fastcall kcScriptCompiler_writeCSTfile(kcMessageCompiler *this)
     // local_c = DAT_0041e044 ^ (unsigned int)&stack0xfffffffc;
     if (this->LargeStruct != nullptr) // 0x1c0cd8
     {
-        kcLargeStruct_FUN_00412d40(this->LargeStruct); // 0x1c0cd8
-        this->MsgUnk_0x1c0cdc = 0;
+        kcLargeStruct_EndMacroExpansion(this->LargeStruct); // 0x1c0cd8
+        this->MsgUnk_0x1c0cdc = FALSE;
         // *(undefined4 *)(param_1 + 0x1c0cdc) = 0;
     }
     // if (*param_1 != '\0')
@@ -1285,20 +1271,20 @@ void __fastcall kcScriptCompiler_writeCSTfile(kcMessageCompiler *this)
         unkfile = (FILE_READER *)std::malloc(0x598); //_newalloc(0x598);
         if (unkfile != nullptr)
         {
-            unkfile = kcUnkFile_ctor(unkfile, (char *)local_40c);
+            unkfile = kcFileInfo_ctor(unkfile, (char *)local_40c);
         }
         // if ((*(int *)(param_1 + 0x1c0424) == 0) ||
-        //     (uVar2 = kcUnkFile_GetMSDOSTimestamp(unkfile), uVar2 < *(unsigned int *)(param_1 + 0x1c0424)))
+        //     (uVar2 = kcFileInfo_GetTimestamp(unkfile), uVar2 < *(unsigned int *)(param_1 + 0x1c0424)))
         if (this->ModifiedTimestamp == 0 || // *0x1c0424
-            (kcUnkFile_GetMSDOSTimestamp(unkfile) < this->ModifiedTimestamp)) // < *(unsigned int *)0x1c0424
+            (kcFileInfo_GetTimestamp(unkfile) < this->ModifiedTimestamp)) // < *(unsigned int *)0x1c0424
         {
             // if (*(int *)(param_1 + 0x408) == 0)
             if (this->OutputLineIndex == 0) // *0x408 == 0
             {
-                kcUnkFile_Delete(unkfile); // FUN_00413b00(unkfile);
+                kcFileInfo_Delete(unkfile); // FUN_00413b00(unkfile);
                 if (unkfile != nullptr)
                 {
-                    kcUnkFile_scalar_dtor(unkfile, 1);
+                    kcFileInfo_scalar_dtor(unkfile, 1);
                 }
             }
             else
@@ -1399,33 +1385,33 @@ void __fastcall kcScriptCompiler_writeCSTfile(kcMessageCompiler *this)
                             packLen = 0;
                         }
                     }
-                    kcUnkFile_SetWriteMode_thunk(unkfile);
-                    kcUnkFile_Open(unkfile);
+                    kcFileInfo_SetWriteMode_thunk(unkfile);
+                    kcFileInfo_Open(unkfile);
                     CATSCENEHDR scenehdr;
                     std::sprintf(&scenehdr.Signature[0], "CatScene");
                     scenehdr.PackSize = packLen;
                     scenehdr.UnpackSize = scriptLen + sizeof(SCRIPTHDR);
-                    kcUnkFile_Write(unkfile, local_40c, sizeof(CATSCENEHDR)); // 0x10
+                    kcFileInfo_Write(unkfile, local_40c, sizeof(CATSCENEHDR)); // 0x10
                     // std::sprintf((char *)local_40c, "CatScene");
                     // local_404 = packLen;
                     // iStack1024 = scriptLen + sizeof(SCRIPTHDR);
-                    // kcUnkFile_Write(unkfile, local_40c, sizeof(CATSCENEHDR)); // 0x10
+                    // kcFileInfo_Write(unkfile, local_40c, sizeof(CATSCENEHDR)); // 0x10
 
                     // zero compression means we write the data uncompressed
                     //  I guess this means failure *is* an option (for zlib compression)
                     if (packLen == 0U)
                     {
-                        kcUnkFile_Write(unkfile, scriptBuffer, scriptLen + sizeof(SCRIPTHDR));
+                        kcFileInfo_Write(unkfile, scriptBuffer, scriptLen + sizeof(SCRIPTHDR));
                     }
                     else
                     {
-                        kcUnkFile_Write(unkfile, packBuffer, packLen);
+                        kcFileInfo_Write(unkfile, packBuffer, packLen);
                     }
 
-                    kcUnkFile_Close(unkfile);
+                    kcFileInfo_Close(unkfile);
                     if (unkfile != nullptr)
                     {
-                        kcUnkFile_scalar_dtor(unkfile, 1);
+                        kcFileInfo_scalar_dtor(unkfile, 1);
                     }
                     ::GlobalFree(packBuffer);
                     ::GlobalFree(scriptBuffer);
@@ -1442,184 +1428,71 @@ void __fastcall kcScriptCompiler_writeCSTfile(kcMessageCompiler *this)
         {
             if (unkfile != nullptr)
             {
-                kcUnkFile_scalar_dtor(unkfile, 1);
+                kcFileInfo_scalar_dtor(unkfile, 1);
             }
         }
     }
-    // __end_security_critical();
-    // return;
 }
-
-
-
-// ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413960
-// char * __fastcall kcUnkFile_FUN_00413960(FILE_READER *this)
-// {
-//     char *pcVar1;
-//     char *pcVar2;
-//     char *pcVar3;
-//     char *local_14;
-//     char *local_8;
-
-//     ///NOTE:
-//     /// strchr = find FIRST (and return char pointer from)
-//     /// strrchr = find LAST (and return char pointer from), aka "reverse", or "right"
-    
-//     pcVar1 = std::strchr(&this->Filename[0], ' ');//0x20);
-//     if (pcVar1 != nullptr)
-//     {
-//         *pcVar1 = '\0';
-//     }
-//     if (this->Filename[0] == '\0')
-//     {
-//         local_8 = &this->Filename[0];
-//     }
-//     else
-//     {
-//         pcVar2 = std::strrchr(&this->Filename[0], '/'); //0x2f);
-//         pcVar3 = std::strrchr(&this->Filename[0], '\\'); //0x5c);
-//         if (pcVar3 < pcVar2)
-//         {
-//             local_14 = std::strrchr(&this->Filename[0], '/'); //0x2f);
-//         }
-//         else
-//         {
-//             local_14 = std::strrchr(&this->Filename[0], '\\'); //0x5c);
-//         }
-//         local_8 = local_14;
-//         if ((local_14 == nullptr) &&
-//             (local_8 = std::strchr(&this->Filename[0], ':' /*0x3a*/), local_8 == nullptr)) // 0x3a
-//         {
-//             if (pcVar1 != nullptr)
-//             {
-//                 *pcVar1 = ' ';
-//             }
-//             return &this->Filename[0];
-//         }
-//         if (pcVar1 != nullptr
-//         {
-//             *pcVar1 = ' ';
-//         }
-//         local_8 = local_8 + 1;
-//     }
-//     return local_8;
-// }
-
-
-
-// ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b70
-// char * __fastcall kcUnkFile_GetExtension(FILE_READER *this)
-// {
-//     char *_Str;
-//     _Str = kcUnkFile_FUN_00413960(this);
-//     _Str = std::strrchr(_Str, '.'); //0x2e);
-//     if (_Str == nullptr)
-//         return nullptr;
-//     return _Str + 1;
-//     // if (_Str == (char *)0x0)
-//     // {
-//     //     _Str = (char *)0x0;
-//     // }
-//     // else
-//     // {
-//     //     _Str = _Str + 1;
-//     // }
-//     // return _Str;
-// }
-
-// ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413bb0
-// void __thiscall kcUnkFile_ChangeExtension(FILE_READER *this, IN const char *ext)
-// {
-//     char *puVar1;
-//     size_t sVar2;
-//     char *local_8;
-    
-//     local_8 = kcUnkFile_GetExtension(this);
-//     if (local_8 == (char *)0x0)
-//     {
-//         sVar2 = std::strlen(&this->Filename[0]); //(char *)(this + 0x24));
-//         puVar1 = &this->Filename[sVar2]; //(char *)(this + 0x24 + sVar2);
-//         *puVar1 = '.'; //0x2e;
-//         local_8 = puVar1 + 1;
-//     }
-//     if (ext == nullptr || ext[0] == '\0')
-//     {
-//         local_8[-1] = '\0';
-//     }
-//     else
-//     {
-//         ///FIXME: Does this properly null-terminate?, if not it should be fixed for mc_tool release
-//         std::strcpy(local_8, ext);
-//     }
-//     return;
-// }
-
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00412730
 void __cdecl kcScriptCompiler_doFile(IN const char *filename, unsigned char *unused_bool)
 {
-    // void *this;
-    // unsigned int uVar1;
-    FILE_READER *local_230;
-    FILE_READER *local_22c;
-    char local_214 [256];
-    unsigned int local_114;
-    FILE_READER *local_110;
-    char local_10c [260]; // MAX_PATH?
-    // unsigned int local_8;
+    // These are probably actually only 256 bytes in length, but MAX_PATH won't hurt
+    char cst_filename[MAX_PATH]; //char local_214 [256];
+    char txt_filename[MAX_PATH]; //char local_10c [260]; // MAX_PATH?
     
     // local_8 = DAT_0041e044 ^ (uint)&stack0xfffffffc;
-    FILE_READER *unkfile = (FILE_READER *)std::malloc(0x598); //_newalloc(0x598);
-    if (unkfile != nullptr)
+    FILE_READER *file = (FILE_READER *)std::malloc(0x598);
+    if (file != nullptr)
     {
-        unkfile = kcUnkFile_ctor(unkfile, filename);
+        file = kcFileInfo_ctor(file, filename);
     }
-    local_110 = local_22c;
-    // This is where .txt input extensions are enforced
-    kcUnkFile_ChangeExtension(local_22c, "txt"); // change extension?
-    while (kcUnkFile_FindLoop(local_110) > -1)
+    
+    ///FIXME: This is where .txt input extensions are enforced (we can change this later)
+    kcFileInfo_ChangeExtension(file, "txt"); // change extension?
+
+    while (kcFileInfo_FindNextValid(file) > -1) // find all files matching the pattern (or only file)
     {
-        // This excludes &macro.txt and %macro.txt files
-        if (local_110->Filename[0] != '%' && local_110->Filename[0] != '&')
+        // this will force the filename to only be the basename,
+        //  with possibly, some exceptions based on pattern issues with FindFirstFileA
+
+        // exclude &macro.txt and %macro.txt files (in this case any file with those prefixes)
+        if (file->Filename[0] != '%' && file->Filename[0] != '&')
         {
-            local_114 = kcUnkFile_GetMSDOSTimestamp(local_110);
-            std::strcpy(local_10c, &local_110->Filename[0]);
+            unsigned int timestamp = kcFileInfo_GetTimestamp(file);
+            std::strcpy(txt_filename, &file->Filename[0]);
             // And this is where .cst output extensions are enforced
-            kcUnkFile_ChangeExtension(local_110, "cst");
+            kcFileInfo_ChangeExtension(file, "cst");
             // the returned timestamp for the ".cst" file here is never used,
-            //  but kcUnkFile_GetMSDOSTimestamp is called *again* in kcScriptCompiler_compileStart
-            kcUnkFile_GetMSDOSTimestamp(local_110); 
-            std::strcpy(local_214, &local_110->Filename[0]);
-            if (g_CMD_FLAG_U == FALSE) // == 0
+            //  but kcFileInfo_GetTimestamp is called *again* in kcScriptCompiler_compileStart
+            kcFileInfo_GetTimestamp(file); 
+            std::strcpy(cst_filename, &file->Filename[0]);
+            if (g_CMD_FLAG_U == FALSE) // note update mode?
             {
-                kcScriptCompiler_compileStart(local_214, local_10c, unused_bool, 0, true);
+                kcScriptCompiler_compileStart(cst_filename, txt_filename, unused_bool, 0, true);
             }
-            else
+            else // in update mode, pass the timestamp to check if we need to update
             {
-                kcScriptCompiler_compileStart(local_214, local_10c, unused_bool, local_114, true);
+                kcScriptCompiler_compileStart(cst_filename, txt_filename, unused_bool, timestamp, true);
             }
         }
     }
-    if (local_110 == nullptr)
+
+    // cleanup file class
+    if (file != nullptr)
     {
-        local_230 = nullptr;
+        kcFileInfo_scalar_dtor(file, 1);
     }
-    else
-    {
-        /*local_230 =*/ kcUnkFile_scalar_dtor(local_110, 1);
-    }
-    // __end_security_critical(local_230);
-    // return;
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00414940
-void __thiscall kcMessageCompiler_parseMacroName(kcMessageCompiler *this, char *param_1)
+void __thiscall kcMessageCompiler_DeclareMacroName(kcMessageCompiler *this, char *macroName)
 {
     kcScriptCompiler_writeCSTfile(this);
     if (this->LargeStruct != nullptr) // *0x1c0cd8 != 0
     {
-        kcLargeStruct_FUN_00413430(this->LargeStruct, param_1); // *(void **)0x1c0cd8
-        this->MsgUnk_0x1c0cdc = 1; // *(unk4 *)0x1c0cdc = 1
+        kcLargeStruct_DeclareMacroName(this->LargeStruct, macroName); // *(void **)0x1c0cd8
+        this->MsgUnk_0x1c0cdc = TRUE; // *(unk4 *)0x1c0cdc = 1
         // *(undefined4 *)((int)this + 0x1c0cdc) = 1;
     }
     // return;
@@ -1640,18 +1513,18 @@ void __thiscall kcMessageCompiler_SetSceneName(kcMessageCompiler *this, IN const
     if (this->SmallStruct != nullptr) // *0x1c042c != 0
     {
         kcSmallStruct_LockBuffers(this->SmallStruct); // *0x1c042c
-        iVar1 = kcSmallStruct_FUN_00412240(this->SmallStruct, newSceneName); // *0x1c042c
+        iVar1 = kcSmallStruct_IndexOf(this->SmallStruct, newSceneName); // *0x1c042c
         if (iVar1 < 0)
         {
             std::sprintf(local_40c, "%s(%d)", &this->Filename[0], this->LastLineIndex + 1); // 0x1c0430, (*(int *)0x1c0cc0) 
-            kcSmallStruct_FUN_00412310(this->SmallStruct, newSceneName, local_40c); // *0x1c042c
+            kcSmallStruct_SetValue(this->SmallStruct, newSceneName, local_40c); // *0x1c042c
         }
         else
         {
             ///LOG_fmt_s_IS_DUPLICATED_IN_THE_FOLLOWING_PLACES
             ///JP: std::printf("#%s が以下の箇所で重複定義されています\n", newSceneName);
             std::printf("#%s is duplicated in the following places\n", newSceneName);
-            kcSmallStruct_FUN_004122a0(this->SmallStruct, local_40c, newSceneName); // *0x1c042c
+            kcSmallStruct_GetValue(this->SmallStruct, local_40c, newSceneName); // *0x1c042c
             std::printf("%s\n", local_40c);
             // this->MsgUnk_0x1c0cc0
             std::sprintf(local_40c, "%s(%d)", &this->Filename[0], this->LastLineIndex + 1); // 0x1c0430, (*(int *)0x1c0cc0) + 1
@@ -1689,6 +1562,7 @@ void __thiscall kcMessageCompiler_SetSceneName(kcMessageCompiler *this, IN const
 
 //undefined4 __thiscall kcMessageCompiler_Include(int this, char *param_2)
 
+///FID:cs2_full_v401/system/scene/mc.exe: FUN_00414990
 BOOL __thiscall kcMessageCompiler_Include(kcMessageCompiler *this, IN const char *filename)
 {
     unsigned int uVar1;
@@ -1771,335 +1645,326 @@ BOOL __thiscall kcMessageCompiler_Include(kcMessageCompiler *this, IN const char
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00415020
 BOOL __fastcall kcMessageCompiler_ParseScript(kcMessageCompiler *this)
 {
-  char bVar1; //byte bVar1;
-  bool bVar2;
-  bool bVar3;
-  size_t sVar4;
-  int iVar5;
-  BOOL BVar6;
-  char *local_8; //byte *local_8;
-  
-  this->LastLineType = NO_LINE_TYPE; //LINE_NONE; //(KCLINE_TYPE)0; // *(unk4 *)0x1c0ccc = 0
-  this->ThreeState_A = STATE_0; // *(unk4 *)0x1c0cc4 = 0
-  this->ThreeState_B = STATE_0; // *(unk4 *)0x1c0cc8 = 0
-  this->SceneName[0] = '\0'; // *(unk1 *)0x0 = 0
-  // *(undefined4 *)((int)this + 0x1c0ccc) = 0;
-  // *(undefined4 *)((int)this + 0x1c0cc4) = 0;
-  // *(undefined4 *)((int)this + 0x1c0cc8) = 0;
-  // *(undefined *)this = 0;
-  // while (*(int *)((int)this + 0x1c0cb8) != 0)
-  while (this->CurrentScene != 0) // *(int *)0x1c0cb8 != 0
-  {
-    sVar4 = kcMessageCompiler_FUN_00414eb0(this);
-    if ((int)sVar4 > 0)
+    char bVar1; //byte bVar1;
+    bool bVar2;
+    bool bVar3;
+    size_t sVar4;
+    int iVar5;
+    BOOL BVar6;
+    char *local_8; //byte *local_8;
+    
+    this->LastLineType = NO_LINE_TYPE; //LINE_NONE; //(KCLINE_TYPE)0; // *(unk4 *)0x1c0ccc = 0
+    this->ThreeState_A = STATE_0; // *(unk4 *)0x1c0cc4 = 0
+    this->ThreeState_B = STATE_0; // *(unk4 *)0x1c0cc8 = 0
+    this->SceneName[0] = '\0'; // *(unk1 *)0x0 = 0
+    // *(undefined4 *)((int)this + 0x1c0ccc) = 0;
+    // *(undefined4 *)((int)this + 0x1c0cc4) = 0;
+    // *(undefined4 *)((int)this + 0x1c0cc8) = 0;
+    // *(undefined *)this = 0;
+    // while (*(int *)((int)this + 0x1c0cb8) != 0)
+    while (this->CurrentScene != 0) // *(int *)0x1c0cb8 != 0
     {
-      bVar2 = false;
-      local_8 = &this->CurrentString[0]; // *(char **)0x1c0cb4
-      // local_8 = *(byte **)((int)this + 0x1c0cb4);
-      // if (local_8[0] == 0x2f && local_8[1] == 0x2a)
-      if (local_8[0] == '/' && local_8[1] == '*') // 0x2f, 0x2a
-      {
-        // if (*(int *)((int)this + 0x1c0cd4) == 0)
-        if (this->CommentBlock == FALSE) // *(int *)0x1c0cd4 == 0
+        sVar4 = kcMessageCompiler_FUN_00414eb0(this);
+        if ((int)sVar4 <= 0)
+            continue;
+        // if ((int)sVar4 > 0)
+        // {
+        bVar2 = false;
+        local_8 = &this->CurrentString[0]; // *(char **)0x1c0cb4
+        // local_8 = *(byte **)((int)this + 0x1c0cb4);
+        // if (local_8[0] == 0x2f && local_8[1] == 0x2a)
+        
+        ///// HANDLE COMMENTS /////
+        if (local_8[0] == '/' && local_8[1] == '*') // 0x2f, 0x2a
         {
-          // comment block state?
-          this->CommentBlock = TRUE; // *(unk4 *)0x1c0cd4 = 1
-          // *(undefined4 *)((int)this + 0x1c0cd4) = 1;
-        }
-        else
-        {
-          ///LOG_COMMENT_BLOCK_ALREADY_STARTED
-          ///JP: std::printf("２重にコメントアウトされています：%s\n", this->CurrentScene->Filename);
-          std::printf("Comment block already started : %s\n", this->CurrentScene->Filename);
-          
-        }
-      }
-      else
-      {
-        // if (local_8[0] == 0x2a && local_8[1] == 0x2f)
-        if (local_8[0] == '*' && local_8[1] == '/') // 0x2a, 0x2f
-        {
-          // if (*(int *)((int)this + 0x1c0cd4) == 0)
-          if (this->CommentBlock == FALSE) // *(int *)0x1c0cd4 == 0
-          {
-            ///LOG_COMMENT_BLOCK_EXTRA_CLOSURE
-            ///JP: std::printf("コメントアウトの閉じが余分です：%s\n", this->CurrentScene->Filename);
-            std::printf("Comment block extra closure : %s\n", this->CurrentScene->Filename);
-          }
-          else
-          {
-            // comment block state?
-            this->CommentBlock = TRUE; // *(unk4 *)0x1c0cd4 = 1
-          }
-        }
-        else
-        {
-          // if (*(int *)((int)this + 0x1c0cd4) == 0) // *(int *)0x1c0cd4 == 0
-          if (this->CommentBlock == FALSE) // *(int *)0x1c0cd4 == 0
-          {
-            // if (local_8[0] == 0x23)
-            if (local_8[0] == '#') // 0x23
+            // if (*(int *)((int)this + 0x1c0cd4) == 0)
+            if (this->CommentBlock == FALSE) // *(int *)0x1c0cd4 == 0
             {
-              // iVar5 = std::memcmp(local_8 + 1, "include", 7);
-              // if (iVar5 == 0)
-              // + 1 for: // std::strlen("#")
-              if (std::memcmp(local_8 + 1, "include", 7) == 0)
-              {
+                // comment block state?
+                this->CommentBlock = TRUE; // *(unk4 *)0x1c0cd4 = 1
+                // *(undefined4 *)((int)this + 0x1c0cd4) = 1;
+            }
+            else
+            {
+                ///LOG_COMMENT_BLOCK_ALREADY_STARTED
+                ///JP: std::printf("２重にコメントアウトされています：%s\n", this->CurrentScene->Filename);
+                std::printf("Comment block already started : %s\n", this->CurrentScene->Filename);
+            }
+        }
+        // if (local_8[0] == 0x2a && local_8[1] == 0x2f)
+        else if (local_8[0] == '*' && local_8[1] == '/') // 0x2a, 0x2f
+        {
+            // if (*(int *)((int)this + 0x1c0cd4) == 0)
+            if (this->CommentBlock == FALSE) // *(int *)0x1c0cd4 == 0
+            {
+                ///LOG_COMMENT_BLOCK_EXTRA_CLOSURE
+                ///JP: std::printf("コメントアウトの閉じが余分です：%s\n", this->CurrentScene->Filename);
+                std::printf("Comment block extra closure : %s\n", this->CurrentScene->Filename);
+            }
+            else
+            {
+                // comment block state?
+                this->CommentBlock = TRUE; // *(unk4 *)0x1c0cd4 = 1
+            }
+        }
+        else if (this->CommentBlock != FALSE) // *(int *)0x1c0cd4 == 0
+            continue;
+        
+        // // if (*(int *)((int)this + 0x1c0cd4) == 0) // *(int *)0x1c0cd4 == 0
+        // else if (this->CommentBlock == FALSE) // *(int *)0x1c0cd4 == 0
+        // {
+        
+        // if (local_8[0] == 0x23)
+        if (local_8[0] == '#') // 0x23
+        {
+            // iVar5 = std::memcmp(local_8 + 1, "include", 7);
+            // if (iVar5 == 0)
+            // + 1 for: // std::strlen("#")
+            if (std::memcmp(local_8 + 1, "include", 7) == 0)
+            {
                 // whitspace check
                 // if (local_8[8] == 0x20 || local_8[8] == 9)
                 if (local_8[8] == ' ' || local_8[8] == '\t') // 0x20, 0x9
                 {
-                  // + 9 for: // std::strlen("#") + std::strlen("include") + std::strlen(" ")
-                  kcMessageCompiler_Include(this, local_8 + 9);
+                    // + 9 for: // std::strlen("#") + std::strlen("include") + std::strlen(" ")
+                    kcMessageCompiler_Include(this, local_8 + 9);
                 }
-              }
-              else
-              {
-                // + 1 for: // std::strlen("#")
-                kcMessageCompiler_SetSceneName(this, local_8 + 1);
-              }
             }
             else
             {
-              // if (local_8[0] == 0x25)
-              if (local_8[0] == '%') // 0x25
-              {
-                // Hardcoded %echo function during compile
-                // iVar5 = std::memcmp(local_8 + 1, "echo", 4);
-                // if (iVar5 == 0)
-                if (std::memcmp(local_8 + 1, "echo", 4) == 0)
+                // + 1 for: // std::strlen("#")
+                kcMessageCompiler_SetSceneName(this, local_8 + 1);
+            }
+        }
+        // if (local_8[0] == 0x25)
+        else if (local_8[0] == '%') // 0x25
+        {
+            // Hardcoded %echo function during compile
+            if (std::memcmp(local_8 + 1, "echo", 4) == 0)
+            {
+                if (local_8[5] == ' ' || local_8[5] == '\t')
                 {
-                  // if (local_8[5] == 0x20 || local_8[5] == 9)
-                  if (local_8[5] == ' ' || local_8[5] == '\t')
-                  {
                     std::printf("%echo : %s\n", local_8 + 6);
-                  }
+                }
+            }
+            else
+            {
+                // first char in line is '%', macro definition!
+                kcMessageCompiler_DeclareMacroName(this, local_8 + 1);
+            }
+        }
+        else if (this->MsgUnk_0x1c0cdc != FALSE)
+        {
+            kcLargeStruct_FUN_004133a0(this->LargeStruct, local_8);
+            // kcLargeStruct_FUN_004133a0(*(void **)((int)this + 0x1c0cd8), (char *)local_8);
+        }
+        else //if (this->MsgUnk_0x1c0cdc == FALSE) // *(int *)0x1c0cdc == 0
+        {
+            this->MsgUnk_0x1c0cdc = TRUE; //*(unk4 *)0x1c041c = 1
+            // *(undefined4 *)((int)this + 0x1c041c) = 1;
+            // if ((local_8[0] != 0x20) && (true)) // 0x20 // && true is possibly some preprocessor flag?
+            if (local_8[0] != ' ' && (true)) // 0x20 // && true is possibly some preprocessor flag?
+            {
+                // if ((local_8[0] == 0x24) ||
+                //    ((TABLE_SHIFTJIS[local_8[0]] & 0x40000000) != 0))
+                if (local_8[0] == '$' || // 0x24
+                    ((TABLE_SHIFTJIS[local_8[0]] & SJS_LEADBYTE) != 0)) // & 0x40000000
+                {
+                    local_8 = kcMessageCompiler_call_handleLine_0x21(this, local_8);
+                }
+                else if (local_8[0] == '\\') // 0x5c
+                {
+                    local_8++; //local_8 = local_8 + 1;
+                    if (local_8[0] == ' ' || local_8[0] == '\t') // 0x20, 0x9
+                    {
+                        bVar2 = true;
+                    }
                 }
                 else
                 {
-                  // else we have a macro that needs expanding?
-                  kcMessageCompiler_parseMacroName(this, local_8 + 1);
+                    local_8 = kcMessageCompiler_ParseName(this, local_8);
+                    bVar2 = true;
                 }
-              }
-              else
-              {
-                // if (*(int *)((int)this + 0x1c0cdc) == 0)
-                if (this->MsgUnk_0x1c0cdc == 0) // *(int *)0x1c0cdc == 0
+            }
+
+            while ((char)local_8[0] > '\0' && (char)local_8[0] < '!')
+            {
+                local_8++; //local_8 = local_8 + 1;
+            }
+            if (local_8[0] == '\0') // 0x0
+                continue;
+
+            // if (local_8[0] != '\0') // 0x0
+            // {
+            bVar3 = false;
+            if (local_8[0] == '\\') // 0x5c
+            {
+                bVar1 = local_8[1];
+                // if ((((char)bVar1 < '0') || ((char)bVar1 > '9')) && (bVar1 != 0x28))
+                // The '(' check here is because variables can be
+                //   referenced with extra math, like pointer math :D
+                // EXAMPLE: \(10+#7) // this accesses localvar[10 + globalvar[7]]
+                if (((char)bVar1 < '0' || (char)bVar1 > '9') && bVar1 != '(') // < '0', > '9', != 0x28
                 {
-                  this->MsgUnk_0x1c0cdc = 1; //*(unk4 *)0x1c041c = 1
-                  // *(undefined4 *)((int)this + 0x1c041c) = 1;
-                  // if ((local_8[0] != 0x20) && (true)) // 0x20 // && true is possibly some preprocessor flag?
-                  if ((local_8[0] != ' ') && (true)) // 0x20 // && true is possibly some preprocessor flag?
-                  {
-                    // if ((local_8[0] == 0x24) ||
-                    //    ((TABLE_SHIFTJIS[local_8[0]] & 0x40000000) != 0))
-                    if (local_8[0] == '$' || // 0x24
-                       ((TABLE_SHIFTJIS[local_8[0]] & SJS_LEADBYTE) != 0)) // & 0x40000000
+                    bVar3 = true; // escape next char
+                }
+                else
+                {
+                    bVar3 = false; // no escape, we doing variables!
+                }
+            }
+
+            ///SHIFTJIS: Change when upgrading to UTF-8? (this may actually be specifically for message detection)
+            if ((local_8[0] == '$' || local_8[0] == '[' || // 0x24, 0x5b
+                local_8[0] == '<' || local_8[0] == '\"') || // 0x3c, 0x22
+                ((((unsigned char)local_8[0] > 0x9f && (unsigned char)local_8[0] < 0xe0)) || // > 0x9f, < 0xe0 (SHIFT JIS)
+                (((TABLE_SHIFTJIS[local_8[0]] & SJS_LEADBYTE) != 0 || (bVar2 || bVar3))))) // & 0x40000000
+            {
+                // if (local_8[0] == 0x5c && local_8[1] == 0x40 && local_8[2] != 0)
+                if (local_8[0] == '\\' && local_8[1] == '@' && local_8[2] != '\0') // == 0x5c, == 0x40, != 0
+                {
+                    // keep going, I think \@ escapes are ignored if not the end of the message ??
+                    //  (or is this the beginning?)
+                    local_8 += 2;
+                }
+                // iVar5 = std::strcmp(local_8, "\\p");
+                ///SHIFTJIS: These CJK ansi characters *may* need to be changed before compiling
+                if (std::strcmp(local_8, "\\p") == 0 ||
+                    std::strcmp(local_8, "\\P") == 0 ||
+                    std::strcmp(local_8, "￥ｐ") == 0 || // "\x81\x8f\x82\x90"
+                    std::strcmp(local_8, "￥Ｐ") == 0 || // "\x81\x8f\x82\x6f"
+                    std::strcmp(local_8, "￥せ") == 0)   // "\x81\x8f\x82\xb9"
+            //   iVar5 = std::strcmp((char *)local_8, "\\p");
+            //   if (((iVar5 == 0 || (iVar5 = std::strcmp((char *)local_8, "\\P"), iVar5 == 0)) ||
+            //       (iVar5 = std::strcmp((char *)local_8, "￥ｐ"), iVar5 == 0)) ||
+            //      ((iVar5 = std::strcmp((char *)local_8, "￥Ｐ"), iVar5 == 0 ||
+            //       (iVar5 = std::strcmp((char *)local_8, "￥せ"), iVar5 == 0))))
+            //   if ((((iVar5 == 0) || (iVar5 = std::strcmp((char *)local_8, "\\P"), iVar5 == 0)) ||
+            //       (iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_p), iVar5 == 0)) ||
+            //      ((iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_P), iVar5 == 0 ||
+            //       (iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_UNKP), iVar5 == 0))))
+                {
+                    // if (*(int *)((int)this + 0x1c0cc8) != 0)
+                    if (this->ThreeState_B != STATE_0) // *(int *)0x1c0cc8 != 0
                     {
-                      local_8 = kcMessageCompiler_call_handleLine_0x21(this, local_8);
+                        // STATE_2 likely has relations to PAGE INPUT (paragraph, used in NVL (novel) mode)
+                        this->ThreeState_B = STATE_2; // *(unk4 *)0x1c0cc8 = 2
+                        // *(undefined4 *)((int)this + 0x1c0cc8) = 2;
+                        kcMessageCompiler_SetThreeState_A_to_B(this);
                     }
-                    else
+                }
+                // iVar5 = std::strcmp(local_8, "\\n");
+                ///SHIFTJIS: These CJK ansi characters *may* need to be changed before compiling
+                else if (std::strcmp(local_8, "\\n") == 0 ||
+                    std::strcmp(local_8, "\\N") == 0 ||
+                    std::strcmp(local_8, "￥ｎ") == 0 || // "\x81\x8f\x82\x8e"
+                    std::strcmp(local_8, "￥Ｎ") == 0 || // "\x81\x8f\x82\x6d"
+                    std::strcmp(local_8, "￥み") == 0)   // "\x81\x8f\x82\xdd"
+                // iVar5 = std::strcmp((char *)local_8, "\\n");
+                // if (((iVar5 == 0 ||
+                //      ((iVar5 = std::strcmp((char *)local_8, "\\N"), iVar5 == 0 ||
+                //       (iVar5 = std::strcmp((char *)local_8, "￥ｎ"), iVar5 == 0)))
+                //      ) || (iVar5 = std::strcmp((char *)local_8, "￥Ｎ"),
+                //           iVar5 == 0)) ||
+                //    (iVar5 = std::strcmp((char *)local_8, "￥み"), iVar5 == 0))
+                // if ((((iVar5 == 0) ||
+                //      ((iVar5 = std::strcmp((char *)local_8, "\\N"), iVar5 == 0 ||
+                //       (iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_n), iVar5 == 0)))
+                //      ) || (iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_N),
+                //           iVar5 == 0)) ||
+                //    (iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_UNKN), iVar5 == 0))
+                {
+                    // Add empty message line (used to force input, I think?)
+                    kcMessageCompiler_AddLine(this, LINE_MESSAGE, ""); // 0x20
+                    this->ThreeState_B = STATE_1; // *(unk4 *)0x1c0cc8 = 1
+                    // *(undefined4 *)((int)this + 0x1c0cc8) = 1;
+                }
+                else
+                {
+                    kcMessageCompiler_AddLine(this, LINE_MESSAGE, local_8); // 0x20
+                    while (local_8[0] != '\0')
                     {
-                      if (local_8[0] == '\\') // 0x5c
-                      {
-                        local_8++; //local_8 = local_8 + 1;
-                        if (local_8[0] == ' ' || local_8[0] == '\t') // 0x20, 0x9
+                        if ((TABLE_SHIFTJIS[local_8[0]] & SJS_LEADBYTE) == 0 || // & 0x40000000
+                            (TABLE_SHIFTJIS[local_8[1]] & SJS_SECONDBYTE) == 0)   // & 0x80000000
                         {
-                          bVar2 = true;
-                        }
-                      }
-                      else
-                      {
-                        local_8 = kcMessageCompiler_ParseName(this, local_8);
-                        bVar2 = true;
-                      }
-                    }
-                  }
-                  while ((char)local_8[0] > '\0' && (char)local_8[0] < '!')
-                  {
-                    local_8++; //local_8 = local_8 + 1;
-                  }
-                  if (local_8[0] != '\0') // 0x0
-                  {
-                    bVar3 = false;
-                    if (local_8[0] == '\\') // 0x5c
-                    {
-                      bVar1 = local_8[1];
-                      // if ((((char)bVar1 < '0') || ((char)bVar1 > '9')) && (bVar1 != 0x28))
-                      if (((char)bVar1 < '0' || (char)bVar1 > '9') && bVar1 != '(') // < '0', > '9', != 0x28
-                      {
-                        bVar3 = true;
-                      }
-                      else
-                      {
-                        bVar3 = false;
-                      }
-                    }
-                    ///SHIFTJIS: Change when upgrading to UTF-8? (this may actually be specifically for message detection)
-                    if ((local_8[0] == '$' || local_8[0] == '[' || // 0x24, 0x5b
-                        local_8[0] == '<' || local_8[0] == '\"') || // 0x3c, 0x22
-                       ((((unsigned char)local_8[0] > 0x9f && (unsigned char)local_8[0] < 0xe0)) || // > 0x9f, < 0xe0 (SHIFT JIS)
-                        (((TABLE_SHIFTJIS[local_8[0]] & SJS_LEADBYTE) != 0 || (bVar2 || bVar3))))) // & 0x40000000
-                    {
-                      // if (local_8[0] == 0x5c && local_8[1] == 0x40 && local_8[2] != 0)
-                      if (local_8[0] == '\\' && local_8[1] == '@' && local_8[2] != '\0') // == 0x5c, == 0x40, != 0
-                      {
-                        local_8 += 2; //local_8 = local_8 + 2;
-                      }
-                      // iVar5 = std::strcmp(local_8, "\\p");
-                      ///SHIFTJIS: These CJK ansi characters *may* need to be changed before compiling
-                      if (std::strcmp(local_8, "\\p") == 0 ||
-                          std::strcmp(local_8, "\\P") == 0 ||
-                          std::strcmp(local_8, "￥ｐ") == 0 || // "\x81\x8f\x82\x90"
-                          std::strcmp(local_8, "￥Ｐ") == 0 || // "\x81\x8f\x82\x6f"
-                          std::strcmp(local_8, "￥せ") == 0)   // "\x81\x8f\x82\xb9"
-                    //   iVar5 = std::strcmp((char *)local_8, "\\p");
-                    //   if (((iVar5 == 0 || (iVar5 = std::strcmp((char *)local_8, "\\P"), iVar5 == 0)) ||
-                    //       (iVar5 = std::strcmp((char *)local_8, "￥ｐ"), iVar5 == 0)) ||
-                    //      ((iVar5 = std::strcmp((char *)local_8, "￥Ｐ"), iVar5 == 0 ||
-                    //       (iVar5 = std::strcmp((char *)local_8, "￥せ"), iVar5 == 0))))
-                    //   if ((((iVar5 == 0) || (iVar5 = std::strcmp((char *)local_8, "\\P"), iVar5 == 0)) ||
-                    //       (iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_p), iVar5 == 0)) ||
-                    //      ((iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_P), iVar5 == 0 ||
-                    //       (iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_UNKP), iVar5 == 0))))
-                      {
-                        // if (*(int *)((int)this + 0x1c0cc8) != 0)
-                        if (this->ThreeState_B != STATE_0) // *(int *)0x1c0cc8 != 0
-                        {
-                          this->ThreeState_B = STATE_2; // *(unk4 *)0x1c0cc8 = 2
-                          // *(undefined4 *)((int)this + 0x1c0cc8) = 2;
-                          kcMessageCompiler_SetThreeState_A_to_B(this);
-                        }
-                      }
-                      else
-                      {
-                        // iVar5 = std::strcmp(local_8, "\\n");
-                        ///SHIFTJIS: These CJK ansi characters *may* need to be changed before compiling
-                        if (std::strcmp(local_8, "\\n") == 0 ||
-                            std::strcmp(local_8, "\\N") == 0 ||
-                            std::strcmp(local_8, "￥ｎ") == 0 || // "\x81\x8f\x82\x8e"
-                            std::strcmp(local_8, "￥Ｎ") == 0 || // "\x81\x8f\x82\x6d"
-                            std::strcmp(local_8, "￥み") == 0)   // "\x81\x8f\x82\xdd"
-                        // iVar5 = std::strcmp((char *)local_8, "\\n");
-                        // if (((iVar5 == 0 ||
-                        //      ((iVar5 = std::strcmp((char *)local_8, "\\N"), iVar5 == 0 ||
-                        //       (iVar5 = std::strcmp((char *)local_8, "￥ｎ"), iVar5 == 0)))
-                        //      ) || (iVar5 = std::strcmp((char *)local_8, "￥Ｎ"),
-                        //           iVar5 == 0)) ||
-                        //    (iVar5 = std::strcmp((char *)local_8, "￥み"), iVar5 == 0))
-                        // if ((((iVar5 == 0) ||
-                        //      ((iVar5 = std::strcmp((char *)local_8, "\\N"), iVar5 == 0 ||
-                        //       (iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_n), iVar5 == 0)))
-                        //      ) || (iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_N),
-                        //           iVar5 == 0)) ||
-                        //    (iVar5 = std::strcmp((char *)local_8, TOKEN_FULLWIDTH_YEN_UNKN), iVar5 == 0))
-                        {
-                          kcMessageCompiler_AddLine(this, LINE_MESSAGE, ""); // 0x20
-                          this->ThreeState_B = STATE_1; // *(unk4 *)0x1c0cc8 = 1
-                          // *(undefined4 *)((int)this + 0x1c0cc8) = 1;
-                        }
-                        else
-                        {
-                          kcMessageCompiler_AddLine(this, LINE_MESSAGE, local_8); // 0x20
-                          while (local_8[0] != '\0')
-                          {
-                            if ((TABLE_SHIFTJIS[local_8[0]] & SJS_LEADBYTE) == 0 || // & 0x40000000
-                                (TABLE_SHIFTJIS[local_8[1]] & SJS_SECONDBYTE) == 0)   // & 0x80000000
+                            if (local_8[0] == '\\' && local_8[1] != '\0') // 0x5c, 0x0
                             {
-                              if (local_8[0] == '\\' && local_8[1] != '\0') // 0x5c, 0x0
-                              {
                                 if (local_8[1] == '\\' || local_8[1] == '@') // 0x5c, 0x40
                                 {
-                                  this->ThreeState_B = STATE_0; // *(unk4 *)0x1c0cc8 = 0
-                                  // *(undefined4 *)((int)this + 0x1c0cc8) = 0;
+                                    this->ThreeState_B = STATE_0; // *(unk4 *)0x1c0cc8 = 0
+                                    // *(undefined4 *)((int)this + 0x1c0cc8) = 0;
                                 }
                                 else
                                 {
-                                  this->ThreeState_B = STATE_1; // *(unk4 *)0x1c0cc8 = 1
-                                  // *(undefined4 *)((int)this + 0x1c0cc8) = 1;
+                                    this->ThreeState_B = STATE_1; // *(unk4 *)0x1c0cc8 = 1
+                                    // *(undefined4 *)((int)this + 0x1c0cc8) = 1;
                                 }
                                 local_8 += 2; //local_8 = local_8 + 2;
-                              }
-                              else
-                              {
-                                // if (local_8[0] > 0x20)
-                                if ((unsigned char)local_8[0] > (unsigned char)' ') // 0x20
-                                {
-                                  this->ThreeState_B = STATE_1; // *(unk4 *)0x1c0cc8 = 1
-                                  // *(undefined4 *)((int)this + 0x1c0cc8) = 1;
-                                }
-                                local_8++; //local_8 = local_8 + 1;
-                              }
                             }
                             else
                             {
-                              this->ThreeState_B = STATE_1; // *(unk4 *)0x1c0cc8 = 1
-                              // *(undefined4 *)((int)this + 0x1c0cc8) = 1;
-                              local_8 += 2; //local_8 = local_8 + 2;
+                                // if (local_8[0] > 0x20)
+                                if ((unsigned char)local_8[0] > (unsigned char)' ') // 0x20
+                                {
+                                    this->ThreeState_B = STATE_1; // *(unk4 *)0x1c0cc8 = 1
+                                    // *(undefined4 *)((int)this + 0x1c0cc8) = 1;
+                                }
+                                local_8++; //local_8 = local_8 + 1;
                             }
-                          }
                         }
-                      }
+                        else
+                        {
+                            this->ThreeState_B = STATE_1; // *(unk4 *)0x1c0cc8 = 1
+                            // *(undefined4 *)((int)this + 0x1c0cc8) = 1;
+                            local_8 += 2; //local_8 = local_8 + 2;
+                        }
+                    }
+                }
+            }
+            else if (local_8[0] == '%') // 0x25
+            {
+                // if (*(int *)((int)this + 0x1c0cd8) != 0)
+                if (this->LargeStruct != nullptr) // *0x1c0cd8 != 0
+                {
+                    // BVar6 = kcLargeStruct_BeginMacroExpansion(*(void **)((int)this + 0x1c0cd8), (char *)(local_8 + 1));
+                    if (kcLargeStruct_BeginMacroExpansion(this->LargeStruct, local_8 + 1) == FALSE)
+                    {
+                        // LOG_MACRO_EXPANSION_ERROR_fmt_s
+                        ///JP: std::printf("マクロ展開エラー：%s\n", local_8 + 1);
+                        std::printf("Macro expansion error : %s\n", local_8 + 1);
                     }
                     else
                     {
-                      if (local_8[0] == '%') // 0x25
-                      {
-                        // if (*(int *)((int)this + 0x1c0cd8) != 0)
-                        if (this->LargeStruct != nullptr) // *0x1c0cd8 != 0
+                        // while (sVar4 = kcLargeStruct_ExpandMacro(*(void **)((int)this + 0x1c0cd8), *(char **)((int)this + 0x1c0cb4)), (int)sVar4 > -1)
+                        while (kcLargeStruct_ExpandMacro(this->LargeStruct, this->CurrentString) > -1) // *(void **)0x1c0cd8, *(char **)0x1c0cb4
                         {
-                          // BVar6 = kcLargeStruct_FUN_00413240(*(void **)((int)this + 0x1c0cd8), (char *)(local_8 + 1));
-                          BVar6 = kcLargeStruct_FUN_00413240(this->LargeStruct, local_8 + 1);
-                          if (BVar6 == 0)
-                          {
-                            // LOG_MACRO_EXPANSION_ERROR_fmt_s
-                            ///JP: std::printf("マクロ展開エラー：%s\n", local_8 + 1);
-                            std::printf("Macro expansion error : %s\n", local_8 + 1);
-                          }
-                          else
-                          {
-                            // while (sVar4 = kcLargeStruct_FUN_00412db0(*(void **)((int)this + 0x1c0cd8), *(char **)((int)this + 0x1c0cb4)), (int)sVar4 > -1)
-                            while (sVar4 = kcLargeStruct_FUN_00412db0(this->LargeStruct, this->CurrentString), (int)sVar4 > -1) // *(void **)0x1c0cd8, *(char **)0x1c0cb4
+                            local_8 = this->CurrentString; //*(byte **)0x1c0cb4
+                            // local_8 = *(byte **)((int)this + 0x1c0cb4);
+                            while ((char)local_8[0] > '\0' && (char)local_8[0] < '!')
                             {
-                              local_8 = this->CurrentString; //*(byte **)0x1c0cb4
-                              // local_8 = *(byte **)((int)this + 0x1c0cb4);
-                              while ((char)local_8[0] > '\0' && (char)local_8[0] < '!')
-                              {
                                 local_8++; //local_8 = (byte *)((char *)local_8 + 1);
-                              }
-                              if (local_8[0] != '\0')
-                              {
-                                kcMessageCompiler_AddLine(this, LINE_COMMAND, local_8); // 0x30
-                              }
                             }
-                            kcLargeStruct_FUN_00412d40(this->LargeStruct);
-                            // kcLargeStruct_FUN_00412d40(*(int **)((int)this + 0x1c0cd8));
-                          }
+                            if (local_8[0] != '\0')
+                            {
+                                // can macros only expand to normal commands? (not messages/names/input?)
+                                kcMessageCompiler_AddLine(this, LINE_COMMAND, local_8); // 0x30
+                            }
                         }
-                      }
-                      else
-                      {
-                        kcMessageCompiler_AddLine(this, LINE_COMMAND, local_8); // 0x30
-                      }
+                        kcLargeStruct_EndMacroExpansion(this->LargeStruct); // *(int **)0x1c0cd8
                     }
-                  }
                 }
-                else
-                {
-                  kcLargeStruct_FUN_004133a0(this->LargeStruct, local_8);
-                  // kcLargeStruct_FUN_004133a0(*(void **)((int)this + 0x1c0cd8), (char *)local_8);
-                }
-              }
             }
-          }
+            else
+            {
+                // catch-all, if it ain't a Name, Message, Input, or Paragraph, it's a Command! :3
+                kcMessageCompiler_AddLine(this, LINE_COMMAND, local_8); // 0x30
+            }
         }
-      }
     }
-  }
-  kcMessageCompiler_SetThreeState_A_to_B(this);
-  kcScriptCompiler_writeCSTfile(this);
-  //return 1; // TRUE?
-  return TRUE;
+    kcMessageCompiler_SetThreeState_A_to_B(this);
+    kcScriptCompiler_writeCSTfile(this);
+    //return 1; // TRUE?
+    return TRUE;
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004125f0
@@ -2141,31 +2006,31 @@ void __cdecl mc_main(int argc, char *argv[])
         FILE_READER *unkfile = (FILE_READER *)std::malloc(0x598); //_newalloc(0x598);
         if (unkfile != nullptr)
         {
-            unkfile = kcUnkFile_ctor(unkfile, "&macro.txt");
+            unkfile = kcFileInfo_ctor(unkfile, "&macro.txt");
         }
-        while ((int)kcUnkFile_FindLoop(unkfile) > -1)
+        while ((int)kcFileInfo_FindNextValid(unkfile) > -1)
         {
             kcScriptCompiler_compileStart("&macro.sts", (char *)(unkfile + 9), &DAT_0041c0ee, 0, false);
             macrotxtFound = true;
         }
         if (unkfile != nullptr)
         {
-            kcUnkFile_scalar_dtor(unkfile, 1);
+            kcFileInfo_scalar_dtor(unkfile, 1);
         }
         if (!macrotxtFound)
         {
             FILE_READER *unkfile2 = (FILE_READER *)std::malloc(0x598); //_newalloc(0x598);
             if (unkfile2 != nullptr)
             {
-                unkfile2 = kcUnkFile_ctor(unkfile2, "%macro.txt");
+                unkfile2 = kcFileInfo_ctor(unkfile2, "%macro.txt");
             }
-            while ((int)kcUnkFile_FindLoop(unkfile2) > -1)
+            while ((int)kcFileInfo_FindNextValid(unkfile2) > -1)
             {
                 kcScriptCompiler_compileStart("%macro.sts", &unkfile2->Filename[0], &DAT_0041c0ef, 0, false);
             }
             if (unkfile2 != nullptr)
             {
-                kcUnkFile_scalar_dtor(unkfile2, 1);
+                kcFileInfo_scalar_dtor(unkfile2, 1);
             }
         }
     }

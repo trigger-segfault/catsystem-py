@@ -9,12 +9,12 @@
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004131f0
 UNK_LARGE_STRUCT * __fastcall kcLargeStruct_ctor(UNK_LARGE_STRUCT *this)
 {
-    this->StringPoolIndex = 0; //this->LrgUnk_0x10 = 0;
-    this->PoolState = POOL_STATE_0; //this->LrgUnk_0x0 = 0;
-    this->CurrentStringEntry = nullptr; //this->LrgUnk_0xc0014 = nullptr;
+    this->CurrentMacroIndex = 0; //this->LrgUnk_0x10 = 0;
+    this->MacroState = MACRO_STATE_0; //this->LrgUnk_0x0 = 0;
+    this->CurrentMacroEntry = nullptr; //this->LrgUnk_0xc0014 = nullptr;
     this->Memory = nullptr;
-    this->MemorySize = 0; //this->LrgUnk_0x8 = 0;
-    this->MemoryPosition = 0; //this->LrgUnk_0xc = 0;
+    this->MemoryCapacity = 0; //this->LrgUnk_0x8 = 0;
+    this->MemorySize = 0; //this->LrgUnk_0xc = 0;
     return this;
     // param_1[4] = 0;
     // *param_1 = 0;
@@ -45,89 +45,78 @@ void * __thiscall kcLargeStruct_scalar_dtor(UNK_LARGE_STRUCT *this, int flags)
     return this;
 }
 
-// BOOL __thiscall kcLargeStruct_FUN_00413240(void *this, byte *param_1)
+// BOOL __thiscall kcLargeStruct_BeginMacroExpansion(void *this, byte *param_1)
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413240
-BOOL __thiscall kcLargeStruct_FUN_00413240(UNK_LARGE_STRUCT *this, IN const char *str)
+BOOL __thiscall kcLargeStruct_BeginMacroExpansion(UNK_LARGE_STRUCT *this, IN const char *macroArgs)
 {
-    BOOL uVar1;
+    // BOOL uVar1;
     // int iVar2;
-    char *tmp_ptr; //char *local_10;
-    // int i; // int local_c;
-    const char *str_ptr; //char *local_8;
+    // char *tmp_ptr; //char *local_10;
+    // // int i; // int local_c;
+    // const char *in_ptr; //char *local_8;
     
+    if (this->MacroState != MACRO_STATE_0)
+        return FALSE;
+
     // if (*(int *)this == 0)
-    if (this->PoolState == POOL_STATE_0) // == 0
+    // if (this->MacroState == MACRO_STATE_0) // == 0
+    // {
+    int arg_idx = 0; // counter index (for loop?) // int local_c; // arg count
+    const char *in_ptr = macroArgs;
+    // local_10 = (byte *)((int)this + 0xc01b0);
+    char *arg_ptr = &this->ArgumentBuffer[0]; //&this->LrgUnk_0xc01b0[0]; // likely a temporary / intermediate buffer
+    while (in_ptr[0] != '\0')
     {
-        int i = 0; // counter index (for loop?) // int local_c;
-        str_ptr = str;
-        // local_10 = (byte *)((int)this + 0xc01b0);
-        tmp_ptr = &this->TempBuffer[0]; //&this->LrgUnk_0xc01b0[0]; // likely a temporary / intermediate buffer
-        while (*str_ptr != '\0')
+        // if (('\0' < (char)*local_8) && ((char)*local_8 < '!'))
+        if (in_ptr[0] > '\0' && in_ptr[0] <= ' ') // '!' == 0x21 (so *in_ptr <= ' ', *in_ptr <= 0x20)
         {
-            // if (('\0' < (char)*local_8) && ((char)*local_8 < '!'))
-            if (*str_ptr > '\0' && *str_ptr <= ' ') // '!' == 0x21 (so *str_ptr <= ' ', *str_ptr <= 0x20)
-            {
-                str_ptr++; // ptr++
-            }
-            if (*str_ptr == '\0')
-                break;
+            in_ptr++; // ptr++
+        }
+        if (in_ptr[0] == '\0')
+            break;
 
-            this->StringPointers[i] = tmp_ptr;
-            // *(char **)((int)this + local_c * 4 + 0xc0020) = local_10;
-            // stop at control char or whitespace
-            while ((unsigned char)*str_ptr > (unsigned char)' ') // (unsigned char) cast added for signed char (such a pain in the ass)
-            {
-                *tmp_ptr = *str_ptr;
-                tmp_ptr++;
-                str_ptr++;
-            }
-            *tmp_ptr = '\0';
-            tmp_ptr++;
-            i++;
-        }
-        this->LrgUnk_0xc001c = i;
-        // *(int *)((int)this + 0xc001c) = local_c;
-        while (i < 0x10)
+        this->ArgumentPointers[arg_idx] = arg_ptr;
+        // *(char **)((int)this + local_c * 4 + 0xc0020) = local_10;
+        // stop at control char or whitespace
+        while ((unsigned char)in_ptr[0] > (unsigned char)' ') // (unsigned char) cast added for signed char (such a pain in the ass)
         {
-            this->StringPointers[i] = nullptr;
-            // *(undefined4 *)((int)this + local_c * 4 + 0xc0020) = 0;
-            i++;
+            arg_ptr[0] = in_ptr[0];
+            arg_ptr++;
+            in_ptr++;
         }
-        // if (*(int *)((int)this + 0xc001c) < 1)
-        if (this->LrgUnk_0xc001c < 1)
-        {
-            uVar1 = FALSE;
-        }
-        else
-        {
-            // int iVar2 = kcLargeStruct_IndexOf(this, *(char **)((int)this + 0xc0020));
-            // if (iVar2 < 0) // string not in table
-            int str_idx = kcLargeStruct_IndexOf(this, (char *)this->StringPointers[0]);// *(char **)((int)this + 0xc0020));
-            if (str_idx < 0) // string not in table
-            {
-                uVar1 = FALSE;
-            }
-            else
-            {
-                // note, pointer not dereferenced, keep as address of
-                this->CurrentStringEntry = &this->StringPoolTable[str_idx];
-                // this->LrgUnk_0xc0014 = &this->StringPoolTable[str_idx];
-                this->LrgUnk_0xc0018 = 0;
-                this->PoolState = POOL_STATE_2; // 2
-
-                // *(int *)((int)this + 0xc0014) = (int)this + iVar2 * 0xc + 0x14;
-                // *(undefined4 *)((int)this + 0xc0018) = 0;
-                // *(undefined4 *)this = 2;
-
-                uVar1 = TRUE;
-            }
-        }
+        arg_ptr[0] = '\0';
+        arg_ptr++;
+        arg_idx++;
     }
-    else
+    this->LrgUnk_0xc001c = arg_idx;
+    // *(int *)((int)this + 0xc001c) = local_c;
+    while (arg_idx < 0x10)
     {
-        uVar1 = FALSE;
+        this->ArgumentPointers[arg_idx] = nullptr;
+        // *(undefined4 *)((int)this + local_c * 4 + 0xc0020) = 0;
+        arg_idx++;
     }
-    return uVar1;
+    // if (*(int *)((int)this + 0xc001c) < 1)
+    if (this->LrgUnk_0xc001c < 1)
+        return FALSE;
+
+    // int iVar2 = kcLargeStruct_IndexOfMacro(this, *(char **)((int)this + 0xc0020));
+    // if (iVar2 < 0) // string not in table
+    int macro_idx = kcLargeStruct_IndexOfMacro(this, (char *)this->ArgumentPointers[0]);// *(char **)((int)this + 0xc0020));
+    if (macro_idx < 0) // macro name not found
+        return FALSE;
+
+    // note, pointer not dereferenced, keep as address of
+    this->CurrentMacroEntry = &this->MacroTable[macro_idx];
+    // this->LrgUnk_0xc0014 = &this->MacroTable[str_idx];
+    this->LrgUnk_0xc0018 = 0;
+    this->MacroState = MACRO_STATE_2; // 2
+
+    // *(int *)((int)this + 0xc0014) = (int)this + iVar2 * 0xc + 0x14;
+    // *(undefined4 *)((int)this + 0xc0018) = 0;
+    // *(undefined4 *)this = 2;
+
+    return TRUE;
 }
 
 // int __thiscall kcLargeStruct_Add(int this, char *param_2)
@@ -149,12 +138,12 @@ int __thiscall kcLargeStruct_Add(UNK_LARGE_STRUCT *this, IN const char *str)
         {
             // if ((int)(*(int *)(this + 0xc) + _Size) <= *(int *)(this + 8))
             // if ((int)(this->LrgUnk_0xc + _Size) <= this->LrgUnk_0x8)
-            if ((int)(this->MemoryPosition + _Size) <= (int)this->MemorySize)
+            if ((int)(this->MemorySize + _Size) <= (int)this->MemoryCapacity)
             {
                 // This will be buffer position of added string
-                int currentPosition = this->MemoryPosition; //iVar1 = this->LrgUnk_0xc;
+                int currentPosition = this->MemorySize; //iVar1 = this->LrgUnk_0xc;
                 std::memcpy(this->Memory + currentPosition, str, _Size); // memcpy, so the null-terminator is included too
-                this->MemoryPosition += _Size; //this->LrgUnk_0xc += _Size;
+                this->MemorySize += _Size; //this->LrgUnk_0xc += _Size;
                 return currentPosition; // return start position of the added string
 
                 // int iVar1 = *(int *)(this + 0xc);
@@ -167,15 +156,15 @@ int __thiscall kcLargeStruct_Add(UNK_LARGE_STRUCT *this, IN const char *str)
             if (this->Memory == nullptr)
                 break; // no memory allocated, break and call GlobalAlloc
 
-            this->MemorySize += 0x1000000; //this->LrgUnk_0x8 += 0x1000000;
+            this->MemoryCapacity += 0x1000000; //this->LrgUnk_0x8 += 0x1000000;
             //0x40 (GPTR, GMEM_FIXED | GMEM_ZEROINIT)
-            hMem = ::GlobalReAlloc(this->Memory, (SIZE_T)this->MemorySize, GMEM_FIXED | GMEM_ZEROINIT);
+            hMem = ::GlobalReAlloc(this->Memory, (SIZE_T)this->MemoryCapacity, GMEM_FIXED | GMEM_ZEROINIT);
             // hMem = ::GlobalReAlloc(this->Memory, (SIZE_T)this->LrgUnk_0x8, GMEM_FIXED | GMEM_ZEROINIT);
             // *(int *)(this + 8) = *(int *)(this + 8) + 0x1000000;
             // hMem = ::GlobalReAlloc(*(HGLOBAL *)(this + 4), *(SIZE_T *)(this + 8), 0x40);
             if (hMem == nullptr)
             {
-                this->MemorySize -= 0x1000000; //this->LrgUnk_0x8 -= 0x1000000;
+                this->MemoryCapacity -= 0x1000000; //this->LrgUnk_0x8 -= 0x1000000;
                 // *(int *)(this + 8) = *(int *)(this + 8) + -0x1000000;
                 return -1;
             }
@@ -187,9 +176,9 @@ int __thiscall kcLargeStruct_Add(UNK_LARGE_STRUCT *this, IN const char *str)
         if (hMem == nullptr)
             break; // allocation failed, break and return -1
 
-        this->MemorySize = 0x1000000; //this->LrgUnk_0x8 = 0x1000000;
+        this->MemoryCapacity = 0x1000000; //this->LrgUnk_0x8 = 0x1000000;
         this->Memory = hMem;
-        this->MemoryPosition = 0; //this->LrgUnk_0xc = 0;
+        this->MemorySize = 0; //this->LrgUnk_0xc = 0;
         // *(undefined4 *)(this + 8) = 0x1000000;
         // *(HGLOBAL *)(this + 4) = hMem;
         // *(undefined4 *)(this + 0xc) = 0;
@@ -199,22 +188,22 @@ int __thiscall kcLargeStruct_Add(UNK_LARGE_STRUCT *this, IN const char *str)
     return -1;
 }
 
-// int __thiscall kcLargeStruct_IndexOf(int this, char *param_2)
+// int __thiscall kcLargeStruct_IndexOfMacro(int this, char *param_2)
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413050
-int __thiscall kcLargeStruct_IndexOf(UNK_LARGE_STRUCT *this, IN const char *str)
+int __thiscall kcLargeStruct_IndexOfMacro(UNK_LARGE_STRUCT *this, IN const char *macroName)
 {
     // int i = 0;
-    for (int i = 0; i < this->StringPoolIndex; i++)
+    for (int i = 0; i < this->CurrentMacroIndex; i++)
     {
         // Because the pointer is resolved ==> *(int *)(this + 0x14 + i * 0xc)) and this table is local, we're accessing first field
-        // (char *)this->Memory + this->StringPoolTable[i].StringOffset; // 
-        // int iVar1 = std::strcmp(((char *)this->Memory + this->StringPoolTable[i].StringOffset), str);
+        // (char *)this->Memory + this->MacroTable[i].MacroBufferOffset; // 
+        // int iVar1 = std::strcmp(((char *)this->Memory + this->MacroTable[i].MacroBufferOffset), str);
         // int iVar1 = std::strcmp((char *)(*(int *)(this + 4) + *(int *)(this + 0x14 + i * 0xc)), str);
         // if (iVar1 == 0) // strings are equal
-        if (std::strcmp(((char *)this->Memory + this->StringPoolTable[i].StringOffset), str) == 0)
+        if (std::strcmp(((char *)this->Memory + this->MacroTable[i].MacroBufferOffset), macroName) == 0)
         {
             // break;
-            return i; // string found
+            return i; // macro name found
         }
     }
     return -1; // string not found
@@ -227,13 +216,13 @@ int __thiscall kcLargeStruct_IndexOf(UNK_LARGE_STRUCT *this, IN const char *str)
     // {
     //     // if (*(int *)(this + 0x10) <= local_c)
     //     // if (this->LrgUnk_0x10 <= local_c)
-    //     if (local_c >= this->StringPoolIndex)
+    //     if (local_c >= this->CurrentMacroIndex)
     //     {
     //         return -1;
     //     }
     //     // Because the pointer is resolved ==> *(int *)(this + 0x14 + local_c * 0xc)) and this table is local, we're accessing first field
-    //     // (char *)this->Memory + this->StringPoolTable[local_c].StringOffset; //
-    //     iVar1 = std::strcmp(((char *)this->Memory + this->StringPoolTable[local_c].StringOffset), str);
+    //     // (char *)this->Memory + this->MacroTable[local_c].MacroBufferOffset; //
+    //     iVar1 = std::strcmp(((char *)this->Memory + this->MacroTable[local_c].MacroBufferOffset), str);
     //     // iVar1 = std::strcmp((char *)(*(int *)(this + 4) + *(int *)(this + 0x14 + local_c * 0xc)), str);
     //     if (iVar1 == 0) // strings are equal
     //         break;
@@ -242,73 +231,56 @@ int __thiscall kcLargeStruct_IndexOf(UNK_LARGE_STRUCT *this, IN const char *str)
     // return local_c;
 }
 
-// undefined4 __thiscall kcLargeStruct_FUN_00413430(void *this,char *param_1)
+// undefined4 __thiscall kcLargeStruct_DeclareMacroName(void *this,char *param_1)
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413430
-BOOL __thiscall kcLargeStruct_FUN_00413430(UNK_LARGE_STRUCT *this, IN const char *str)
+BOOL __thiscall kcLargeStruct_DeclareMacroName(UNK_LARGE_STRUCT *this, IN const char *macroName)
 {
     BOOL uVar1;
     int iVar2;
     
     // if (*(int *)this == 0)
-    if (this->PoolState == POOL_STATE_0) // == 0
-    {
-        // if (*(int *)((int)this + 0x10) < 0x10000)
-        // if (this->LrgUnk_0x10 < 0x10000)
-        if (this->StringPoolIndex < 0x10000) // 0x10000 is count of StringPoolTable
-        {
-            // iVar2 = kcLargeStruct_IndexOf(this, str);
-            // if (iVar2 < 0) // string not in table
-            // int str_idx = kcLargeStruct_IndexOf(this, str);
-            // if (str_idx < 0) // string not in table
-            if (kcLargeStruct_IndexOf(this, str) < 0) // string not in table
-            {
-                // iVar2 = kcLargeStruct_Add(this, str);
-                // if (iVar2 < 0) // failed to add string
-                int str_pos = kcLargeStruct_Add(this, str);
-                if (str_pos < 0) // failed to add string
-                {
-                    uVar1 = FALSE;
-                }
-                else
-                {
-                    // Assign the string info to the next sub-struct?
-                    this->CurrentStringEntry = &this->StringPoolTable[this->StringPoolIndex];
-                    this->CurrentStringEntry->StringOffset = str_pos; // SubUnk0 = iVar2;
-                    this->CurrentStringEntry->NextStringOffset = -1; //0xffffffff;
-                    this->CurrentStringEntry->StringRefCount = 0; //SubUnk2 = 0;
-                    this->PoolState = POOL_STATE_1; // 1 // this->LrgUnk_0x0 = 1;
+    if (this->MacroState != MACRO_STATE_0) // == 0
+        return FALSE; // not macro defineable state?
 
-                    // this->LrgUnk_0xc0014 = &this->PoolState + 
-                    // *(int *)((int)this + 0xc0014) = (int)this + *(int *)((int)this + 0x10) * 0xc + 0x14;
-                    // this->LrgUnk_0xc0014[0] = iVar2; // **(int **)((int)this + 0xc0014)
-                    // this->LrgUnk_0xc0014[1] = 0xffffffff; // *(undefined4 *)(*(int *)((int)this + 0xc0014) + 4) = 0xffffffff;
-                    // this->LrgUnk_0xc0014[2] = 0; // *(undefined4 *)(*(int *)((int)this + 0xc0014) + 8) = 0;
-                    // this->PoolState = 1; // *(undefined4 *)this = 1;
+    // if (*(int *)((int)this + 0x10) < 0x10000)
+    // if (this->LrgUnk_0x10 < 0x10000)
+    if (this->CurrentMacroIndex >= 0x10000) // 0x10000 is count of MacroTable
+        return FALSE; // too many macros?
 
-                    // *(int *)((int)this + 0xc0014) = (int)this + *(int *)((int)this + 0x10) * 0xc + 0x14;
-                    // **(int **)((int)this + 0xc0014) = iVar2;
-                    // *(undefined4 *)(*(int *)((int)this + 0xc0014) + 4) = 0xffffffff;
-                    // *(undefined4 *)(*(int *)((int)this + 0xc0014) + 8) = 0;
-                    // *(undefined4 *)this = 1;
-                    
-                    uVar1 = TRUE;
-                }
-            }
-            else
-            {
-                uVar1 = FALSE;
-            }
-        }
-        else
-        {
-            uVar1 = FALSE;
-        }
-    }
-    else
-    {
-        uVar1 = FALSE;
-    }
-    return uVar1;
+    // iVar2 = kcLargeStruct_IndexOfMacro(this, macroName);
+    // if (iVar2 < 0) // string not in table
+    // int str_idx = kcLargeStruct_IndexOfMacro(this, macroName);
+    // if (str_idx < 0) // string not in table
+    if (kcLargeStruct_IndexOfMacro(this, macroName) >= 0)
+        return FALSE; // macro already declared
+
+    // iVar2 = kcLargeStruct_Add(this, macroName);
+    // if (iVar2 < 0) // failed to add string
+    int str_pos = kcLargeStruct_Add(this, macroName);
+    if (str_pos < 0) 
+        uVar1 = FALSE; // failed to add macro? (memory allocation issues)
+
+    // Assign the string info to the next sub-struct?
+    this->CurrentMacroEntry = &this->MacroTable[this->CurrentMacroIndex];
+    this->CurrentMacroEntry->MacroBufferOffset = str_pos; // SubUnk0 = iVar2;
+    this->CurrentMacroEntry->MacroNextLineOffset = -1; //0xffffffff;
+    this->CurrentMacroEntry->MacroLineCount = 0; //SubUnk2 = 0;
+    this->MacroState = MACRO_STATE_1; // 1 // this->LrgUnk_0x0 = 1;
+
+    // this->LrgUnk_0xc0014 = &this->MacroState + 
+    // *(int *)((int)this + 0xc0014) = (int)this + *(int *)((int)this + 0x10) * 0xc + 0x14;
+    // this->LrgUnk_0xc0014[0] = iVar2; // **(int **)((int)this + 0xc0014)
+    // this->LrgUnk_0xc0014[1] = 0xffffffff; // *(undefined4 *)(*(int *)((int)this + 0xc0014) + 4) = 0xffffffff;
+    // this->LrgUnk_0xc0014[2] = 0; // *(undefined4 *)(*(int *)((int)this + 0xc0014) + 8) = 0;
+    // this->MacroState = 1; // *(undefined4 *)this = 1;
+
+    // *(int *)((int)this + 0xc0014) = (int)this + *(int *)((int)this + 0x10) * 0xc + 0x14;
+    // **(int **)((int)this + 0xc0014) = iVar2;
+    // *(undefined4 *)(*(int *)((int)this + 0xc0014) + 4) = 0xffffffff;
+    // *(undefined4 *)(*(int *)((int)this + 0xc0014) + 8) = 0;
+    // *(undefined4 *)this = 1;
+    
+    return TRUE;
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004133a0
@@ -317,19 +289,19 @@ void __thiscall kcLargeStruct_FUN_004133a0(UNK_LARGE_STRUCT *this, IN const char
     // no return confirmed
     
     unsigned int str_len = std::strlen(str);
-    if (std::strlen(str) != 0 && this->PoolState == POOL_STATE_1 && this->CurrentStringEntry != nullptr)
+    if (std::strlen(str) != 0 && this->MacroState == MACRO_STATE_1 && this->CurrentMacroEntry != nullptr)
     {
         int str_pos = kcLargeStruct_Add(this, str);
         if (str_pos >= 0) // > -1
         {
             // oh no... it's pointers all the way down...
             // if (*(int *)(*(int *)((int)this + 0xc0014) + 4) < 0)
-            if (this->CurrentStringEntry->NextStringOffset < 0) // unassigned?
+            if (this->CurrentMacroEntry->MacroNextLineOffset < 0) // unassigned?
             {
-                this->CurrentStringEntry->NextStringOffset = str_pos;
+                this->CurrentMacroEntry->MacroNextLineOffset = str_pos;
                 // *(int *)(*(int *)((int)this + 0xc0014) + 4) = iVar2;
             }
-            this->CurrentStringEntry->StringRefCount++; //SubUnk2++;
+            this->CurrentMacroEntry->MacroLineCount++; //SubUnk2++;
             // this->LrgUnk_0xc0014[2] += 1;
             // this->LrgUnk_0xc0014[2] = this->LrgUnk_0xc0014[2] + 1;
             // *(int *)(*(int *)((int)this + 0xc0014) + 8) = *(int *)(*(int *)((int)this + 0xc0014) + 8) + 1;
@@ -337,17 +309,17 @@ void __thiscall kcLargeStruct_FUN_004133a0(UNK_LARGE_STRUCT *this, IN const char
     }
     // if ((((sVar1 != 0) && (*(int *)this == 1)) && (*(int *)((int)this + 0xc0014) != 0)) &&
         // (iVar2 = kcLargeStruct_Add(this, str), iVar2 > -1)) // iVar2 is actually used in this case
-    // if ((std::strlen(str) != 0 && this->PoolState == POOL_STATE_1 && this->CurrentStringEntry != nullptr) && // *0x0 == 1
+    // if ((std::strlen(str) != 0 && this->MacroState == MACRO_STATE_1 && this->CurrentMacroEntry != nullptr) && // *0x0 == 1
     //     (iVar2 = kcLargeStruct_Add(this, str), iVar2 > -1)) // iVar2 is actually used in this case
     // {
     //     // oh no... it's pointers all the way down...
     //     // if (*(int *)(*(int *)((int)this + 0xc0014) + 4) < 0)
-    //     if (this->CurrentStringEntry->SubUnk1 < 0)
+    //     if (this->CurrentMacroEntry->SubUnk1 < 0)
     //     {
-    //         this->CurrentStringEntry->SubUnk1 = iVar2;
+    //         this->CurrentMacroEntry->SubUnk1 = iVar2;
     //         // *(int *)(*(int *)((int)this + 0xc0014) + 4) = iVar2;
     //     }
-    //     this->CurrentStringEntry->StringRefCount++; //SubUnk2++;
+    //     this->CurrentMacroEntry->MacroLineCount++; //SubUnk2++;
     //     // this->LrgUnk_0xc0014[2] += 1;
     //     // this->LrgUnk_0xc0014[2] = this->LrgUnk_0xc0014[2] + 1;
     //     // *(int *)(*(int *)((int)this + 0xc0014) + 8) = *(int *)(*(int *)((int)this + 0xc0014) + 8) + 1;
@@ -359,17 +331,17 @@ void __thiscall kcLargeStruct_FUN_004133a0(UNK_LARGE_STRUCT *this, IN const char
     // unsigned int sVar1 = std::strlen(str);
     // // if ((((sVar1 != 0) && (*(int *)this == 1)) && (*(int *)((int)this + 0xc0014) != 0)) &&
     //     // (iVar2 = kcLargeStruct_Add(this, str), iVar2 > -1)) // iVar2 is actually used in this case
-    // if ((std::strlen(str) != 0 && this->PoolState == POOL_STATE_1 && this->CurrentStringEntry != nullptr) && // *0x0 == 1
+    // if ((std::strlen(str) != 0 && this->MacroState == MACRO_STATE_1 && this->CurrentMacroEntry != nullptr) && // *0x0 == 1
     //     (iVar2 = kcLargeStruct_Add(this, str), iVar2 > -1)) // iVar2 is actually used in this case
     // {
     //     // oh no... it's pointers all the way down...
     //     // if (*(int *)(*(int *)((int)this + 0xc0014) + 4) < 0)
-    //     if (this->CurrentStringEntry->SubUnk1 < 0)
+    //     if (this->CurrentMacroEntry->SubUnk1 < 0)
     //     {
-    //         this->CurrentStringEntry->SubUnk1 = iVar2;
+    //         this->CurrentMacroEntry->SubUnk1 = iVar2;
     //         // *(int *)(*(int *)((int)this + 0xc0014) + 4) = iVar2;
     //     }
-    //     this->CurrentStringEntry->StringRefCount++; //SubUnk2++;
+    //     this->CurrentMacroEntry->MacroLineCount++; //SubUnk2++;
     //     // this->LrgUnk_0xc0014[2] += 1;
     //     // this->LrgUnk_0xc0014[2] = this->LrgUnk_0xc0014[2] + 1;
     //     // *(int *)(*(int *)((int)this + 0xc0014) + 8) = *(int *)(*(int *)((int)this + 0xc0014) + 8) + 1;
@@ -377,35 +349,35 @@ void __thiscall kcLargeStruct_FUN_004133a0(UNK_LARGE_STRUCT *this, IN const char
     // return;
 }
 
-// BOOL __fastcall kcLargeStruct_FUN_00412d40(int *param_1)
+// BOOL __fastcall kcLargeStruct_EndMacroExpansion(int *param_1)
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00412d40
-BOOL __fastcall kcLargeStruct_FUN_00412d40(UNK_LARGE_STRUCT *this)
+BOOL __fastcall kcLargeStruct_EndMacroExpansion(UNK_LARGE_STRUCT *this)
 {
     // is this using THREE_STATE enum?
 
+    if (this->MacroState == MACRO_STATE_0)
+        return FALSE;
+
     // if (*param_1 == 1)
-    if (this->PoolState == POOL_STATE_1) // == 1
+    if (this->MacroState == MACRO_STATE_1) // == 1
     {
         // if (*(int *)(param_1[0x30005] + 4) > -1)
         // if (*(int *)((int)this->LrgUnk_0xc0014 + 4) > -1)
         // if (this->LrgUnk_0xc0014[1] > -1)
-        if (this->CurrentStringEntry->NextStringOffset >= 0) // > -1
+        if (this->CurrentMacroEntry->MacroNextLineOffset >= 0) // > -1
         {
-            // This is the only condition observed to change StringPoolIndex
-            this->StringPoolIndex++; // this->LrgUnk_0x10++;
+            // This is the only condition observed to change CurrentMacroIndex
+            this->CurrentMacroIndex++; // this->LrgUnk_0x10++;
             // param_1[4] = param_1[4] + 1;
         }
     }
-    else
-    {
         // if (*param_1 != 2)
-        if (this->PoolState != POOL_STATE_2) // != 2
-        {
-            return FALSE;
-        }
-    }
-    this->CurrentStringEntry = nullptr; // this->LrgUnk_0xc0014 = nullptr;
-    this->PoolState = POOL_STATE_0; // 0 //this->LrgUnk_0x0 = 0;
+    // else if (this->MacroState != MACRO_STATE_2) // != 2
+    // {
+    //     return FALSE;
+    // }
+    this->CurrentMacroEntry = nullptr; // this->LrgUnk_0xc0014 = nullptr;
+    this->MacroState = MACRO_STATE_0; // 0 //this->LrgUnk_0x0 = 0;
     // param_1[0x30005] = 0;
     // *param_1 = 0;
     return TRUE;
@@ -415,9 +387,9 @@ BOOL __fastcall kcLargeStruct_FUN_00412d40(UNK_LARGE_STRUCT *this)
 ///WINAPI: BOOL IsDBCSLeadByteEx (UINT, BYTE)
 ///MSDOCS: <https://docs.microsoft.com/en-us/windows/win32/api/winnls/nf-winnls-isdbcsleadbyteex>
 
-//size_t __thiscall kcLargeStruct_FUN_00412db0(void *this, char *param_1)
+//size_t __thiscall kcLargeStruct_ExpandMacro(void *this, char *param_1)
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00412db0
-int __thiscall kcLargeStruct_FUN_00412db0(UNK_LARGE_STRUCT *this, char *str)
+int __thiscall kcLargeStruct_ExpandMacro(UNK_LARGE_STRUCT *this, char *str)
 {
     unsigned int _Size; //size_t _Size;
     // BOOL BVar1;
@@ -428,14 +400,14 @@ int __thiscall kcLargeStruct_FUN_00412db0(UNK_LARGE_STRUCT *this, char *str)
     char *mem_ptr; //char *local_8;
     
     // if (*(int *)this == 2 && *(int *)((int)this + 0xc0014) != 0)
-    if (this->PoolState == POOL_STATE_2 && this->CurrentStringEntry != nullptr) // == 2 (pool state)
+    if (this->MacroState == MACRO_STATE_2 && this->CurrentMacroEntry != nullptr) // == 2 (pool state)
     {
         // if (*(int *)((int)this + 0xc0018) < *(int *)(*(int *)((int)this + 0xc0014) + 8))
-        if (this->LrgUnk_0xc0018 < this->CurrentStringEntry->StringRefCount) // *(int *)(*(int *)((int)this + 0xc0014) + 8))
+        if (this->LrgUnk_0xc0018 < this->CurrentMacroEntry->MacroLineCount) // *(int *)(*(int *)((int)this + 0xc0014) + 8))
         {
             str_ptr = str;
 
-            mem_ptr = (char *)this->Memory + this->CurrentStringEntry->NextStringOffset;
+            mem_ptr = (char *)this->Memory + this->CurrentMacroEntry->MacroNextLineOffset;
             local_c = this->LrgUnk_0xc0018;
 
             // mem_ptr = (char *)(*(int *)((int)this + 4) + *(int *)(*(int *)((int)this + 0xc0014) + 4));
@@ -490,12 +462,12 @@ int __thiscall kcLargeStruct_FUN_00412db0(UNK_LARGE_STRUCT *this, char *str)
                         if (arg_idx < this->LrgUnk_0xc001c) // possibly macro argument count
                         {
                             // if (*(int *)((int)this + iVar2 * 4 + 0xc0020) != 0)
-                            if (this->StringPointers[arg_idx] != nullptr)
+                            if (this->ArgumentPointers[arg_idx] != nullptr)
                             {
                                 // copy macro argument into stringpointer for expansion??
 
-                                _Size = std::strlen(this->StringPointers[arg_idx]);
-                                std::memcpy(str_ptr, this->StringPointers[arg_idx], _Size);
+                                _Size = std::strlen(this->ArgumentPointers[arg_idx]);
+                                std::memcpy(str_ptr, this->ArgumentPointers[arg_idx], _Size);
 
                                 // _Size = std::strlen(*(char **)((int)this + iVar2 * 4 + 0xc0020));
                                 // std::memcpy(str_ptr, *(void **)((int)this + iVar2 * 4 + 0xc0020), _Size);

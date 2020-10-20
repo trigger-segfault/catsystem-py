@@ -1,6 +1,9 @@
 
 #include "common_mc.h"
-#ifdef KCLIB_OOP
+///TEMP: Also run OOP class of kcFileInfo until we're done with the functional stuff
+#ifndef KCLIB_OOP
+#undef this
+// #ifdef KCLIB_OOP
 
 #include "kcCatScene.h"
 #include "kcFileInfo.h"
@@ -8,92 +11,63 @@
 
 //unsigned int * kcMacroReader_initRun(void *this, char *param_1)
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004119a0
-kclib::kcCatScene::kcCatScene(IN const char *filename)
+kclib::kcFileLineBuffer::kcFileLineBuffer(IN const char *filename)
 {
-    this->BufferLines = nullptr;
-    this->MemoryLines = nullptr; // HGLOBAL GlobalAlloc
-    this->BufferOffsets = nullptr;
+    this->LineBuffer    = nullptr;
+    this->MemoryLines   = nullptr;
+    this->LineOffsets   = nullptr;
     this->MemoryOffsets = nullptr;
-    this->FileSize = 0;
-    this->LineCount = 0;
-    this->MacUnk0 = 0;
-    this->MacUnk4 = 0;
+    this->BufferSize    = 0;
+    this->LineCount     = 0;
+    this->MacUnk0 = 0; // ???
+    this->LastLineMultibyteContinue = FALSE;
+
     std::strcpy(&this->Filename[0], filename);
     this->Read(filename);
-    // return this;
-    // *(undefined4 *)((int)this + 8) = 0;
-    // *(undefined4 *)((int)this + 0x414) = 0;
-    // *(undefined4 *)((int)this + 0xc) = 0;
-    // *(undefined4 *)((int)this + 0x418) = 0;
-    // *(undefined4 *)((int)this + 0x41c) = 0;
-    // *(undefined4 *)((int)this + 4) = 0;
-    // *(undefined4 *)this = 0;
-    // *(undefined4 *)((int)this + 0x10) = 0;
-    // _strcpy((char *)((int)this + 0x14),filename);
-    // kcCatScene_Read((int)this,param_1);
-    // return (undefined4 *)this;
 }
 
-// undefined4 kclib::kcCatScene::Read(int this,char *filename)
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_004114d0
-bool kclib::kcCatScene::Read(IN const char *filename)
+///CUSTOM: destructor not observed, but added anyway
+kclib::kcFileLineBuffer::~kcFileLineBuffer()
 {
-    // unsigned char bVar1;
-    // // FILE_READER *this_00;
-    // unsigned char *bufferLines;
-    // //FILE *file;
-    // int iVar3;
-    // char *pcVar4;
-    // undefined4 uVar5;
-    // size_t sVar7;
-    // FILE_READER *unkFile;
-    // DWORD fileSize;
-    // size_t local_1c;
-    // int local_10;
-    // int lineCount;
-    
-    // all this just to read fileSize... nice
-    kcFileInfo *fileinfo = new kcFileInfo(filename);
-    fileinfo->SetReadMode();
-    unsigned int fileSize = fileinfo->GetFileSize();
-    delete fileinfo;
-    // FILE_READER *unkFile = (FILE_READER *)std::malloc(0x598);//_newalloc(0x598);
-    // if (unkFile != nullptr)
-    // {
-    //     unkFile = (FILE_READER *)kcUnkFile_ctor(unkFile, filename);
-    // }
-    // kcUnkFile_SetReadMode(unkFile);
-    // unsigned int fileSize = kcUnkFile_GetFileSize(unkFile);
-    // if (unkFile != nullptr)
-    // {
-    //     kcUnkFile_scalar_dtor(unkFile, 1);
-    // }
+    // dummy func (no cleanup, for now)
+    ///FIXME: decide if we need to add cleanup here, for mc_tool
+}
 
+// undefined4 kclib::kcFileLineBuffer::Read(int this,char *filename)
+///FID:cs2_full_v401/system/scene/mc.exe: FUN_004114d0
+bool kclib::kcFileLineBuffer::Read(IN const char *filename)
+{
     HGLOBAL hMemLines = nullptr;
     HGLOBAL hMemOffsets = nullptr;
-    unsigned char *bufferLines = nullptr;
-    unsigned int *bufferOffsets;
+    char *lineBuffer = nullptr;
+    unsigned int *lineOffsets = nullptr;
     unsigned int lineCount = 0;
+    
+    // all this just to read bufferSize... nice
+    kcFileInfo *fileinfo = new kcFileInfo(filename);
+    fileinfo->SetReadMode();
+    unsigned int bufferSize = fileinfo->GetSize();
+    delete fileinfo;
 
     // allocate MemoryLines and copy lines into buffer,
     //  nullterminated with newlines and control chars removed
-    if ((int)fileSize > 0)
+    if ((int)bufferSize > 0)
     {
         // the original source was likely a goto-failure control flow,
         //  decompiled it's just layers upon layers of if statements, so it has been cleaned up
         
-        fileSize += 0x10; // extra space, for unknown reasons. Could be useful?
-        FILE *file = nullptr;
+        bufferSize += 0x10; // extra space, for unknown reasons. Could be useful? *shrug*
+        FILE *file = nullptr; // text file (mode "rt")
 
         //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
-        hMemLines = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, fileSize);
+        hMemLines = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, bufferSize);
 
         if (hMemLines != nullptr)
         {
-            bufferLines = (unsigned char *)::GlobalLock(hMemLines);
+            lineBuffer = (char *)::GlobalLock(hMemLines);
         }
 
-        if (bufferLines != nullptr)
+        if (lineBuffer != nullptr)
         {
             file = std::fopen(filename, "rt");
         }
@@ -101,29 +75,26 @@ bool kclib::kcCatScene::Read(IN const char *filename)
         // reading file (final 'if' in setup)
         if (file != nullptr)
         {
-            for (int pos = 0; !std::feof(file) && std::fgets((char *)&bufferLines[pos], fileSize - pos, file); pos++)
+            int offset = 0;
+            while (!std::feof(file) && std::fgets(&lineBuffer[offset], bufferSize - offset, file))
             {
-                // char *line = std::fgets(&bufferLines[i], fileSize - pos, file);
-                // if (pcVar4 == nullptr)
-                //     break;
-                unsigned int len;// = std::strlen(&bufferLines[pos]); //&bufferLines[len + pos - 1]
-                for (len = std::strlen((char *)&bufferLines[pos]); len > 0; len--)
+                // trim control chars from end of line (excluding whitespace)
+                int length = (int)std::strlen(&lineBuffer[offset]);
+                for (; length > 0; length--)
                 {
-                    if (bufferLines[pos + len - 1] >= 0x20 || bufferLines[pos + len - 1] == '\t')
+                    if ((unsigned int)lineBuffer[offset + length - 1] >= 0x20 || lineBuffer[offset + length - 1] == '\t')
                         break;
                 }
-                bufferLines[pos + len] = '\0';
-                pos += len;
+                lineBuffer[offset + length] = '\0';
+                offset += length + 1; // +1 for null-termination
                 lineCount++;
-                //*(char *)((int)bufferLines + pos + len) = '\0';
-                // pos = pos + 1 + len
-                //lineCount += 1;
             }
+            // cleanup file
             std::fclose(file);
         }
 
         // cleanup
-        if (bufferLines != nullptr)
+        if (lineBuffer != nullptr)
         {
             ::GlobalUnlock(hMemLines);
         }
@@ -145,35 +116,35 @@ bool kclib::kcCatScene::Read(IN const char *filename)
         // the original source was likely a goto-failure control flow,
         //  decompiled it's just layers upon layers of if statements, so it has been cleaned up
         this->LineCount = lineCount;
-        this->FileSize = fileSize;
+        this->BufferSize = bufferSize;
         this->MemoryLines = hMemLines;
-        bufferLines = nullptr;
-        bufferOffsets = nullptr;
+        lineBuffer = nullptr;
+        lineOffsets = nullptr;
         //0x42 (GHND, GMEM_MOVEABLE | GMEM_ZEROINIT)
         hMemOffsets = ::GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, lineCount * sizeof(unsigned int));
         if (hMemOffsets != nullptr)
         {
-            bufferLines = (unsigned char *)::GlobalLock(hMemLines);
+            lineBuffer = (char *)::GlobalLock(hMemLines);
         }
-        if (bufferLines != nullptr)
+        if (lineBuffer != nullptr)
         {
-            bufferOffsets = (unsigned int *)::GlobalLock(hMemOffsets);
+            lineOffsets = (unsigned int *)::GlobalLock(hMemOffsets);
         }
         
         // reading file (final 'if' in setup)
-        if (bufferOffsets != nullptr)
+        if (lineOffsets != nullptr)
         {
             // unsigned int offset = 0;
-            for (unsigned int line = 0, offset = 0; line < this->LineCount; line++, offset++)
+            for (unsigned int line = 0, offset = 0; line < this->LineCount; line++)
             {
-                bufferOffsets[line] = offset;
-                offset += (unsigned int)std::strlen((char *)&bufferLines[offset]);
+                lineOffsets[line] = offset;
+                offset += (unsigned int)std::strlen(&lineBuffer[offset]) + 1; // +1 for null-termination
             }
             ::GlobalUnlock(hMemOffsets);
         }
 
         // cleanup
-        if (bufferLines != nullptr)
+        if (lineBuffer != nullptr)
         {
             ::GlobalUnlock(hMemLines);
         }
@@ -185,21 +156,21 @@ bool kclib::kcCatScene::Read(IN const char *filename)
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411410
-bool kclib::kcCatScene::LockBuffers()
+bool kclib::kcFileLineBuffer::LockBuffers()
 {
-    if (this->BufferLines == nullptr || this->BufferOffsets == nullptr) // 0x8, 0xc
+    if (this->LineBuffer == nullptr || this->LineOffsets == nullptr) // 0x8, 0xc
     {
         if (this->MemoryLines != nullptr) // 0x414
         {
-            this->BufferLines = (char *)::GlobalLock(this->MemoryLines); // 0x8, 0x414
+            this->LineBuffer = (char *)::GlobalLock(this->MemoryLines); // 0x8, 0x414
         }
         if (this->MemoryOffsets != nullptr) // 0x418
         {
-            this->BufferOffsets = (unsigned int *)::GlobalLock(this->MemoryOffsets); // 0xc, 0x418
+            this->LineOffsets = (unsigned int *)::GlobalLock(this->MemoryOffsets); // 0xc, 0x418
         }
     }
     
-    if (this->BufferLines == nullptr || this->BufferOffsets == nullptr) // 0x8, 0xc
+    if (this->LineBuffer == nullptr || this->LineOffsets == nullptr) // 0x8, 0xc
     {
         this->UnlockBuffers();
         return false;
@@ -208,66 +179,126 @@ bool kclib::kcCatScene::LockBuffers()
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004113b0
-void kclib::kcCatScene::UnlockBuffers()
+void kclib::kcFileLineBuffer::UnlockBuffers()
 {
-    if (this->BufferLines != nullptr) // 0x8
+    if (this->LineBuffer != nullptr) // 0x8
     {
         ::GlobalUnlock(this->MemoryLines); // 0x414
-        this->BufferLines = nullptr; // 0x8
+        this->LineBuffer = nullptr; // 0x8
     }
-    if (this->BufferOffsets != nullptr) // 0xc
+    if (this->LineOffsets != nullptr) // 0xc
     {
         ::GlobalUnlock(this->MemoryOffsets); // 0x418
-        this->BufferOffsets = nullptr; // 0xc
+        this->LineOffsets = nullptr; // 0xc
     }
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004114a0
-bool kclib::kcCatScene::IsLocked()
+bool kclib::kcFileLineBuffer::IsLocked()
 {
-    return (this->BufferLines != nullptr && this->BufferOffsets != nullptr);
-    // undefined4 uVar1;
-    // if (this->BufferLines == nullptr || this->BufferOffsets == nullptr)
-    // {
-    //     uVar1 = 0;
-    // }
-    // else
-    // {
-    //     uVar1 = 1;
-    // }
-    // return uVar1;
+    return (this->LineBuffer != nullptr && this->LineOffsets != nullptr);
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411920
-const char * kclib::kcCatScene::GetLineAt(int index)
+const char * kclib::kcFileLineBuffer::GetLineAt(int index)
 {
-    // int iVar1 = ;
     if (!this->IsLocked())
-        return nullptr;
+        return nullptr; // not locked
 
-    // if ((index < 0) || (*(int *)(this + 4) <= index))
     if (index < 0 || index >= this->LineCount)
-        return nullptr;
+        return nullptr; // out of range
     
-    return &this->BufferLines[this->BufferOffsets[index]];
-    // iVar1 = *(int *)(this + 8) + *(int *)(*(int *)(this + 0xc) + index * 4);
+    return &this->LineBuffer[this->LineOffsets[index]];
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411970
-bool kclib::kcCatScene::HasLineAt(int index)
+bool kclib::kcFileLineBuffer::HasLineAt(int index)
 {
-    // int iVar1;
-    // iVar1 = kcCatScene_GetLineAt(this, index);
-    // return (BOOL)(iVar1 != 0);
     return (this->GetLineAt(index) != nullptr);
 }
 
-
+// Copy the next line (or continued lines) from the buffer at index
+//  writes to outBuffer, and updates inoutIndex (and +1 for each '\\' line continuation)
+///FLAG: ALLOW_LINE_CONTINUE  0x1
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00411a30
-unsigned short * kclib::kcCatScene::kcCatScene_FUN_00411a30(unsigned short *shortTable, int param_3, IN OUT int *param_4, unsigned int param_5)
+unsigned int kclib::kcFileLineBuffer::CopyLineAt(OUT char *outBuffer, int bufferSize, IN OUT int *inoutIndex, unsigned int flags)
 {
+    int index = *inoutIndex;
+    char *out_ptr = outBuffer;
+    bool lineContinued = false;
+    while (true)
+    {
+        if (false) // probably a preprocessor flag (that's changed based on the needs of a specific script type)
+            break;
+        const char *line_ptr = this->GetLineAt(index);
+        if (line_ptr == nullptr)
+            break; // no more lines, finish
 
+        index++; // increment index (moved up for visibility)
+        if (this->LastLineMultibyteContinue != FALSE)
+        {
+            this->LastLineMultibyteContinue = FALSE; // only set back to false if a line at index exists
+        }
+
+        //TRIM: when continuing, trim (skip) control chars and whitespace from start of line
+        while (lineContinued && line_ptr[0] != '\0' && (unsigned char)line_ptr[0] <= 0x20) // '\0', 0x21
+        {
+            line_ptr++;
+        }
+
+        //COPY: copy current line into buffer
+        int line_len = (int)std::strlen(line_ptr);
+        if (line_len >= bufferSize)
+        {
+            std::memcpy(out_ptr, line_ptr, bufferSize - 1U);
+            out_ptr += (bufferSize - 1U); // lineEnd = out_ptr + (bufferSize - 1U);
+            break; // end of buffer reached, finish here
+        }
+        std::memcpy(out_ptr, line_ptr, line_len);
+        ///FIXME: Buffer size subtraction doesn't account for -1 from skipping '\\' (non-fatal, minor issue)
+        bufferSize -= line_len;
+        
+        //CONTINUE?: some flags (it's that "allow line comment/continue?" flag again!)
+        if ((flags & 1) == 0 || line_len < 1 || out_ptr[line_len - 1] != '\\')
+            break; // no line continuation, finish
+
+        //CHECK: A VERY rudimentary scan of multibyte characters in the line to see if
+        //        the final '\\' isn't actually part of a double-byte Shift_JIS character.
+        int i, char_width;
+        for (i = 0, char_width = 0; i + 1 < line_len; i += char_width) // while (line_len >= 2)
+        {
+            if ((unsigned char)out_ptr[i] >= 0x80)
+                char_width = 2;
+            else
+                char_width = 1;
+        }
+        if (i == line_len && char_width == 2 && out_ptr[i - 1] == '\\') // 0x5c
+        {
+            this->LastLineMultibyteContinue = TRUE; // *(unk4 *)0x10 = 1
+            break; // multi-byte ending in '\\' (0x5c) not a line continuation
+        }
+
+        //NEXT: normal line continuation, keep going and copy next line
+        lineContinued = true;
+        out_ptr += line_len - 1; // -1 to overwrite (ignore) '\\' line continuation char
+    }
+
+    *inoutIndex = index;
+    out_ptr[0] = '\0'; // null-terminate
+    ///PTRMATH: string distance
+    return (unsigned int)(out_ptr - outBuffer);
 }
 
+///CUSTOM: function for potentially inlined access to Filename member
+unsigned int kclib::kcFileLineBuffer::GetLineCount() const
+{
+    return this->LineCount;
+}
+
+///CUSTOM: function for potentially inlined access to Filename member
+const char * kclib::kcFileLineBuffer::GetFilename() const
+{
+    return &this->Filename[0];
+}
 
 #endif

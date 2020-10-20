@@ -7,48 +7,42 @@
 
 
 ///FID:cs2_full_v401/system/scene/mc.exe: DAT_0041ff9c
-int g_FILE_NUM_0041ff9c;
+int g_FILE_READER_COUNT;
 
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004137f0
-FILE_READER * __thiscall kcUnkFile_ctor(FILE_READER *this, IN const char *filename)
+FILE_READER * __thiscall kcFileInfo_ctor(FILE_READER *this, IN const char *filename)
 {
-    // unsigned int name_len;
-    // unsigned int tmp_len = ::strlen(filename);
-    // if (tmp_len < 0x3ff)
-    // {
-    //     name_len = ::strlen(filename); // maximum over-redundancy! wooo~
-    // }
-    // else
-    // {
-    //     name_len = 0x3ff;
-    // }
     unsigned int name_len = std::max(0x3ffU, (unsigned int)std::strlen(filename));
     std::memcpy(&this->Filename[0], filename, name_len);
     this->Filename[name_len] = '\0';
-    this->Handle = nullptr; // 0
-    this->FindHandle = nullptr; // 0
-    this->DesiredAccess = GENERIC_READ | GENERIC_WRITE; // 0xc0000000
-    this->ShareMode = (FILE_SHARE_READ | FILE_SHARE_WRITE); // 3
-    this->CreationDisposition = OPEN_EXISTING; // 3
-    this->FlagsAndAttributes = FILE_ATTRIBUTE_NORMAL; // 0x80
-    this->TemplateHandle = nullptr; // CreateFileA HANDLE hTemplateFile / Overlapped?
-    this->RdrUnk265 = 0; // ???
-    g_FILE_NUM_0041ff9c += 1;
+
+    this->Handle     = nullptr;
+    this->FindHandle = nullptr;
+    this->DesiredAccess = GENERIC_READ | GENERIC_WRITE;       // 0xc0000000
+    this->ShareMode     = FILE_SHARE_READ | FILE_SHARE_WRITE; // 0x3
+    this->CreationDisposition = OPEN_EXISTING;                // 0x3
+    this->FlagsAndAttributes  = FILE_ATTRIBUTE_NORMAL;        // 0x80
+    this->TemplateHandle      = nullptr; // CreateFileA HANDLE hTemplateFile
+
+    this->RdrReserved = 0; // ???
+
+    g_FILE_READER_COUNT += 1;
     return this;
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004137d0
-void __fastcall kcUnkFile_dtor(FILE_READER *this)
+void __fastcall kcFileInfo_dtor(FILE_READER *this)
 {
-    kcUnkFile_Close(this);
-    g_FILE_NUM_0041ff9c -= 1;
+    kcFileInfo_Close(this);
+
+    g_FILE_READER_COUNT -= 1;
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00401000
-void * __thiscall kcUnkFile_scalar_dtor(FILE_READER *this, int flags)
+void * __thiscall kcFileInfo_scalar_dtor(FILE_READER *this, int flags)
 {
-    kcUnkFile_dtor(this);
+    kcFileInfo_dtor(this);
     if ((flags & 1) != 0)
     {
         std::free(this);
@@ -57,16 +51,13 @@ void * __thiscall kcUnkFile_scalar_dtor(FILE_READER *this, int flags)
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413710
-BOOL __fastcall kcUnkFile_Open(FILE_READER *this)
+BOOL __fastcall kcFileInfo_Open(FILE_READER *this)
 {
-    HANDLE hFile;
-    // hFile = ::CreateFileA((LPCSTR)(param_1 + 9),(DWORD)param_1[2],(DWORD)param_1[3],
-    //                     (LPSECURITY_ATTRIBUTES)0x0,(DWORD)param_1[4],(DWORD)param_1[5],param_1[6]);
-    hFile = ::CreateFileA(&this->Filename[0], this->DesiredAccess, this->ShareMode,
+    HANDLE hFile = ::CreateFileA(&this->Filename[0], this->DesiredAccess, this->ShareMode,
                         NULL, this->CreationDisposition, this->FlagsAndAttributes, this->TemplateHandle);
 
-    this->Handle = hFile; // what on Earth is going on here? Hot Potato?
-    hFile = this->Handle;
+    this->Handle = hFile;
+    //hFile = this->Handle; // what on Earth is going on here? Hot Potato??
 
     if (hFile == INVALID_HANDLE_VALUE)
     {
@@ -76,7 +67,7 @@ BOOL __fastcall kcUnkFile_Open(FILE_READER *this)
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004136b0
-BOOL __fastcall kcUnkFile_Close(FILE_READER *this)
+BOOL __fastcall kcFileInfo_Close(FILE_READER *this)
 {
     BOOL result = TRUE;
     if (this->FindHandle != nullptr)
@@ -93,46 +84,31 @@ BOOL __fastcall kcUnkFile_Close(FILE_READER *this)
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b00
-BOOL __fastcall kcUnkFile_Delete(FILE_READER *this)
+BOOL __fastcall kcFileInfo_Delete(FILE_READER *this)
 {
-    kcUnkFile_Close(this);
+    kcFileInfo_Close(this);
     return DeleteFileA(&this->Filename[0]);
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413660
-unsigned int __thiscall kcUnkFile_Write(FILE_READER *this, IN const unsigned char *inBuffer, unsigned int numBytes)
-
+unsigned int __thiscall kcFileInfo_Write(FILE_READER *this, IN const unsigned char *inBuffer, unsigned int numBytes)
 {
-    // unsigned int bytesWritten;
-    // BOOL BVar2;
-    
-    if (this->Handle == nullptr) // == 0
+    if (this->Handle == nullptr)
         return 0U;
 
     ///FIXME: Temp workaround for x64 build environment, making DWORD (unsigned long) sizeof 8
     DWORD bytesWritten = this->LastBytesWritten;
     BOOL result = ::WriteFile(this->Handle, inBuffer, numBytes, &bytesWritten, NULL);
-    this->LastBytesWritten = bytesWritten;
+    this->LastBytesWritten = (unsigned int)bytesWritten;
     // BOOL result = ::WriteFile(this->Handle, inBuffer, numBytes, (LPDWORD)&this->LastBytesWritten, NULL);
-    if (result == FALSE) // == 0
-    {
+    if (result == FALSE)
         return 0U;
-    }
+
     return this->LastBytesWritten;
-    // if (result == 0)
-    // {
-    //     return 0U;
-    //     bytesWritten = 0U;
-    // }
-    // else
-    // {
-    //     bytesWritten = this->LastBytesWritten;
-    // }
-    // return bytesWritten;
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004137a0
-void __fastcall kcUnkFile_SetReadMode(FILE_READER *this)
+void __fastcall kcFileInfo_SetReadMode(FILE_READER *this)
 {
     this->DesiredAccess = GENERIC_READ; // = 0x80000000
     this->ShareMode &= FILE_SHARE_READ; // &= 1
@@ -140,61 +116,59 @@ void __fastcall kcUnkFile_SetReadMode(FILE_READER *this)
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413770
-void __fastcall kcUnkFile_SetWriteMode(FILE_READER *this)
+void __fastcall kcFileInfo_SetWriteMode(FILE_READER *this)
 {
     this->DesiredAccess = GENERIC_WRITE; // = 0x40000000;
     this->ShareMode &= FILE_SHARE_WRITE;// &= 2
     this->CreationDisposition = CREATE_ALWAYS; // = 2
 }
 
-///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b20
-void __fastcall kcUnkFile_SetWriteMode_thunk(FILE_READER *this)
+///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b20 (thunk: FUN_00413770)
+void __fastcall kcFileInfo_SetWriteMode_thunk(FILE_READER *this)
 {
-    kcUnkFile_SetWriteMode(this);
+    kcFileInfo_SetWriteMode(this);
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b40
-unsigned int __fastcall kcUnkFile_FindLoop(FILE_READER *this)
+unsigned int __fastcall kcFileInfo_FindNextValid(FILE_READER *this)
 {
-    unsigned int result;
+    unsigned int attributes;
     do
     {
-        result = kcUnkFile_FindNext(this);
-        if ((int)result < 0) // I have NO IDEA what this comparison is trying to achieve
-        {
-            return result; // maybe... break on no more files?
-        }
-    } while ((result & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_TEMPORARY)) != 0); // this is the real comparison I guess
-    return result;
+        attributes = kcFileInfo_FindNext(this);
+        if ((int)attributes < 0) // comparison for INVALID_FILE_ATTRIBUTES (0xffffffff)
+            break; // next file is invalid, break
+
+    } while ((attributes & (FILE_ATTRIBUTE_DIRECTORY | FILE_ATTRIBUTE_TEMPORARY)) != 0); // skip directories/temp files
+
+    return attributes; // returns either next valid file attributes, or INVALID_FILE_ATTRIBUTES
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004138c0
-unsigned int __fastcall kcUnkFile_FindNext(FILE_READER *this)
+unsigned int __fastcall kcFileInfo_FindNext(FILE_READER *this)
 {
+    // Open find handle if first time calling
     if (this->FindHandle == nullptr)
     {
         this->FindHandle = ::FindFirstFileA(&this->Filename[0], &this->FindData);
         if (this->FindHandle == INVALID_HANDLE_VALUE)
         {
-            kcUnkFile_FindClose(this);
+            kcFileInfo_FindClose(this);
             return INVALID_FILE_ATTRIBUTES; // 0xffffffff
         }
     }
-    else
+    else if (::FindNextFileA(this->FindHandle, &this->FindData) == FALSE)
     {
-        if (::FindNextFileA(this->FindHandle, &this->FindData) == FALSE)
-        {
-            kcUnkFile_FindClose(this);
-            return INVALID_FILE_ATTRIBUTES; // 0xffffffff
-        }
+        kcFileInfo_FindClose(this);
+        return INVALID_FILE_ATTRIBUTES; // 0xffffffff
     }
-    std::strcpy(&this->Filename[0], this->FindData.cFileName);
-    return this->FindData.dwFileAttributes; //???
-    // return *(undefined4 *)(param_1 + 0x428);
+
+    std::strcpy(&this->Filename[0], this->FindData.cFileName); // Update to found filename (for iteration)
+    return this->FindData.dwFileAttributes; // *(unk4 *)0x428
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004134f0
-void __fastcall kcUnkFile_FindClose(FILE_READER *this)
+void __fastcall kcFileInfo_FindClose(FILE_READER *this)
 {
     if (this->FindHandle != nullptr)
     {
@@ -204,45 +178,42 @@ void __fastcall kcUnkFile_FindClose(FILE_READER *this)
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413520
-BOOL __fastcall kcUnkFile_UpdateModifiedTime(FILE_READER *this)
+BOOL __fastcall kcFileInfo_UpdateModifiedTime(FILE_READER *this)
 {
-    HANDLE hFile;
-    if (this->Handle == nullptr)
+    HANDLE hFile = this->Handle;
+    if (hFile == nullptr) // open new handle if our's is not already open
     {
         hFile = ::CreateFileA(&this->Filename[0], GENERIC_READ, this->ShareMode & FILE_SHARE_READ,
                             NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (hFile == INVALID_HANDLE_VALUE)
         {
-            return FALSE;
+            return false;
         }
     }
-    else
-    {
-        hFile = this->Handle;
-    }
+
     FILETIME creationTime, accessTime, modifiedTime;
     BOOL result = ::GetFileTime(hFile, &creationTime, &accessTime, &modifiedTime);
-    if (this->Handle == nullptr)
+
+    if (this->Handle == nullptr) // we opened a new handle, close it
     {
         ::CloseHandle(hFile);
     }
-    if (result == TRUE) // == 1
+
+    if (result == TRUE)
     {
         ::FileTimeToLocalFileTime(&modifiedTime, &this->ModifiedFileTime); // 0x15e (0x578)
         ::FileTimeToSystemTime(&this->ModifiedFileTime, &this->ModifiedSystemTime); // 0x15e, 0x15a (0x578, 0x568)
     }
-    return result;
+    return (bool)result;
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413a50
-unsigned int __fastcall kcUnkFile_GetMSDOSTimestamp(FILE_READER *this)
+unsigned int __fastcall kcFileInfo_GetTimestamp(FILE_READER *this)
 {
     //https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-systemtime
     //https://docs.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-filetime
-    // BOOL BVar1;
-    // unsigned int uVar2;
-    
-    if (kcUnkFile_UpdateModifiedTime(this)) // != FALSE) // 0
+
+    if (kcFileInfo_UpdateModifiedTime(this) != FALSE)
     {
         // This will stop working in 2043 (or 2044?) ... yay~
         return ((((unsigned int)this->ModifiedSystemTime.wYear - 1980U) & 0x3f) << 26) | // (4 + 5 + 5 + 6 + 6)
@@ -251,13 +222,7 @@ unsigned int __fastcall kcUnkFile_GetMSDOSTimestamp(FILE_READER *this)
                 (((unsigned int)this->ModifiedSystemTime.wHour   & 0x1f) << 6) | // (6 + 6)
                 (((unsigned int)this->ModifiedSystemTime.wMinute & 0x3f) << 6) | // (6)
                  ((unsigned int)this->ModifiedSystemTime.wSecond & 0x3f);        // (0)
-        // return (((((
-        //         (uint)*(ushort *)((int)param_1 + 0x568) - 0x7bc & 0x3f) << 4 | // 0x15a
-        //         (uint)*(ushort *)((int)param_1 + 0x56a) & 0xf) << 22 |
-        //         (uint)*(ushort *)((int)param_1 + 0x56e) & 0x1f) << 17 |
-        //         (uint)*(ushort *)((int)param_1 + 0x570) & 0x1f) << 12 | // 0x15c
-        //         (uint)*(ushort *)((int)param_1 + 0x572) & 0x3f) << 6 |
-        //         (uint)*(ushort *)((int)param_1 + 0x574) & 0x3f; // 0x15d
+
         // return (((((
         //         (uint)*(ushort *)((int)param_1 + 0x568) - 0x7bc & 0x3f) << 4 | // 0x15a
         //         (uint)*(ushort *)((int)param_1 + 0x56a) & 0xf) << 5 |
@@ -267,44 +232,27 @@ unsigned int __fastcall kcUnkFile_GetMSDOSTimestamp(FILE_READER *this)
         //         (uint)*(ushort *)((int)param_1 + 0x574) & 0x3f; // 0x15d
     }
     return 0U;
-    // if (BVar1 == 0)
-    // {
-    //     uVar2 = 0;
-    // }
-    // else
-    // {
-    //     uVar2 = ((((((uint)*(ushort *)(param_1 + 0x15a) - 0x7bc & 0x3f) << 4 |
-    //             (uint)*(ushort *)((int)param_1 + 0x56a) & 0xf) << 5 |
-    //             (uint)*(ushort *)((int)param_1 + 0x56e) & 0x1f) << 5 |
-    //             (uint)*(ushort *)(param_1 + 0x15c) & 0x1f) << 6 |
-    //             (uint)*(ushort *)((int)param_1 + 0x572) & 0x3f) << 6 |
-    //             (uint)*(ushort *)(param_1 + 0x15d) & 0x3f;
-    // }
-    // return uVar2;
 }
 
-// DWORD __fastcall kcUnkFile_GetFileSize(HANDLE *param_1)
+// DWORD __fastcall kcFileInfo_GetSize(HANDLE *param_1)
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_004135e0
-unsigned int __fastcall kcUnkFile_GetFileSize(FILE_READER *this)
+unsigned int __fastcall kcFileInfo_GetSize(FILE_READER *this)
 {
-    HANDLE hFile;
-    if (this->Handle == nullptr)
+    HANDLE hFile = this->Handle;
+    if (hFile == nullptr) // open new handle if our's is not already open
     {
         hFile = ::CreateFileA(&this->Filename[0], GENERIC_READ, this->ShareMode & FILE_SHARE_READ,
                             NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-        if (hFile == INVALID_HANDLE_VALUE) // 0xffffffff
+        if (hFile == INVALID_HANDLE_VALUE)
         {
             return INVALID_FILE_SIZE; // 0xffffffff
         }
     }
-    else
-    {
-        hFile = this->Handle;
-    }
 
-    DWORD fileSize;
+    DWORD fileSize; // this function only gets the LODWORD size (up to 4 GB)
     fileSize = ::GetFileSize(hFile, &fileSize);
-    if (this->Handle == nullptr)
+
+    if (this->Handle == nullptr) // we opened a new handle, close it
     {
         ::CloseHandle(hFile);
     }
@@ -312,103 +260,95 @@ unsigned int __fastcall kcUnkFile_GetFileSize(FILE_READER *this)
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413960
-char * __fastcall kcUnkFile_FUN_00413960(FILE_READER *this)
+char * __fastcall kcFileInfo_GetBasename(FILE_READER *this)
 {
-    char *pcVar1;
-    char *pcVar2;
-    char *pcVar3;
-    char *local_14;
-    char *local_8;
-
-    ///NOTE:
-    /// strchr = find FIRST (and return char pointer from)
-    /// strrchr = find LAST (and return char pointer from), aka "reverse", or "right"
+    ///NOTE: strchr = find FIRST (and return char pointer from)
+    ///      strrchr = find LAST (and return char pointer from), aka "reverse", or "right"
     
-    pcVar1 = std::strchr(&this->Filename[0], ' ');//0x20);
-    if (pcVar1 != nullptr)
+    // disables the usage of ' ' spaces in filepaths
+    //  (only names would allow for a space without being butchered, which seems counterintuitive)
+    ///FIXME: Space behavior should only care about spaces in basenames
+    char *firstSpace = std::strchr(&this->Filename[0], ' ');//0x20);
+    if (firstSpace != nullptr)
     {
-        *pcVar1 = '\0';
+        *firstSpace = '\0'; // first instance of space is null-terminated?
     }
-    if (this->Filename[0] == '\0')
+
+    // if the filepath length is non-zero (and doesn't start with a space, making it valid)
+    //   find path separators in filepath (if one exists)
+    if (this->Filename[0] != '\0')
     {
-        local_8 = &this->Filename[0];
+        char *separator;
+
+        // find last slash in filepath ('/' or '\\')
+        char *lastFwdslash = std::strrchr(&this->Filename[0], '/'); //0x2f
+        char *lastBackslash = std::strrchr(&this->Filename[0], '\\'); //0x5c
+        if (lastBackslash < lastFwdslash) // last separator is '/'
+        {
+            separator = lastFwdslash;
+        }
+        else if (lastBackslash != nullptr) // last separator is '\\'
+        {
+            separator = lastBackslash;
+        }
+        else // no slash separators, check for first colon separator
+        {
+            separator = std::strchr(&this->Filename[0], ':'); //firstColon;
+        }
+        
+        // restore the null-terminated space from earlier
+        ///FIXME: Space behavior should only care about spaces in basenames
+        if (firstSpace != nullptr)
+        {
+            *firstSpace = ' '; // note how space is only restored if not first char in filepath
+                               //  it's wonkey behavior, but spaces as first chars are indeed invalid
+        }
+        
+        // if we found a separator, filepath field contains more than just basename,
+        //   return "start of name" (not fully accurate because space handling is problematic)
+        if (separator != nullptr)
+        {
+            return separator + 1; // +1 to start name after matched ('/', '\\', or ':') char
+        }
     }
-    else
-    {
-        pcVar2 = std::strrchr(&this->Filename[0], '/'); //0x2f);
-        pcVar3 = std::strrchr(&this->Filename[0], '\\'); //0x5c);
-        if (pcVar3 < pcVar2)
-        {
-            local_14 = std::strrchr(&this->Filename[0], '/'); //0x2f);
-        }
-        else
-        {
-            local_14 = std::strrchr(&this->Filename[0], '\\'); //0x5c);
-        }
-        local_8 = local_14;
-        if ((local_14 == nullptr) &&
-            (local_8 = std::strchr(&this->Filename[0], ':' /*0x3a*/), local_8 == nullptr)) // 0x3a
-        {
-            if (pcVar1 != nullptr)
-            {
-                *pcVar1 = ' ';
-            }
-            return &this->Filename[0];
-        }
-        if (pcVar1 != nullptr)
-        {
-            *pcVar1 = ' ';
-        }
-        local_8 = local_8 + 1;
-    }
-    return local_8;
+
+    // no separators found, return start of filename
+    return &this->Filename[0];
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413b70
-char * __fastcall kcUnkFile_GetExtension(FILE_READER *this)
+char * __fastcall kcFileInfo_GetExtension(FILE_READER *this)
 {
-    char *_Str;
-    _Str = kcUnkFile_FUN_00413960(this);
-    _Str = std::strrchr(_Str, '.'); //0x2e);
-    if (_Str == nullptr)
-        return nullptr;
-    return _Str + 1;
-    // if (_Str == (char *)0x0)
-    // {
-    //     _Str = (char *)0x0;
-    // }
-    // else
-    // {
-    //     _Str = _Str + 1;
-    // }
-    // return _Str;
+    char *ext_ptr = std::strrchr(kcFileInfo_GetBasename(this), '.'); //0x2e);
+    if (ext_ptr != nullptr)
+    {
+        return ext_ptr + 1; // +1 to get extension *after* '.'
+    }
+    return nullptr; // no extension (or failure with invalid space ' ' in basename func)
 }
 
 ///FID:cs2_full_v401/system/scene/mc.exe: FUN_00413bb0
-void __thiscall kcUnkFile_ChangeExtension(FILE_READER *this, IN const char *ext)
+void __thiscall kcFileInfo_ChangeExtension(FILE_READER *this, IN const char *newExtension)
 {
-    char *puVar1;
-    size_t sVar2;
-    char *local_8;
-    
-    local_8 = kcUnkFile_GetExtension(this);
-    if (local_8 == (char *)0x0)
+    char *ext_ptr = kcFileInfo_GetExtension(this); // will never return index &this->Filename[0]
+    if (ext_ptr == nullptr)
     {
-        sVar2 = std::strlen(&this->Filename[0]); //(char *)(this + 0x24));
-        puVar1 = &this->Filename[sVar2]; //(char *)(this + 0x24 + sVar2);
-        *puVar1 = '.'; //0x2e;
-        local_8 = puVar1 + 1;
+        // no extension, let's prepare to add one by appending '.'
+        unsigned int str_len = (unsigned int)std::strlen(&this->Filename[0]);
+        ext_ptr = &this->Filename[str_len];
+        ext_ptr[0] = '.';
+        ext_ptr++; // +1 for position right after extension
     }
-    if (ext == nullptr || ext[0] == '\0')
+
+    // remove extension (null or empty string)
+    if (newExtension == nullptr || newExtension[0] == '\0')
     {
-        local_8[-1] = '\0';
+        ext_ptr[-1] = '\0'; // -1 for '.' position (ext_ptr can never be index &this->Filename[0])
     }
-    else
+    else // change extension (correctly overwrites longer/shorter extensions)
     {
-        ///FIXME: Does this properly null-terminate?, if not it should be fixed for mc_tool release
-        std::strcpy(local_8, ext);
+        std::strcpy(ext_ptr, newExtension); // strcpy includes copying null-terminator byte - all is well!
     }
-    return;
 }
 
 #endif
