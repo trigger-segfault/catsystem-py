@@ -1,6 +1,6 @@
 ﻿#include <iostream>
 
-#pragma comment(lib, "lib/zlib-1.2.11/zlib.lib")
+#pragma comment(lib, "lib/zlib/zlib.lib")
 
 #include "mc.h"
 #include "enums.h"
