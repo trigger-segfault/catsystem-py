@@ -654,6 +654,7 @@ bool kclib::kcAnmScript::ac_ParseScript(ScriptReader *reader, OPTIONAL OUT unsig
   
   
   ///SECTION: Resolve labels
+  ///NOTE: Labels that appear after the last instruction ARE legal!
   for (int i = 0; i < (int)this->ac_AnmLines.size(); i++)
   {
     ANM_TIMELINE *curline = &this->ac_AnmLines[i];
