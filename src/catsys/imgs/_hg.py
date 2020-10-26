@@ -6,27 +6,27 @@ Provides the encoding and decoding methods for HG image encodings (HG-2, HG-3).
 """
 
 __version__ = '1.0.0'
-__date__    = '2020-09-19'
+__date__    = '2020-10-26'
 __author__  = 'Robert Jordan'
 
 __all__ = []
 
 #######################################################################################
 
-import io, os, struct
+import collections, io, os, struct
 from typing import Iterable, Iterator, List, Optional, NoReturn, Tuple, Type, Union  # for hinting in declarations
 
 # local imports
-from ._baseimg import ImageContainer, ImageFrame
+# from ._baseimg import ImageContainer, ImageFrame
 
 
 ## PREDECLARE TYPES ##
 
 HgSlice = collections.namedtuple('HgSlice', ('index', 'length')) #, 'data', 'cmd'))
-HgData  = collections.namedtuple('HgData',  ('data', 'cmd'))
+# HgData  = collections.namedtuple('HgData',  ('data', 'cmd'))
 
-Point   = collections.namedtuple('Point', ('x, y')):
-Size    = collections.namedtuple('Size', ('width', 'height'))
+# Point   = collections.namedtuple('Point', ('x, y'))
+# Size    = collections.namedtuple('Size', ('width', 'height'))
 
 class StandardInfo(object):
     __slots__ = ('width', 'height', 'bpp', 'offsetx', 'offsety', 'fullwidth', 'fullheight', 'transparent', 'originx', 'originy')
@@ -34,60 +34,57 @@ class StandardInfo(object):
     def __init__(self, width:int=0, height:int=0, bpp:int=0, offsetx:int=0, offsety:int=0, fullwidth:int=0, fullheight:int=0, transparent:bool=False, originx:int=0, originy:int=0):
         self.width  = 0
         self.height = 0
-        self.bpp    = 0
-        self.offsetx    = 0
-        self.offsety    = 0
-        self.fullwidth  = 0
-        self.fullheight = 0
+        self.bpp    = 0  # pixel bit depth (bits per pixel)
+        self.depth  = 0  # channel bit depth (bits per channel) 0 => 8
+        self.canvasx = 0
+        self.canvasy = 0
+        self.canvaswidth  = 0
+        self.canvasheight = 0
         self.transparent = False
         self.originx = 0
         self.originy = 0
+    #
+    # PROPERTIES:
+    #
     @property
-    def size(self) -> Tuple[int, int]:
-        return Size(self.width, self.height)
+    def size(self) -> tuple: return (self.width, self.height)
     @size.setter
-    def size(self, size:Tuple[int, int]):
-        self.width, self.height = size
+    def size(self, size:tuple): self.width, self.height = size
     #
     @property
-    def fullsize(self) -> Tuple[int, int]:
-        return Size(self.fullwidth, self.fullheight)
-    @fullsize.setter
-    def fullsize(self, fullsize:Tuple[int, int]):
-        self.fullwidth, self.fullheight = fullsize
+    def canvas(self) -> tuple: return (self.canvasx, self.canvasy, self.canvaswidth, self.canvasheight)
+    @canvas.setter
+    def canvas(self, canvasrect:tuple): self.canvasx, self.canvasy, self.canvaswidth, self.canvasheight = canvasrect
     #
     @property
-    def offset(self) -> Tuple[int, int]:
-        return Point(self.offsetx, self.offsety)
-    @offset.setter
-    def offset(self, offset:Tuple[int, int]):
-        self.offsetx, self.offsety = offset
+    def canvassize(self) -> tuple: return (self.canvaswidth, self.canvasheight)
+    @canvassize.setter
+    def canvassize(self, canvassize:tuple): self.canvaswidth, self.canvasheight = canvassize
     #
     @property
-    def origin(self) -> Tuple[int, int]:
-        return Point(self.originx, self.originy)
+    def canvaspos(self) -> tuple: return (self.canvasx, self.canvasy)
+    @canvaspos.setter
+    def canvaspos(self, canvaspos:tuple): self.canvasx, self.canvasy = canvaspos
+    #
+    @property
+    def origin(self) -> tuple: return (self.originx, self.originy)
     @origin.setter
-    def origin(self, origin:Tuple[int, int]):
-        self.originx, self.originy = origin
+    def origin(self, origin:tuple): self.originx, self.originy = origin
     #
     @property
-    def bytedepth(self) -> int:
-        return (self.bpp + 7) // 8
+    def bytedepth(self) -> int: return (self.bpp + 7) // 8
     # @bytedepth.setter
-    # def bytedepth(self, bytedepth:int):
-    #     self.bpp = bytedepth * 8
+    # def bytedepth(self, bytedepth:int): self.bpp = bytedepth * 8
+    @property
+    def stride(self) -> int: return (self.width * self.bpp + 7) // 8
+    @property
+    def buffersize(self) -> int: return (self.stride * self.height)
+    @property
+    def hasalpha(self) -> bool: return self.bpp == 32
     #
     @property
-    def stride(self) -> int:
-        return (self.width * self.bpp + 7) // 8
-    #
-    @property
-    def buffersize(self) -> int:
-        return (self.stride * self.height)
-    #
-    @property
-    def hasalpha(self) -> bool:
-        return self.bpp == 32
+    def depthmax(self) -> int:
+        return (((1 << self.depth ** 2) - 1) & 0xff) if self.depth else 0xff
 
 
 ## INITIALIZATION TABLES ##
@@ -164,7 +161,8 @@ class BitBuffer(object):
     """
     __slots__ = ('b', 'i', 'k')  # buffer, byte index, bit index
     def __init__(self, b:bytes):
-        self.b = self.i = self.k = 0  # buffer, byte index, bit index
+        self.b = b  # buffer
+        self.i = self.k = 0  #  byte index, bit index
         # this._bit = 8; // set to check for EOF on next bit
         # this._index = index - 1; // Incremented on next bit
         # this._remaining = length + 1; // Decremented on next bit
@@ -263,7 +261,7 @@ class BitBuffer(object):
         k += 1
         b[i] |= (1 << (k - 1)) # write bit [d:d+1] (true)
 
-        v = 1 << d  # value
+        # v = 1 << d  # value 
         while d:
             d -= 1
             if k >= 8: # incr bit [d+1:d*2+1]
@@ -271,7 +269,7 @@ class BitBuffer(object):
                 i += 1
             k += 1
             if (v >> d) & 0x1: # write bit [d+1:d*2+1] (if true)
-                b[i] |= 1 << (k - 1):
+                b[i] |= 1 << (k - 1)
 
         self.i = i
         self.k = k
@@ -307,6 +305,7 @@ def encode_zrle(hgslice:HgSlice, buffer:bytes) -> HgSlice:
     """encode_zrle(hgslice, data bytes) -> HgSlice(index, length, data bytearray, cmd bytearray)
     """
     buflen = len(buffer)
+    # print(buflen)
     ## STEP 1 MEASURE: measure length and offset of all runs ##
     #  (to allocate correct buffer sizes the first time)
     datalen = 0
@@ -340,9 +339,9 @@ def encode_zrle(hgslice:HgSlice, buffer:bytes) -> HgSlice:
 
     copyflag = bool(buffer[0])
 
-    bitbuf = BitBuffer(cmd, len(cmd))
+    bitbuf = BitBuffer(cmd) #FIXME:, len(cmd))
     bitbuf.write_flag(copyflag)
-    bitbuf.write_eliasgamma(length)
+    bitbuf.write_eliasgamma(buflen)
 
     off = dataoff = 0
     for runlen in runs:
@@ -357,53 +356,54 @@ def encode_zrle(hgslice:HgSlice, buffer:bytes) -> HgSlice:
     return (data, cmd)
 
 
-    databuf, cmdbuf = bytearray(), bytearray()
-    deltalen = len(deltabuf) 
-    copyflag = (deltabuf[0] != 0)
-    #
-    # cmd = BitBuffer(cmdbuf)
+    # databuf, cmdbuf = bytearray(), bytearray()
+    # deltalen = len(deltabuf) 
+    # copyflag = (deltabuf[0] != 0)
     # #
-    # cmd.set_bit(copyflag)
-    # cmd.set_elias_gamma(deltalen)
-    firstcopy = copyflag
-    runs = []
-    cmdlen = 0
-    datalen = 0
-    # 
-    i = 0
-    while i < deltalen:
-        n = 1
-        if copyflag: # copy fill
-            while i+n < deltalen and deltabuf[i+n] != 0:
-                n += 1
-            #
-            #databuf.extend(deltabuf[i:i+n])
-            datalen += n
-            #
-        else: # zero fill
-            while i+n < deltalen and deltabuf[i+n] == 0:
-                n += 1
-        #
-        #cmd.set_elias_gamma(n)
-        cmdlen += elias_gamma_size(n)
-        runs.append(n)
-        #
-        i += n
-        copyflag = not copyflag
-    #
-    cmdlen += elias_gamma_size(datalen)
-    cmdlen += 1 # copyflag bit
-    #
-    return ((datalen, cmdlen // 8), copyflag, runs)
-    return databuf, cmdbuf
+    # # cmd = BitBuffer(cmdbuf)
+    # # #
+    # # cmd.set_bit(copyflag)
+    # # cmd.set_elias_gamma(deltalen)
+    # firstcopy = copyflag
+    # runs = []
+    # cmdlen = 0
+    # datalen = 0
+    # # 
+    # i = 0
+    # while i < deltalen:
+    #     n = 1
+    #     if copyflag: # copy fill
+    #         while i+n < deltalen and deltabuf[i+n] != 0:
+    #             n += 1
+    #         #
+    #         #databuf.extend(deltabuf[i:i+n])
+    #         datalen += n
+    #         #
+    #     else: # zero fill
+    #         while i+n < deltalen and deltabuf[i+n] == 0:
+    #             n += 1
+    #     #
+    #     #cmd.set_elias_gamma(n)
+    #     cmdlen += elias_gamma_size(n)
+    #     runs.append(n)
+    #     #
+    #     i += n
+    #     copyflag = not copyflag
+    # #
+    # cmdlen += elias_gamma_size(datalen)
+    # cmdlen += 1 # copyflag bit
+    # #
+    # return ((datalen, cmdlen // 8), copyflag, runs)
+    # return databuf, cmdbuf
 
 def decode_zrle(hgslice:HgSlice, data:bytes, cmd:bytes) -> bytearray:
     """decode_zrle(hgslice, data bytes, cmd bytes) -> buffer bytearray
     """
-    bifbuf = BitBuffer(cmd, len(cmd))
+    bitbuf = BitBuffer(cmd) #FIXME:, len(cmd))
 
     copyflag = bitbuf.read_flag() # is first run non-zero data?
     buflen = bitbuf.read_eliasgamma() # length of output buffer (usually height x stride)
+    # print(buflen)
     buffer = bytearray(buflen) # already filled with zero-bytes
 
     off = dataoff = 0
@@ -432,7 +432,8 @@ def encode_blocks(hgslice:HgSlice, delta:bytes, width:int, height:int, bpp:int) 
     bufstart = hgslice.index * stride
     bufend = (hgslice.index + hgslice.length) * stride
 
-    sectlen = hgslice.length * stride // 4
+    # sectlen = hgslice.length * stride // 4
+    sectlen = len(delta) // 4
     blocks = bytearray(sectlen * 4)
 
     # first loop through the entire delta slice and perform absolute transform
@@ -466,7 +467,8 @@ def decode_blocks(hgslice:HgSlice, blocks:bytes, width:int, height:int, bpp:int)
     #bufend = (hgslice.index + hgslice.length) * stride
 
     sectlen = hgslice.length * stride // 4
-    sect0, sect1, sect2, sect3 = range(bufstart, bufstart + sectlen, sectlen)
+    sectlen = len(blocks) // 4
+    sect0, sect1, sect2, sect3 = range(0, sectlen * 4, sectlen)
     delta = bytearray(sectlen * 4)
 
     for i, j in zip(range(sectlen), range(0, sectlen * 4, 4)):
@@ -517,8 +519,8 @@ def decode_delta(hgslice:HgSlice, delta:bytes, width:int, height:int, bpp:int) -
         delta[xi] = (delta[xi] + delta[xj]) & 0xff
     
     # undelta RGB(A) channels of each previous stride in all but first row
-    for yi, yj in zip(range(bufstart + stride, bufstart, 1),
-                      range(bufstart, bufstart - stride, 1)):
+    for yi, yj in zip(range(bufstart + stride, bufend, 1),
+                      range(bufstart, bufend - stride, 1)):
         delta[yi] = (delta[yi] + delta[yj]) & 0xff
 
     pixels = bytearray(delta)
@@ -526,18 +528,21 @@ def decode_delta(hgslice:HgSlice, delta:bytes, width:int, height:int, bpp:int) -
 
 ## ENCODE/DECODE SLICES ##
 
-def encode_slice(hgslice:HgSlice, pixels:bytes, width:int, height:int, bpp:int) -> HgSlice:
-    """encode_slice(hgslice, pixels bytes, width, height, bpp) -> HgData(data bytearray, cmd bytearray)
+def encode_slice(hgslice:HgSlice, pixels:bytes, width:int, height:int, bpp:int) -> tuple:
+    """encode_slice(hgslice, pixels bytes, width, height, bpp) -> (data bytearray, cmd bytearray)
     """
     delta = encode_delta(hgslice, pixels, width, height, bpp)
-    blocks = encode_blocks(hgslice, width, height, bpp)
+    blocks = encode_blocks(hgslice, delta, width, height, bpp)
     data, cmd = encode_zrle(hgslice, blocks)
-    return HgData(data, cmd)
+    return (data, cmd)
 
-def decode_slice(hgslice:HgSlice, hgdata:HgData, width:int, height:int, bpp:int) -> bytearray:
-    """decode_slice(hgslice, HgData(data bytes, cmd bytes), width, height, bpp) -> pixels bytearray
+def decode_slice(hgslice:HgSlice, data:bytes, cmd:bytes, width:int, height:int, bpp:int) -> bytearray:
+    """decode_slice(hgslice, data bytes, cmd bytes, width, height, bpp) -> pixels bytearray
     """
-    data, cmd = decode_zrle(hgslice, hgdata.data, hgdata.cmd)
+    blocks = decode_zrle(hgslice, data, cmd)
+    delta = decode_blocks(hgslice, blocks, width, height, bpp)
+    pixels = decode_delta(hgslice, delta, width, height, bpp)
+    return pixels
 
 
 ## CLEANUP ##
