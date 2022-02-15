@@ -112,3 +112,73 @@ Options:
   -l|--list    Do not extract files, only list them
   -v|--verbose List sizes of each file
 ```
+
+
+
+## cs2key_tool
+
+Tool for generating various types of keys needed by CatSystem 2. Most notably keys to enabled debug mode.
+
+Can be zipped up and run as a standalone python file (i.e. `python cs2key_tool.zip ...`).
+
+**Requires:** Python >= 3.6
+
+**PyPI modules:** [pefile](https://pypi.org/project/pefile/)
+
+
+### Examples
+
+```bash
+# for help
+python cs2key_tool -h
+
+# Generate debug key file "cs2_debug_key.dat" using cs2.exe for the encryption codes.
+python cs2key_tool debug cs2.exe
+
+# Generate direct key file "direct_NEW.dat" using cs2.exe for the encryption codes.
+python cs2key_tool direct cs2.exe -o direct_NEW.dat
+
+
+# Generate CD key file "key.dat" using cs2.exe for the encryption codes.
+# NOTE: This type of key must be generated on the system intended to run the game.
+#       This is because CD keys have extra encryption that includes a serial number
+#        for the drive/volume holding the %WINDOWS% directory.
+python cs2key_tool cd cs2.exe
+
+
+# Generate global key file "cs2_gk.dat" (v1) using Djibril4.exe for the encryption codes, and listing the tamper-proof files: "Djibril4.exe", and "install.exe"
+python cs2key_tool global Djibril4.exe -w Djibril4.exe install.exe
+
+# Display the names/MD5 hashes of the existing global key file "cs2_gk.dat" (v1) using using Djibril4.exe for the encryption codes.
+python cs2key_tool global Djibril4.exe -r cs2_gk.dat
+```
+
+
+## cstl_tool
+
+Tool for generating and manipulating CatSystem 2 CSTL scene localization files.
+
+Can be zipped up and run as a standalone python file (i.e. `python cstl_tool.zip ...`).
+
+**Requires:** Python >= 3.6
+
+
+### Examples
+
+```bash
+# for help
+python cstl_tool -h
+
+# decompile a CSTL file and output to INI
+python cstl_tool -d c00_09.cstl -o c00_09.ini
+
+# compile an INI file and output to CSTL
+python cstl_tool -c c00_09.ini -o c00_09-NEW.cstl
+
+# add new languages (he, llo) to the list of an INI file (all messages will be empty for that language)
+# `-t ini` tells to output to the ini format, regardless of what format was input
+python cstl_tool -c c00_09.ini -t ini -o c00_09-LANG.ini --add-langs he llo
+
+# build a CSTL file from a basic CST CatScene script, and designate the default original langage as "jp"
+python cstl_tool -b c03_06_h.cst -t ini -o c03_06_h.ini --orig-lang jp
+```
